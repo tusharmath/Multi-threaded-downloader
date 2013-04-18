@@ -1,17 +1,28 @@
-var keys = {
-	downloadPath: "http://upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png",
-	savePath: 'download.png'
-
-};
-
+//REQUIRE
 var sys = require("sys");
 var http = require("http");
 var url = require("url");
+var fs = require("fs");
+
+//VARIABLES
 var dlprogress = 0;
+var fileSize = 0;
+var keys = {
+	downloadPath: "http://localhost:3000/bin/LargeVideo.mkv",
+	savePath: 'LargeVideo.mkv'
+};
+
+
+//METHODS
+var showStatus = function() {
+	console.log("Download progress: " + Math.round(dlprogress / fileSize * 100) + "% complete, " + dlprogress + " bytes");
+
+};
+
 var onError = function(e) {
 	throw e;
 };
-var fs = require("fs");
+
 var writeStream = fs.createWriteStream(keys.savePath, {
 	encoding: 'binary'
 });
@@ -20,30 +31,23 @@ var body = '';
 
 var responseDataListener = function(dataChunk) {
 	dlprogress += dataChunk.length;
-	body += dataChunk;
-};
-
-var onWriteComplete = function() {
-	console.log("File saved: ", keys.savePath);
+	writeStream.write(dataChunk);
 };
 
 var responseEndListener = function() {
-	console.log("Writing to file: ", keys.savePath);
-	fs.writeFile(keys.savePath, body, {}, onWriteComplete);
-
+	showStatus();
+	console.log("File download complete");
+	clearInterval(dlTimer);
 };
-
 
 var responseListener = function(response) {
 	console.log("Download started");
+	fileSize = response.headers['content-length'];
 
+	console.log("File size: " + fileSize + " bytes.");
 
-
-	console.log("File size: " + response.headers['content-length'] + " bytes.");
-	response.pipe(writeStream);
-
-	//response.addListener('data', responseDataListener);
-	//response.addListener("end", responseEndListener);
+	response.addListener('data', responseDataListener);
+	response.addListener("end", responseEndListener);
 
 
 };
@@ -51,8 +55,5 @@ var responseListener = function(response) {
 http.get(keys.downloadPath, responseListener).on('error', onError);
 
 
-/*
-setInterval(function() {
-	console.log("Download progress: " + dlprogress + " bytes");
-}, 1000);
-*/
+
+var dlTimer = setInterval(showStatus, 100);
