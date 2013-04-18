@@ -7,11 +7,11 @@ var fs = require("fs");
 //VARIABLES
 var dlprogress = 0;
 var fileSize = 0;
-var keys = {
-	downloadPath: "http://localhost:3000/bin/LargeVideo.mkv",
-	savePath: 'LargeVideo.mkv'
+var options = {
+	downloadPath: "http://localhost:3000/images/IMG_0028.JPG",
+	savePath:  './../Temp/'
 };
-
+options.savePath += options.downloadPath.split('/').pop();
 
 //METHODS
 var showStatus = function() {
@@ -23,7 +23,7 @@ var onError = function(e) {
 	throw e;
 };
 
-var writeStream = fs.createWriteStream(keys.savePath, {
+var writeStream = fs.createWriteStream(options.savePath, {
 	encoding: 'binary'
 });
 var body = '';
@@ -52,7 +52,7 @@ var responseListener = function(response) {
 
 };
 
-http.get(keys.downloadPath, responseListener).on('error', onError);
+http.get(options.downloadPath, responseListener).on('error', onError);
 
 
 
