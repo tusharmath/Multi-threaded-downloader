@@ -1,10 +1,12 @@
 //Requires
 var http = require("http");
-var fs = require("fs");
+var fs = require("./ndFileWrite");
+
 
 //Variables
 var _options;
-
+var fsOptions = {};
+var writer;
 
 
 //Helper Methods
@@ -15,6 +17,11 @@ var onError = function(e) {
 
 
 //Workers
+var writeToFile = function(dataChunk) {
+	writer.write(dataChunk.data, dataChunk.start);
+
+};
+
 var getThreadHeaders = function(fileSize) {
 	var threadsRangeHeader = [];
 
@@ -54,7 +61,7 @@ var startDownload = function(rangeHeader) {
 	};
 
 	var responseDataListener = function(dataChunk) {
-		_options.callback({
+		writeToFile({
 			start: rangeHeader.start,
 			end: rangeHeader.end,
 			data: dataChunk
@@ -86,7 +93,12 @@ var getFileSize = function() {
 
 //Exports
 module.exports = function(options) {
+	//console.log('options: ', options);
 	_options = options;
 
-
+	fsOptions.path = _options.path;
+	writer = new fs(fsOptions);
+	return {
+		start: getFileSize
+	};
 };
