@@ -1,6 +1,9 @@
+//Requires
+var http = require("http");
+var fs = require("fs");
+
 //Variables
 var _options;
-var http = require("http");
 
 
 
