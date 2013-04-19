@@ -9,7 +9,7 @@ var dlprogress = 0;
 var fileSize = 0;
 var options = {
 	downloadPath: "http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png",
-	savePath: './../Temp/'
+	savePath: './Temp/'
 };
 options.savePath += options.downloadPath.split('/').pop();
 
