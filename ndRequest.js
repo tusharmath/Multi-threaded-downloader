@@ -1,17 +1,20 @@
 //Requires
 var http = require("http");
+var url = require('url');
 var fs = require("./ndFileWrite");
 
 
 //Variables
 var _options;
 var fsOptions = {};
+var requestOptions;
 var writer;
 
 
 //Helper Methods
 var onError = function(e) {
-	throw e;
+	console.log("Error: ", e);
+	//throw e;
 };
 
 
@@ -36,58 +39,78 @@ var getThreadHeaders = function(fileSize) {
 		headerValue += startRange.toString();
 		headerValue += '-';
 		headerValue += endRange.toString();
-		startRange += blockSize;
+
 
 		threadsRangeHeader.push({
 			headerValue: headerValue,
 			start: startRange,
 			end: endRange
 		});
-		fileSize -= blockSize;
+		startRange += blockSize;
 	}
 
 	return threadsRangeHeader;
 };
 
+var responseDataListener = function(dataChunk) {
 
-var startDownload = function(rangeHeader) {
+	console.log("Data received: ", dataChunk);
+	
+	
+	writeToFile({
+		start: rangeHeader.start,
+		end: rangeHeader.end,
+		data: dataChunk
+	});
+	
+};
 
-	var requestOptions = {
-		hostname: 'upload.wikimedia.org',
-		path: '/wikipedia/commons/6/63/Wikipedia-logo.png',
-		headers: {
-			range: rangeHeader.headerValue
-		}
-	};
-
-	var responseDataListener = function(dataChunk) {
-		writeToFile({
-			start: rangeHeader.start,
-			end: rangeHeader.end,
-			data: dataChunk
-		});
-	};
-
-	http.get(requestOptions, responseDataListener).on('error', onError);
-
-
+var responseEndListener = function() {
+	console.log("File download complete");
 };
 
 var responseListener = function(response) {
-	fileSize = response.headers['content-length'];
-	var threadsRangeHeader = getThreadHeaders(fileSize);
+	
+	response.addListener('data', responseDataListener);
+	response.addListener("end", responseEndListener);
+};
+
+
+var startDownload = function(rangeHeader) {
+
+	requestOptions.headers = {
+		range: rangeHeader.headerValue
+	};
+
+	console.log("Starting request: ", rangeHeader);
+
+	http.get(requestOptions, responseListener).on('error', onError);
+
 
 };
 
+var fileSizeResponseListener = function(response) {
+	fileSize = response.headers['content-length'];
+	console.log("File size: ", fileSize + " bytes");
+	var threadsRangeHeader = getThreadHeaders(fileSize);
+	threadsRangeHeader.forEach(startDownload);
+};
+
+
+
 var getFileSize = function() {
 
+
 	//Must be st by options
-	var requestOptions = {
-		hostname: 'upload.wikimedia.org',
-		path: '/wikipedia/commons/6/63/Wikipedia-logo.png'
+	var reqUrl = url.parse(_options.url);
+
+	console.log("GET: ", reqUrl.href);
+	requestOptions = {
+		hostname: reqUrl.hostname,
+		path: reqUrl.path
 	};
 
-	http.get(requestOptions, responseListener).on('error', onError);
+	http.get(requestOptions, fileSizeResponseListener).on('error', onError);
 };
 
 
