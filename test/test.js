@@ -1,4 +1,4 @@
-var nd = require('./lib/ndRequest');
+var nd = require('../lib/ndRequest');
 
 var _options = {
 	path: './Temp/Download.png',

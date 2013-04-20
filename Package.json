@@ -1,7 +1,15 @@
 {
 	"name": "mt-downloader",
 	"version": "0.0.1",
-	"private": true,
+	"preferGlobal": false,
+	"author": "Tushar Mathur <tusharmath@gmail.com>",
+	"bin": {
+		"dwn": "./lib/ndCommand.js"
+	},
+	"scripts": {
+		"test": "node ./test/test.js"
+	},
 	"dependencies": {
+		"commander": "*"
 	}
 }
