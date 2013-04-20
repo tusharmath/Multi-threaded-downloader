@@ -4,12 +4,13 @@
 	"preferGlobal": false,
 	"author": "Tushar Mathur <tusharmath@gmail.com>",
 	"bin": {
-		"dwn": "./lib/ndCommand.js"
+		"mtd": "./lib/ndCommand.js"
 	},
 	"scripts": {
 		"test": "node ./test/test.js"
 	},
 	"dependencies": {
-		"commander": "*"
+		"commander": "*",
+		"progress": "*"
 	}
 }
