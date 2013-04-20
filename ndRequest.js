@@ -9,6 +9,17 @@ var _options;
 var fsOptions = {};
 var requestOptions;
 var writer;
+var threads = [];
+var blockSize;
+/*
+{
+	position : current,
+	end:
+	start:,
+	header: reqheader.
+	response:
+}
+*/
 
 
 //Helper Methods
@@ -20,16 +31,13 @@ var onError = function(e) {
 
 
 //Workers
-var writeToFile = function(dataChunk) {
-	writer.write(dataChunk.data, dataChunk.start);
 
-};
-
-var getThreadHeaders = function(fileSize) {
+var initializeThreads = function(fileSize) {
 	var threadsRangeHeader = [];
 
 	_options.thread = _options.thread > 1 ? _options.thread : 1;
-	var blockSize = fileSize / _options.thread;
+	blockSize = Math.round(fileSize / _options.thread);
+	console.log('Block Size:', blockSize);
 	var startRange = 0;
 
 	while (startRange < fileSize) {
@@ -42,58 +50,63 @@ var getThreadHeaders = function(fileSize) {
 
 
 		threadsRangeHeader.push({
-			headerValue: headerValue,
+			header: headerValue,
+			position: startRange,
 			start: startRange,
 			end: endRange
 		});
-		startRange += blockSize;
+		startRange = endRange + 1;
 	}
 
-	return threadsRangeHeader;
-};
-
-var responseDataListener = function(dataChunk) {
-
-	console.log("Data received: ", dataChunk);
-	
-	
-	writeToFile({
-		start: rangeHeader.start,
-		end: rangeHeader.end,
-		data: dataChunk
-	});
-	
+	threads = threadsRangeHeader;
+	//console.log('Threads Created:', threads);
 };
 
 var responseEndListener = function() {
 	console.log("File download complete");
 };
 
-var responseListener = function(response) {
-	
-	response.addListener('data', responseDataListener);
-	response.addListener("end", responseEndListener);
-};
 
-
-var startDownload = function(rangeHeader) {
+var createDownloadThread = function(index) {
+	var thread = threads[index];
 
 	requestOptions.headers = {
-		range: rangeHeader.headerValue
+		range: thread.header
 	};
 
-	console.log("Starting request: ", rangeHeader);
+	console.log("Starting request thread: ", index);
+	http.get(requestOptions, function(response) {
+		threads[index].response = response;
+		response.addListener('data', function(dataChunk) {
+			//console.log("Thread: ", index, ", content length: " + dataChunk.length);
+			writer.write(dataChunk, threads[index],
 
-	http.get(requestOptions, responseListener).on('error', onError);
-
-
+			function(written) {
+				console.log("Thread: ", index, ", position: ", threads[index].position, "header: ", threads[index].header);
+				threads[index].position += written;
+				if (threads[index].position >= threads[index].end) {
+					threads[index].response.destroy();
+				}
+			});
+		});
+		response.addListener("end", responseEndListener);
+	}).on('error', onError);
 };
+
+
 
 var fileSizeResponseListener = function(response) {
 	fileSize = response.headers['content-length'];
 	console.log("File size: ", fileSize + " bytes");
-	var threadsRangeHeader = getThreadHeaders(fileSize);
-	threadsRangeHeader.forEach(startDownload);
+	initializeThreads(fileSize);
+
+
+	for (var i = 0; i < threads.length; i++) {
+
+		createDownloadThread(i);
+	}
+
+
 };
 
 

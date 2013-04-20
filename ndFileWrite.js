@@ -4,14 +4,20 @@ var fs = require("fs");
 //Variables
 var _fd;
 var _options;
+var _writeStream;
 
 
-var fileWritten = function(err, written, buffer) {
-	if (err) console.log("Error: " + err);
-};
 
-var _write = function(data, position) {
-	fs.write(fd, data, 0, data.length, position, fileWritten);
+var _write = function(data, position, callback) {
+	_writeStream.write(data, undefined, function() {
+		callback(data.length);
+	});
+
+	/*
+	var buff = new Buffer(data, 'binary');
+	console.log("fs", fs);
+	fs.write(_fd, buff, 0, buff.length, position, callback);
+	*/
 };
 
 var setfd = function(err, fd) {
@@ -20,7 +26,12 @@ var setfd = function(err, fd) {
 
 module.exports = function(options) {
 	_options = options;
-	fs.open(_options.path, 'a', undefined, setfd);
+	_writeStream = fs.createWriteStream(options.path, {
+		encoding: 'binary'
+	});
+
+	//	fs.open(_options.path, 'a', undefined, setfd);
+
 	return {
 		write: _write
 	};

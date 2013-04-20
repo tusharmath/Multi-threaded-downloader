@@ -1,7 +1,9 @@
 var nd = require('./ndRequest');
 var options = {
-	path: './Temp/',
-	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png'
+	path: './Temp/Download.png',
+	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
+	thread: 1
+
 };
 var req = new nd(options);
 req.start();
