@@ -1,0 +1,19 @@
+var nd = require('./lib/ndRequest');
+
+var _options = {
+	path: './Temp/Download.png',
+	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
+	thread: 4
+
+};
+
+
+var options = {
+	path: './Temp/VirtualBox-4.2.12-84980-OSX.dmg',
+	url: 'http://dlc.sun.com.edgesuite.net/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg',
+	thread: 4
+
+};
+
+var req = new nd(options);
+req.start();
