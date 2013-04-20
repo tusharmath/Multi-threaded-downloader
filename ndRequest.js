@@ -43,7 +43,7 @@ var initializeThreads = function(fileSize) {
 	while (startRange < fileSize) {
 		var endRange = startRange + blockSize > fileSize ? fileSize : startRange + blockSize;
 
-		var headerValue = 'byte=';
+		var headerValue = 'bytes=';
 		headerValue += startRange.toString();
 		headerValue += '-';
 		headerValue += endRange.toString();
@@ -71,7 +71,7 @@ var createDownloadThread = function(index) {
 	var thread = threads[index];
 
 	requestOptions.headers = {
-		range: thread.header
+		'range': thread.header
 	};
 
 	console.log("Starting request thread: ", index);
@@ -82,14 +82,12 @@ var createDownloadThread = function(index) {
 			writer.write(dataChunk, threads[index],
 
 			function(written) {
-				console.log("Thread: ", index, ", position: ", threads[index].position, "header: ", threads[index].header);
+
 				threads[index].position += written;
-				if (threads[index].position >= threads[index].end) {
-					threads[index].response.destroy();
-				}
+				console.log("Thread:", index, ", position:", threads[index].position, "header:", threads[index].header, "writter:", written);
 			});
 		});
-		response.addListener("end", responseEndListener);
+		//response.addListener("end", responseEndListener);
 	}).on('error', onError);
 };
 
