@@ -9,15 +9,8 @@ var _writeStream;
 
 
 var _write = function(data, position, callback) {
-	_writeStream.write(data, undefined, function() {
-		callback(data.length);
-	});
-
-	/*
-	var buff = new Buffer(data, 'binary');
-	console.log("fs", fs);
-	fs.write(_fd, buff, 0, buff.length, position, callback);
-	*/
+	//console.log("Writing at:", position);
+	callback(fs.writeSync(_fd, data, 0, data.length, position));
 };
 
 var setfd = function(err, fd) {
@@ -26,11 +19,7 @@ var setfd = function(err, fd) {
 
 module.exports = function(options) {
 	_options = options;
-	_writeStream = fs.createWriteStream(options.path, {
-		encoding: 'binary'
-	});
-
-	//	fs.open(_options.path, 'a', undefined, setfd);
+	fs.open(_options.path, 'a', undefined, setfd);
 
 	return {
 		write: _write

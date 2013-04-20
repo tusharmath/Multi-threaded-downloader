@@ -11,15 +11,6 @@ var requestOptions;
 var writer;
 var threads = [];
 var blockSize;
-/*
-{
-	position : current,
-	end:
-	start:,
-	header: reqheader.
-	response:
-}
-*/
 
 
 //Helper Methods
@@ -78,16 +69,15 @@ var createDownloadThread = function(index) {
 	http.get(requestOptions, function(response) {
 		threads[index].response = response;
 		response.addListener('data', function(dataChunk) {
-			//console.log("Thread: ", index, ", content length: " + dataChunk.length);
-			writer.write(dataChunk, threads[index],
+			writer.write(dataChunk,
+			threads[index].position,
 
 			function(written) {
-
 				threads[index].position += written;
 				console.log("Thread:", index, ", position:", threads[index].position, "header:", threads[index].header, "writter:", written);
 			});
 		});
-		//response.addListener("end", responseEndListener);
+
 	}).on('error', onError);
 };
 
