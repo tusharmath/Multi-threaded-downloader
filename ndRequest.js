@@ -11,6 +11,9 @@ var requestOptions;
 var writer;
 var threads = [];
 var blockSize;
+var statusTimer;
+var seconds = 0;
+var completedThreads = 0;
 
 
 //Helper Methods
@@ -19,9 +22,26 @@ var onError = function(e) {
 	//throw e;
 };
 
+var threadStatus = function() {
+	return Math.floor((this.position - this.start) / (this.end - this.start) * 100);
+};
 
 
 //Workers
+
+var showStatus = function() {
+
+	statusTimer = setInterval(function() {
+		var str = [];
+		var overall = 0;
+		seconds++;
+		for (var i = 0; i < threads.length; i++) {
+			str.push(threads[i].status() + '%');
+			overall += threads[i].status();
+		}
+		console.log(str.join('\t'), "\toverall:", Math.floor(overall / threads.length), '% @', Math.floor(overall / threads.length * fileSize / seconds/1000000), "kbps");
+	}, 1000);
+};
 
 var initializeThreads = function(fileSize) {
 	var threadsRangeHeader = [];
@@ -44,7 +64,8 @@ var initializeThreads = function(fileSize) {
 			header: headerValue,
 			position: startRange,
 			start: startRange,
-			end: endRange
+			end: endRange,
+			status: threadStatus
 		});
 		startRange = endRange + 1;
 	}
@@ -54,7 +75,11 @@ var initializeThreads = function(fileSize) {
 };
 
 var responseEndListener = function() {
-	console.log("File download complete");
+	completedThreads++;
+	if (completedThreads == threads.length) {
+		clearInterval(statusTimer);
+		console.log("File download completed in", seconds, "s");
+	}
 };
 
 
@@ -65,16 +90,16 @@ var createDownloadThread = function(index) {
 		'range': thread.header
 	};
 
-	console.log("Starting request thread: ", index);
 	http.get(requestOptions, function(response) {
 		threads[index].response = response;
+		response.addListener('end', responseEndListener);
 		response.addListener('data', function(dataChunk) {
 			writer.write(dataChunk,
 			threads[index].position,
 
 			function(written) {
 				threads[index].position += written;
-				console.log("Thread:", index, ", position:", threads[index].position, "header:", threads[index].header, "writter:", written);
+				//console.log("Thread:", index, ", position:", threads[index].position, "header:", threads[index].header, "writter:", written);
 			});
 		});
 
@@ -87,7 +112,7 @@ var fileSizeResponseListener = function(response) {
 	fileSize = response.headers['content-length'];
 	console.log("File size: ", fileSize + " bytes");
 	initializeThreads(fileSize);
-
+	showStatus();
 
 	for (var i = 0; i < threads.length; i++) {
 
