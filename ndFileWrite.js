@@ -10,7 +10,7 @@ var _writeStream;
 
 var _write = function(data, position, callback) {
 	//console.log("Writing at:", position);
-	callback(fs.writeSync(_fd, data, 0, data.length, position));
+	fs.write(_fd, data, 0, data.length, position, callback);
 };
 
 var setfd = function(err, fd) {

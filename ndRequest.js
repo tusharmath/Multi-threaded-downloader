@@ -39,7 +39,7 @@ var showStatus = function() {
 			str.push(threads[i].status() + '%');
 			overall += threads[i].status();
 		}
-		console.log(str.join('\t'), "\toverall:", Math.floor(overall / threads.length), '% @', Math.floor(overall / threads.length * fileSize / seconds/1000000), "kbps");
+		console.log(str.join('\t'), "\toverall:", Math.floor(overall / threads.length), '% @', Math.round(overall / 100 / threads.length * fileSize / seconds / 1000), "KB/s");
 	}, 1000);
 };
 
@@ -78,7 +78,7 @@ var responseEndListener = function() {
 	completedThreads++;
 	if (completedThreads == threads.length) {
 		clearInterval(statusTimer);
-		console.log("File download completed in", seconds, "s");
+		console.log("File download completed in", seconds, "seconds");
 	}
 };
 
@@ -94,13 +94,10 @@ var createDownloadThread = function(index) {
 		threads[index].response = response;
 		response.addListener('end', responseEndListener);
 		response.addListener('data', function(dataChunk) {
-			writer.write(dataChunk,
-			threads[index].position,
+			var position = threads[index].position;
+			threads[index].position += dataChunk.length;
+			writer.write(dataChunk, position);
 
-			function(written) {
-				threads[index].position += written;
-				//console.log("Thread:", index, ", position:", threads[index].position, "header:", threads[index].header, "writter:", written);
-			});
 		});
 
 	}).on('error', onError);
