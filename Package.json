@@ -13,6 +13,7 @@
 		"jade": "*",
 		"grunt": "*",
 		"grunt-zip": "*",
-		"grunt-contrib-watch": "*"
+		"grunt-contrib-watch": "*",
+		"grunt-contrib-copy": "*"
 	}
 }
