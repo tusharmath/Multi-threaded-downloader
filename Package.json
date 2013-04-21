@@ -4,7 +4,7 @@
 	"window": {
 		"height": 600,
 		"width": 800,
-		"toolbar": false
+		"toolbar": true
 	},
 	"main": "./ui/index.html",
 	"author": "Tushar Mathur <tusharmath@gmail.com>",
