@@ -2,14 +2,17 @@
 	"name": "mt-downloader",
 	"version": "0.0.1",
 	"window": {
-		"height": 800,
-		"width": 600,
+		"height": 600,
+		"width": 800,
 		"toolbar": false
 	},
-	"main": "./views/index.html",
+	"main": "./ui/index.html",
 	"author": "Tushar Mathur <tusharmath@gmail.com>",
 	"dependencies": {
 		"commander": "*",
-		"jade": "*"
+		"jade": "*",
+		"grunt": "*",
+		"grunt-zip": "*",
+		"grunt-contrib-watch": "*"
 	}
 }
