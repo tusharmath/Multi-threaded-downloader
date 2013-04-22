@@ -2,6 +2,6 @@
 	"folders": [{
 		"path": ".",
 		"folder_exclude_patterns": ["node_modules","temp"],
-		"file_exclude_patterns": ["*.sublime*","*.css"]
+		"file_exclude_patterns": ["*.sublime*","*.png"]
 	}]
 }
