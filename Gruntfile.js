@@ -24,6 +24,9 @@ var _config = {
 				flatten: true
 			}]
 		}
+	},
+	nodeunit: {
+		all: ['test']
 	}
 };
 
@@ -32,5 +35,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-zip');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.registerTask('default', ['zip:createPackage', 'copy:copyPackage']);
+	grunt.loadNpmTasks('grunt-contrib-nodeunit');
+	//grunt.registerTask('default', ['zip:createPackage', 'copy:copyPackage']);
 };

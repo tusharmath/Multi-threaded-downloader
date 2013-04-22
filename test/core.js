@@ -1,24 +1,42 @@
-var nd = require('../lib/core');
-
-var _options = {
-	path: '/Users/tusharmathur/Desktop/Temp/Download.png',
-	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
-	threadCount: 4
-
-};
+var core = require('../lib/core');
+var fs = require('fs');
 
 
-var options = {
-	path: '/Users/tusharmathur/Desktop/Temp/node-webkit-v0.5.0-osx-ia32.zip',
-	url: 'https://s3.amazonaws.com/node-webkit/v0.5.0/node-webkit-v0.5.0-osx-ia32.zip',
-	threadCount: 4
-
-};
-var _options = {
-	path: '/Users/tusharmathur/Desktop/Temp/VirtualBox-4.2.12-84980-OSX.dmg',
-	url: 'http://dlc.sun.com.edgesuite.net/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg',
-	threadCount: 4
+var _onChunkComplete = function(dataChunk) {
 
 };
 
-nd.download(options);
+
+
+exports.downloadTest = function(test) {
+
+	var read = [];
+	var _onRead = function(data) {
+		read.push(data);
+		if (read.length === 2) {
+			test.expect(1);
+			//console.log(downloaded.length, orignal.length);
+			test.equal(read[0], read[1]);
+			test.done();
+		}
+	};
+
+	var _onDownloadComplete = function(seconds) {
+		console.log('Download completed in', seconds, 'seconds');
+		fs.readFile('./test/core.downloaded.png', null, _onRead);
+		fs.readFile('./test/core.orignal.png', null, _onRead);
+	};
+
+	var options = {
+		path: './test/core.downloaded.png',
+		url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
+		threadCount: 4,
+		onChunkComplete: _onChunkComplete,
+		onDownloadComplete: _onDownloadComplete
+	};
+
+	var downloader = new core(options);
+	downloader.download();
+
+
+};
