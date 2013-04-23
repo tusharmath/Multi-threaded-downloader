@@ -26,7 +26,9 @@ var _config = {
 		}
 	},
 	nodeunit: {
-		all: ['test']
+		all: ['test'],
+		core: ['test/core.js'],
+		threads:['test/threads.js']
 	}
 };
 
