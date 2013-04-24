@@ -7,6 +7,9 @@
 		"toolbar": true
 	},
 	"main": "./ui/index.html",
+	"bin": {
+		"mtd": "./lib/utils/ndCommand.js"
+	},
 	"author": "Tushar Mathur <tusharmath@gmail.com>",
 	"dependencies": {
 		"commander": "*",
