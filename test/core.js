@@ -5,20 +5,15 @@ var fs = require('fs');
 exports.downloadTest = function(test) {
 
 	var read = [];
-	var _onRead = function(data) {
-		read.push(data);
-		if (read.length === 2) {
-			test.expect(1);
-			//console.log(downloaded.length, orignal.length);
-			test.equal(read[0], read[1]);
-			test.done();
-		}
-	};
-
 	var _onDownloadComplete = function(seconds) {
-		console.log('Download completed in', seconds, 'seconds');
-		fs.readFile('./test/core.downloaded.png', null, _onRead);
-		fs.readFile('./test/core.orignal.png', null, _onRead);
+		console.log('\nDownload completed in', seconds, 'seconds');
+		var d = fs.readFileSync('./test/core.downloaded.png');
+		var o = fs.readFileSync('./test/core.orignal.png');
+		test.expect(1);
+		//console.log(downloaded.length, orignal.length);
+		test.equal(d.length, o.length);
+
+		test.done();
 	};
 
 	var options = {
