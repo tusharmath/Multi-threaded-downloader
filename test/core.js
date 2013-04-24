@@ -2,12 +2,6 @@ var core = require('../lib/core');
 var fs = require('fs');
 
 
-var _onChunkComplete = function(dataChunk) {
-
-};
-
-
-
 exports.downloadTest = function(test) {
 
 	var read = [];
@@ -31,7 +25,7 @@ exports.downloadTest = function(test) {
 		path: './test/core.downloaded.png',
 		url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
 		threadCount: 4,
-		onChunkComplete: _onChunkComplete,
+		//onChunkComplete: _onChunkComplete,
 		onDownloadComplete: _onDownloadComplete
 	};
 
