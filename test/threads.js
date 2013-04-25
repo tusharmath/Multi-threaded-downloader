@@ -6,7 +6,9 @@ exports.createThreads_inc_lin = function(test) {
 
 	var options = {
 		threadCount: 5,
-		fileSize: 100,
+		fileSize: 150,
+		//10, 20, 30, 40 ,50
+		//0, 10, 30, 60, 100 , 150
 		type: 'lin'
 
 	};
@@ -20,21 +22,21 @@ exports.createThreads_inc_lin = function(test) {
 
 	test.equal(status.length, 5);
 
-	test.equal(status[4].start, 57);
-	test.equal(status[4].end, 100);
-
-	test.equal(status[3].start, 29);
-	test.equal(status[3].end, 56);
-
-	test.equal(status[2].start, 15);
-	test.equal(status[2].end, 28);
-
-	test.equal(status[1].start, 8);
-	test.equal(status[1].end, 14);
-
-
 	test.equal(status[0].start, 0);
-	test.equal(status[0].end, 7);
+	test.equal(status[0].end, 10);
+
+	test.equal(status[1].start, 11);
+	test.equal(status[1].end, 30);
+
+	test.equal(status[2].start, 31);
+	test.equal(status[2].end, 60);
+
+	test.equal(status[3].start, 61);
+	test.equal(status[3].end, 100);
+
+
+	test.equal(status[4].start, 101);
+	test.equal(status[4].end, 150);
 
 	test.done();
 };
