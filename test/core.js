@@ -4,7 +4,7 @@ var fs = require('fs');
 
 exports.downloadTest = function(test) {
 
-	var read = [];
+
 	var _onDownloadComplete = function(seconds) {
 		console.log('\nDownload completed in', seconds, 'seconds');
 		var d = fs.readFileSync('./test/core.downloaded.png');

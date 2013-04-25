@@ -28,7 +28,8 @@ var _config = {
 	nodeunit: {
 		all: ['test'],
 		core: ['test/core.js'],
-		threads:['test/threads.js']
+		threads:['test/threads.js'],
+		youtube:['test/youtube.js']
 	}
 };
 
