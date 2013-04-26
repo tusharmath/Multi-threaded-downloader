@@ -1,7 +1,0 @@
-{
-	"retry_on_failure": true,
-	"thread_count": 32,
-	"thread_style": "equal",
-	"status_update_every": 100,
-	"download_path": "/Users/tusharmathur/desktop/temp"
-}
