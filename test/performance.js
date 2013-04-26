@@ -2,7 +2,7 @@ var core = require('../lib/core');
 
 
 var options = {
-	path: './test/node-v0.10.4.pkg',
+	fileName: 'node-v0.10.4.pkg',
 	url: 'http://nodejs.org/dist/v0.10.4/node-v0.10.4.pkg'
 };
 var downloader = new core(options);
