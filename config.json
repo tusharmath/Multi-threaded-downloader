@@ -1,6 +1,6 @@
 {
 	"retry_on_failure": true,
-	"create_download_log": true,
+	"save_download_log": true,
 	"thread_count": 32,
 	"thread_style": "equal",
 	"status_update_every": 100,
