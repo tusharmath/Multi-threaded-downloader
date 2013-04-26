@@ -1,9 +1,11 @@
 {
 	"retry_on_failure": true,
 	"save_download_log": true,
+	"create_download_log": true,
 	"thread_count": 32,
 	"thread_style": "equal",
 	"status_update_every": 100,
 	"download_path": "/Users/tusharmathur/desktop/temp/",
-	"show_download_status" : true
+	"show_download_status" : true,
+	"analytics_logger":"console"
 }
