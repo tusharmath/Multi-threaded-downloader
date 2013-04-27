@@ -2,10 +2,10 @@ var core = require('../lib/core');
 
 
 var options = {
-	fileName: 'Wikipedia-logo.png',
-	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
+	fileName: 'jquery-1.9.1.js',
+	url: 'http://code.jquery.com/jquery-1.9.1.js',
 	checksum: {
-		sha1: 'ff5612ff9c3d7f9d4e88822f5e5620a59364527a'
+		sha1: '9257afd2d46c3a189ec0d40a45722701d47e9ca5'
 	}
 };
 var downloader = new core(options);
