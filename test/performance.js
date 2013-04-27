@@ -2,8 +2,11 @@ var core = require('../lib/core');
 
 
 var options = {
-	fileName: 'node-v0.10.4.pkg',
-	url: 'http://nodejs.org/dist/v0.10.4/node-v0.10.4.pkg'
+	fileName: 'Wikipedia-logo.png',
+	url: 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
+	checksum: {
+		sha1: 'ff5612ff9c3d7f9d4e88822f5e5620a59364527a'
+	}
 };
 var downloader = new core(options);
 downloader.download();
