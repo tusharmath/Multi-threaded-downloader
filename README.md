@@ -1,13 +1,11 @@
 Multi-threaded-downloader (0.0.1)
 =================================
 
-
-
 This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.
 
 Features
 --------
-1. Supports virtually unlimted number of threads.
+1. Supports virtually unlimited number of threads.
 2. Supports partial downloads for eg - downloading from 30 to 70% of the complete file.
 3. Supports restarting of failed downloads (Downloads only the parts that were not downloaded).
 
@@ -35,7 +33,7 @@ How to use
 6. Open the Config.json for configuring your downloads.
 
 
-Upcomming features!
+Upcoming features!
 -------------------
 1. Create a user interface.
 2. Have different video download algorithms to boost up video download performance.
