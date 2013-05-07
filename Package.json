@@ -6,6 +6,9 @@
 		"name": "Tushar Mathur <tusharmath@gmail.com>",
 		"url": "http://tusharm.com"
 	},
+	"scripts": {
+		"postInstall": "npm link ."
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
@@ -14,15 +17,15 @@
 		"mtd": "./lib/utils/ndCommand.js"
 	},
 	"engines": {
-		"node": ">= 0.8.0"
+		"node": ">= 0.10.0"
 	},
 	"dependencies": {
 		"commander": "*",
-		"jade": "*",
 		"grunt": "*",
 		"grunt-zip": "*",
 		"grunt-contrib-watch": "*",
 		"grunt-contrib-copy": "*",
 		"grunt-contrib-nodeunit": "*"
-	}
+	},
+	"preferGlobal": true
 }
