@@ -6,13 +6,13 @@ This is a multi threaded downloader which is made in nodejs. It is highly config
 Features
 --------
 1. Supports virtually unlimited number of threads.
-2. Supports partial downloads for eg - downloading from 30 to 70% of the complete file.
-3. Supports restarting of failed downloads (Downloads only the parts that were not downloaded).
+2. Supports restarting of failed downloads (Downloads only the parts that were not downloaded).
+3. Supports checksum verification of file download.
 
 
 How to use
 ----------
-1. Install Nodejs.
+1. Install Nodejs (skip if already done).
 2. Clone the repository.
 
 	```bash
@@ -36,5 +36,13 @@ How to use
 Upcoming features!
 -------------------
 1. Create a user interface.
+
 2. Have different video download algorithms to boost up video download performance.
+
 3. Work as a proxy with video sites such as youtube so that buffering is completely removed.
+
+4. Will be able to restart abruptly terminated threads.
+
+5. Able to install through node package manager.
+
+6. Supports partial downloads for eg - downloading from 30 to 70% of the complete file.

@@ -1,16 +1,21 @@
 {
 	"name": "mt-downloader",
+	"description": "The multi threaded downloader",
 	"version": "0.0.1",
-	"window": {
-		"height": 600,
-		"width": 800,
-		"toolbar": true
+	"author": {
+		"name": "Tushar Mathur <tusharmath@gmail.com>",
+		"url": "http://tusharm.com"
 	},
-	"main": "./ui/index.html",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
+	},
 	"bin": {
 		"mtd": "./lib/utils/ndCommand.js"
 	},
-	"author": "Tushar Mathur <tusharmath@gmail.com>",
+	"engines": {
+		"node": ">= 0.8.0"
+	},
 	"dependencies": {
 		"commander": "*",
 		"jade": "*",
@@ -19,6 +24,5 @@
 		"grunt-contrib-watch": "*",
 		"grunt-contrib-copy": "*",
 		"grunt-contrib-nodeunit": "*"
-
 	}
 }
