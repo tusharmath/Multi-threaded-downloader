@@ -54,6 +54,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-release');
 	//grunt.loadNpmTasks('grunt-contrib-copy');
 	//grunt.loadNpmTasks('grunt-contrib-watch');
-	//grunt.loadNpmTasks('grunt-contrib-nodeunit');
-	grunt.registerTask('default', ['zip:createPackage', 'copy:copyPackage']);
+	grunt.loadNpmTasks('grunt-contrib-nodeunit');
+	grunt.registerTask('default', ['nodeunit']);
 };

@@ -3,35 +3,35 @@ var ndthreads = require('../lib/core/ndThreads');
 exports.createThreads = function(test) {
 
 	var options = {
-		threadCount: 5,
-		fileSize: 100
-
+		fileSize: 400
 	};
 	var threader = new ndthreads(options);
 
-	test.expect(11);
+	test.expect(9);
 
 	var threads = threader.createThreads();
 
-	var status = threads.getStatus();
+	var status = [{
+		start: 0,
+		end: 100
+	}, {
+		start: 101,
+		end: 200
+	}, {
+		start: 201,
+		end: 300
+	}, {
+		start: 301,
+		end: 400
+	}];
+	threads.finish();
 
-	test.equal(status.length, 5);
-
-	test.equal(status[0].start, 0);
-	test.equal(status[0].end, 20);
-
-	test.equal(status[1].start, 21);
-	test.equal(status[1].end, 40);
-
-	test.equal(status[2].start, 41);
-	test.equal(status[2].end, 60);
-
-	test.equal(status[3].start, 61);
-	test.equal(status[3].end, 80);
-
-
-	test.equal(status[4].start, 81);
-	test.equal(status[4].end, 100);
+	test.equal(status.length, 4);
+	for (var i = 0; i < 4; i++) {
+		var t = threads.getStatus(i);
+		test.equal(t.start, status[i].start);
+		test.equal(t.end, status[i].end);
+	}
 
 	test.done();
 };
