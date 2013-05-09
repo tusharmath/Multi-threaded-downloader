@@ -21,7 +21,7 @@ How to use
 3. Start using eg.
 
 	```bash
-	mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg" -p "vlc-2.0.6.dmg"
+	mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg" -f "vlc-2.0.6.dmg"
 	```
 
 Upcoming features!
