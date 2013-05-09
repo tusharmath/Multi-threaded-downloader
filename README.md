@@ -1,4 +1,4 @@
-Multi-threaded-downloader (0.0.1)
+Multi-threaded-downloader
 =================================
 
 This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.
