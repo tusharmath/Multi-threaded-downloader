@@ -1,12 +1,11 @@
 var core = require('../lib/core');
 
-
 var options = {
-	fileName: 'jquery-1.9.1.js',
-	url: 'http://code.jquery.com/jquery-1.9.1.js',
-	checksum: 'sha1:9257afd2d46c3a189ec0d40a45722701d47e9ca5'
-
+	url: 'http://nodejs.org/dist/v0.10.5/node-v0.10.5.pkg',
+	checksum: 'sha1:4a7c59c37afa8ac7b6f2d1d83b34de30f24642ae'
 };
+
+
 var downloader = new core(options);
 downloader.download();
 
