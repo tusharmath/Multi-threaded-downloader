@@ -12,30 +12,21 @@ Features
 
 How to use
 ----------
-1. Install Nodejs (skip if already done).
-2. Clone the repository.
+1. Install [nodejs](http://nodejs.org/) (skip if already done).
+2. Install mt-downloader globally.
 
 	```bash
-	git clone https://github.com/tusharmath/Multi-threaded-downloader.git
+	npm install -g mt-downloader
 	```
-3. Navigate to the root folder of the project.
-4. Create a global command line alias.
-
-	```bash
-	npm link
-	```
-5. Start using eg.
+3. Start using eg.
 
 	```bash
 	mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg" -p "vlc-2.0.6.dmg"
 	```
 
-6. Open the Config.json for configuring your downloads.
-
-
 Upcoming features!
 -------------------
-1. Create a user interface.
+1. Have a user interface.
 
 2. Have different video download algorithms to boost up video download performance.
 

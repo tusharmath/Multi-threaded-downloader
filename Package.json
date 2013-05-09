@@ -7,7 +7,7 @@
 		"url": "http://tusharm.com"
 	},
 	"scripts": {
-		"postInstall": "npm link ."
+		"postdeploy": "npm link"
 	},
 	"repository": {
 		"type": "git",
