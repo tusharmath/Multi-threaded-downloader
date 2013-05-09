@@ -24,6 +24,12 @@ How to use
 	mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg" -f "vlc-2.0.6.dmg"
 	```
 
+Note: I face issues while installing as the 'wordwrap' package doesnt get installed on its own. In case you also face the same issue install wordwrap globally.
+
+	```bash
+	npm install -g wordwrap
+	```
+
 Upcoming features!
 -------------------
 1. Have a user interface.
