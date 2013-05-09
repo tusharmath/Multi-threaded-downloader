@@ -4,6 +4,21 @@ var _options = {
 
 };
 var _config = {
+	release: {
+		options: {
+			//bump: false, //default: true
+			//file: 'component.json', //default: package.json
+			//add: false, //default: true
+			//commit: false, //default: true
+			//tag: false, //default: true
+			//push: false, //default: true
+			//pushTags: false, //default: true
+			//npm: false, //default: true
+			//tagName: 'some-tag-<%= version %>', //default: '<%= version %>'
+			//commitMessage: 'check out my release <%= version %>', //default: 'release <%= version %>'
+			//tagMessage: 'tagging version <%= version %>' //default: 'Version <%= version %>'
+		}
+	},
 	zip: {
 		createPackage: {
 			src: ['./node_modules',
@@ -28,16 +43,17 @@ var _config = {
 	nodeunit: {
 		all: ['test'],
 		core: ['test/core.js'],
-		threads:['test/threads.js'],
-		youtube:['test/youtube.js']
+		threads: ['test/threads.js'],
+		youtube: ['test/youtube.js']
 	}
 };
 
 module.exports = function(grunt) {
 	grunt.initConfig(_config);
-	grunt.loadNpmTasks('grunt-zip');
-	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-nodeunit');
+	//grunt.loadNpmTasks('grunt-zip');
+	grunt.loadNpmTasks('grunt-release');
+	//grunt.loadNpmTasks('grunt-contrib-copy');
+	//grunt.loadNpmTasks('grunt-contrib-watch');
+	//grunt.loadNpmTasks('grunt-contrib-nodeunit');
 	grunt.registerTask('default', ['zip:createPackage', 'copy:copyPackage']);
 };
