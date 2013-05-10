@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Multi-threaded-downloader by tusharmath</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Multi-threaded-downloader</h1>
+        <p>A multi threaded downloaded made in nodejs</p>
+
+        <p class="view"><a href="https://github.com/tusharmath/Multi-threaded-downloader">View the Project on GitHub <small>tusharmath/Multi-threaded-downloader</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/tusharmath/Multi-threaded-downloader/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/tusharmath/Multi-threaded-downloader/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/tusharmath/Multi-threaded-downloader">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>Multi-threaded-downloader</h3>
+
+<p>This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.</p>
+
+<h2>Features</h2>
+
+<ol>
+<li>Supports virtually unlimited number of threads.</li>
+<li>Supports restarting of failed downloads (Downloads only the parts that were not downloaded).</li>
+<li>Supports checksum verification of file download.</li>
+</ol><h2>How to use</h2>
+
+<ol>
+<li>Install <a href="http://nodejs.org/">nodejs</a> (skip if already done).</li>
+<li>
+<p>Install mt-downloader globally.</p>
+
+<div class="highlight"><pre>npm install -g mt-downloader
+</pre></div>
+</li>
+<li>
+<p>Start using eg.</p>
+
+<div class="highlight"><pre>mtd -u <span class="s2">"http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg"</span> -f <span class="s2">"vlc-2.0.6.dmg"</span>
+</pre></div>
+</li>
+</ol><p>Note: I face issues while installing as the 'wordwrap' package doesnt get installed on its own. In case you also face the same issue install wordwrap globally.</p>
+
+<pre><code>```bash
+npm install -g wordwrap
+```
+</code></pre>
+
+<h2>Upcoming features!</h2>
+
+<ol>
+<li><p>Have a user interface.</p></li>
+<li><p>Have different video download algorithms to boost up video download performance.</p></li>
+<li><p>Work as a proxy with video sites such as youtube so that buffering is completely removed.</p></li>
+<li><p>Will be able to restart abruptly terminated threads.</p></li>
+<li><p>Able to install through node package manager.</p></li>
+<li><p>Supports partial downloads for eg - downloading from 30 to 70% of the complete file.</p></li>
+</ol>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/tusharmath">tusharmath</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
