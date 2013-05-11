@@ -17,7 +17,7 @@ This is a multi threaded downloader which is made in nodejs. It is highly config
    npm install -g mt-downloader
    ```
 
-3. Open the config file and set the default __download_path__ for your downloads. To know where your config file is located just type __mtd__ and search for the __Config:__ key word.
+3. Open the config file and set the default __download_path__ for your downloads. To know where your config file is located just type _mtd_ and search for the _Config:_ key word.
 
    ```bash
    mtd
@@ -29,7 +29,7 @@ This is a multi threaded downloader which is made in nodejs. It is highly config
    mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg"
    ```
 
-By default it will take the last bit of the url as the file name, alternatively you can pass the name of the file with the __-f__ parameter.
+   By default it will take the last bit of the url as the file name, alternatively you can pass the name of the file with the _-f_ parameter.
 
 ## Upcoming features!
 
@@ -38,6 +38,6 @@ By default it will take the last bit of the url as the file name, alternatively 
 3. Support partial downloads for eg - downloading from 30 to 70% of the complete file.
 
 ## Issues or Feature Requests?
-Feel free to create one [here](https://github.com/tusharmath/Multi-threaded-downloader/issues/new)
+   Feel free to create one [here](https://github.com/tusharmath/Multi-threaded-downloader/issues/new)
 
-__I Need help in developing code for this application so please contribute if you can!__
+   _I Need help in developing code for this application so please contribute if you can!_
