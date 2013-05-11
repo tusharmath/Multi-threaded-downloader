@@ -1,7 +1,7 @@
 {
   "name": "mt-downloader",
   "description": "The multi threaded downloader",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
@@ -11,7 +11,7 @@
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
   },
   "bin": {
-    "mtd": "./lib/utils/ndCommand.js"
+    "mtdd": "./lib/utils/ndCommand.js"
   },
   "engines": {
     "node": ">= 0.10.0"
