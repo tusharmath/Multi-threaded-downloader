@@ -30,17 +30,17 @@
       <section>
         <p>This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.</p>
 
-<h2>Features</h2>
+<h2>Distinctive Features</h2>
+
+<ul>
+<li><p>Supports virtually unlimited number of threads.  </p></li>
+<li><p>Auto selective re-download in case of failure.  </p></li>
+<li><p>Supports checksum verification.  </p></li>
+<li><p>Extensive control over the application using custom configurations.</p></li>
+</ul><h2>How to use</h2>
 
 <ol>
-<li>Supports virtually unlimited number of threads.</li>
-<li>Auto selective re-download in case of failure.</li>
-<li>Supports checksum verification.<br><em>(View the config file to see all the ways in which you can configure the application)</em>
-</li>
-</ol><h2>How to use</h2>
-
-<ol>
-<li>Install <a href="http://nodejs.org/">nodejs</a> (skip if already done).</li>
+<li><p>Install <a href="http://nodejs.org/">nodejs</a> (skip if already done).</p></li>
 <li>
 <p>Install mt-downloader globally.</p>
 
@@ -48,10 +48,12 @@
 </pre></div>
 </li>
 <li>
-<p>Open the config file and set the default <em>download_path</em> for your downloads. To know where your config file is located just type <em>mtd</em> and search for the <em>Config:</em> key word.</p>
+<p>Set a user config file.</p>
 
-<div class="highlight"><pre><span class="nv">$ </span>mtd
+<div class="highlight"><pre><span class="nv">$ </span>mtd --config /Users/james/Desktop/
 </pre></div>
+
+<p>This will create a config file <em>mt-downloader.config.json</em> which will give you all the configuration operations.</p>
 </li>
 <li>
 <p>Start using like this -</p>
