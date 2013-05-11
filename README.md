@@ -2,26 +2,31 @@
 
 This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.
 
-## Features
-1. Supports virtually unlimited number of threads.
-2. Auto selective re-download in case of failure.
-3. Supports checksum verification.  
-   _(View the config file to see all the ways in which you can configure the application)_
+## Distinctive Features
+*  Supports virtually unlimited number of threads.  
+
+*  Auto selective re-download in case of failure.  
+
+*  Supports checksum verification.  
+
+*  Extensive control over the application using custom configurations.
 
 
 ## How to use
 1. Install [nodejs](http://nodejs.org/) (skip if already done).
+
 2. Install mt-downloader globally.
 
    ```bash
    $ npm install -g mt-downloader
    ```
 
-3. Open the config file and set the default _download\_path_ for your downloads. To know where your config file is located just type _mtd_ and search for the _Config:_ key word.
+3. Set a user config file.
 
    ```bash
-   $ mtd
+   $ mtd --config /Users/james/Desktop/
    ```
+   This will create a config file _mt-downloader.config.json_ which will give you all the configuration operations.
 
 4. Start using like this -
 
