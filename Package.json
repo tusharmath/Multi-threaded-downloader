@@ -23,7 +23,8 @@
     "grunt-contrib-watch": "*",
     "grunt-contrib-copy": "*",
     "grunt-contrib-nodeunit": "*",
-    "grunt-release": "*"
+    "grunt-release": "*",
+    "json5": "*"
   },
   "preferGlobal": true
 }
