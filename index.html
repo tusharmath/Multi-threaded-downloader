@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Multi-threaded-downloader by tusharmath</title>
+    <title>mt-downloader by tusharmath</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,7 +15,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Multi-threaded-downloader</h1>
+        <h1>mt-downloader</h1>
         <p>A multi threaded downloader made in nodejs</p>
 
         <p class="view"><a href="https://github.com/tusharmath/Multi-threaded-downloader">View the Project on GitHub <small>tusharmath/Multi-threaded-downloader</small></a></p>
@@ -28,7 +28,7 @@
         </ul>
       </header>
       <section>
-        <h1>Multi-threaded-downloader</h1>
+        <h1><a href="http://tusharmath.github.io/Multi-threaded-downloader">mt-downloader</a></h1>
 
 <p>This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.</p>
 
@@ -36,8 +36,8 @@
 
 <ol>
 <li>Supports virtually unlimited number of threads.</li>
-<li>Supports restarting of failed downloads (Downloads only the parts that were not downloaded).</li>
-<li>Supports checksum verification of file download.</li>
+<li>Auto selective re-download in case of failure.</li>
+<li>Supports checksum verification.</li>
 </ol><h2>How to use</h2>
 
 <ol>
@@ -47,25 +47,28 @@
 </pre></div>
 
 <ol>
+<li>Open the config file and set the default <strong>download_path</strong> for your downloads. To know where your config file is located just type <strong>mtd</strong> and search for the <strong>Config:</strong> key word.</li>
+</ol><div class="highlight"><pre>mtd
+</pre></div>
+
+<ol>
 <li>Start using eg.</li>
-</ol><div class="highlight"><pre>mtd -u <span class="s2">"http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg"</span> -f <span class="s2">"vlc-2.0.6.dmg"</span>
+</ol><div class="highlight"><pre>mtd -u <span class="s2">"http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg"</span>
 </pre></div>
 
-<p>Note: I face issues while installing as the 'wordwrap' package doesnt get installed on its own. In case you also face the same issue install wordwrap globally.</p>
-
-<div class="highlight"><pre>npm install -g wordwrap
-</pre></div>
+<p>By default it will take the last bit of the url as the file name, alternatively you can pass the name of the file with the <strong>-f</strong> parameter.</p>
 
 <h2>Upcoming features!</h2>
 
 <ol>
-<li><p>Have a user interface.</p></li>
-<li><p>Have different video download algorithms to boost up video download performance.</p></li>
-<li><p>Work as a proxy with video sites such as youtube so that buffering is completely removed.</p></li>
-<li><p>Will be able to restart abruptly terminated threads.</p></li>
-<li><p>Able to install through node package manager.</p></li>
-<li><p>Supports partial downloads for eg - downloading from 30 to 70% of the complete file.</p></li>
-</ol>
+<li>Have a user interface.</li>
+<li>Work as a proxy with video sites such as youtube so that buffering is completely removed.</li>
+<li>Support partial downloads for eg - downloading from 30 to 70% of the complete file.</li>
+</ol><h2>Issues or Feature Requests?</h2>
+
+<p>Feel free to create one <a href="https://github.com/tusharmath/Multi-threaded-downloader/issues/new">here</a></p>
+
+<p><strong>I Need help in developing code for this application so please contribute if you can!</strong></p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/tusharmath">tusharmath</a></p>
