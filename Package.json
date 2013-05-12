@@ -11,7 +11,7 @@
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
   },
   "bin": {
-    "mtdd": "./lib/utils/ndCommand.js"
+    "mtd": "./lib/utils/ndCommand.js"
   },
   "engines": {
     "node": ">= 0.10.0"

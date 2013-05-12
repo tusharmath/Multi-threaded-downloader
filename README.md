@@ -1,3 +1,4 @@
+
 # [mt-downloader](http://tusharmath.github.io/Multi-threaded-downloader)
 
 This is a multi threaded downloader which is made in nodejs. It is highly configurable and extremely efficient.
@@ -26,7 +27,7 @@ This is a multi threaded downloader which is made in nodejs. It is highly config
    ```bash
    $ mtd --config /Users/james/Desktop/
    ```
-   This will create a config file _mt-downloader.config.json_ which will give you all the configuration operations.
+   This will create a config file _mt-downloader.config.json_ which will give you all the configurable options.
 
 4. Start using like this -
 
