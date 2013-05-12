@@ -24,7 +24,8 @@
     "grunt-contrib-copy": "*",
     "grunt-contrib-nodeunit": "*",
     "grunt-release": "*",
-    "json5": "*"
+    "json5": "*",
+    "wordwrap": "*"
   },
   "preferGlobal": true
 }
