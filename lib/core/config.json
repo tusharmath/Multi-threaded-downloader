@@ -30,9 +30,10 @@
 		"speed",
 		"time",
 		"eta",
-		"dataReceived",
-		"downloadSize",
-		"openConnections",
-		"closedConnections",
-		"failedConnections"]
+	//"dataReceived",
+	//"downloadSize",
+	//"openConnections",
+	//"closedConnections",
+	//"failedConnections"
+	]
 }
