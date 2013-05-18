@@ -26,7 +26,7 @@ describe('ThreadsGenerator class', function() {
 		threadsGenerator.blockSize.should.equal(100);
 	});
 
-	it('should match positions', function() {
+	it('should match thread specs', function() {
 		var threadsGenerator = new ThreadsGenerator({
 			count: 4,
 			fileSize: 401
@@ -37,6 +37,7 @@ describe('ThreadsGenerator class', function() {
 		threadsGenerator.threads[0].position.should.equal(0);
 		threadsGenerator.threads[0].end.should.equal(101);
 		threadsGenerator.threads[0].connection.should.equal('open');
+		threadsGenerator.threads[0].header.should.equal('bytes=0-101');
 
 
 		//Thread 1
@@ -44,19 +45,21 @@ describe('ThreadsGenerator class', function() {
 		threadsGenerator.threads[1].position.should.equal(102);
 		threadsGenerator.threads[1].end.should.equal(202);
 		threadsGenerator.threads[1].connection.should.equal('open');
+		threadsGenerator.threads[1].header.should.equal('bytes=102-202');
 
 		//Thread 2
 		threadsGenerator.threads[2].start.should.equal(203);
 		threadsGenerator.threads[2].position.should.equal(203);
 		threadsGenerator.threads[2].end.should.equal(303);
 		threadsGenerator.threads[2].connection.should.equal('open');
-
+		threadsGenerator.threads[2].header.should.equal('bytes=203-303');
 
 		//Thread 3
 		threadsGenerator.threads[3].start.should.equal(304);
 		threadsGenerator.threads[3].position.should.equal(304);
 		threadsGenerator.threads[3].end.should.equal(401);
 		threadsGenerator.threads[3].connection.should.equal('open');
+		threadsGenerator.threads[3].header.should.equal('bytes=304-401');
 	});
 
 });
