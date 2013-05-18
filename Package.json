@@ -16,6 +16,9 @@
   "engines": {
     "node": ">= 0.10.0"
   },
+  "scripts": {
+    "test": "mocha test/*"
+  },
   "dependencies": {
     "optimist": "*",
     "grunt": "*",
@@ -25,7 +28,9 @@
     "grunt-contrib-nodeunit": "*",
     "grunt-release": "*",
     "json5": "*",
-    "wordwrap": "*"
+    "wordwrap": "*",
+    "should": "*",
+    "mocha": "*"
   },
   "preferGlobal": true
 }
