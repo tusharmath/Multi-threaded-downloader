@@ -19,7 +19,7 @@
 	"status_update_every": 1000,
 
 	//Default download path
-	"download_path": "/Users/tusharmathur/desktop/temp/",
+	"download_path": "/Users/tusharmathur/download/",
 
 	//Type of logger <console, none>
 	"analytics_logger": "console",
@@ -30,10 +30,9 @@
 		"speed",
 		"time",
 		"eta",
-	//"dataReceived",
-	//"downloadSize",
-	//"openConnections",
-	//"closedConnections",
-	//"failedConnections"
-	]
+		//"dataReceived",
+		//"downloadSize",
+		//"openConnections",
+		//"closedConnections",
+		"failedConnections"]
 }
