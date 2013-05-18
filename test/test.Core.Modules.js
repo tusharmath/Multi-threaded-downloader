@@ -1,5 +1,5 @@
 var should = require('should');
-var modules = ['DownloadFileNameGenerator', 'Downloader'];
+var modules = ['DownloadFileNameGenerator', 'Downloader', 'ThreadsGenerator'];
 
 describe('Modules', function() {
 	modules.forEach(function(moduleName) {
