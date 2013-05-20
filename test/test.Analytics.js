@@ -44,8 +44,9 @@ describe('Module: Analytics', function() {
 		var analytics = new Analytics({
 			threads: []
 		});
-		properties.forEach(function(p) {
-			it('should have property - ' + p, function() {
+		it('should have properties - ' + properties.join(', '), function() {
+			properties.forEach(function(p) {
+
 				analytics.should.have.property(p);
 			});
 
