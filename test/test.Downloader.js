@@ -1,12 +1,13 @@
 var should = require('should');
 var Downloader = require('../lib/core/Downloader');
 
-describe('Downloader class', function() {
+describe('Module: Downloader', function() {
 
 	it('should be a function', function() {
 		Downloader.should.be.a('function');
 	});
 
+var properties = [];
 	it('should return proper name', function() {
 
 		var downloader = new Downloader({});
