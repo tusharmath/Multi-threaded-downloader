@@ -12,7 +12,7 @@ describe('Module: ThreadsGenerator', function() {
 
 	describe('properties', function() {
 
-		var properties = ['threads', 'fileSize', 'blockSize', 'count', 'create', 'destroy'];
+		var properties = ['threads', 'fileSize', 'blockSize', 'count', 'create', 'destroy', 'states'];
 		ThreadsGenerator.create({});
 
 		properties.forEach(function(p) {
@@ -44,6 +44,10 @@ describe('Module: ThreadsGenerator', function() {
 		ThreadsGenerator.fileSize.should.equal(400);
 		ThreadsGenerator.blockSize.should.equal(100);
 
+	});
+
+	it('should have thread states', function() {
+		ThreadsGenerator.states.should.have.keys('open', 'closed', 'failed');
 	});
 
 	it('should match thread specs', function() {

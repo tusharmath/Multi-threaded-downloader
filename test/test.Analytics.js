@@ -54,34 +54,69 @@ describe('Module: Analytics', function() {
 	});
 
 	describe('working', function() {
-
-		ThreadsGenerator.create({
-			count: 4,
-			fileSize: 400
-		});
-
-		var analytics = new Analytics({
-			threads: ThreadsGenerator.threads,
-			interval: 3000
-		});
-
 		it('should have valid properties', function() {
+			ThreadsGenerator.destory = true;
+			ThreadsGenerator.create({
+				count: 4,
+				fileSize: 400
+			});
+
+			var analytics = new Analytics({
+				threads: ThreadsGenerator.threads,
+				interval: 3000
+			});
+
 
 			analytics.fileSize.should.equal(400);
 			analytics.blockSize.should.equal(100);
 			analytics.downloadSize.should.equal(400);
 			analytics.interval.should.equal(3000);
-			analytics.threads.should.equal(ThreadsGenerator.threads);
+
+			analytics.threads.should.eql(ThreadsGenerator.threads);
 
 		});
 
 
 		it('should have valid properties', function() {
+			ThreadsGenerator.destory = true;
+			ThreadsGenerator.create({
+				count: 4,
+				fileSize: 400
+			});
+
+			var analytics = new Analytics({
+				threads: ThreadsGenerator.threads,
+				interval: 3000
+			});
 
 			analytics.tick();
-			analytics.elapsedTime.should.equal(3000);
+			analytics.tick();
+			analytics.elapsedTime.should.equal(6000);
 
 		});
+
+		it('should show open connections', function() {
+			ThreadsGenerator.destory = true;
+			ThreadsGenerator.create({
+				count: 4,
+				fileSize: 400
+			});
+			ThreadsGenerator.threads[1].connection = 'closed';
+			ThreadsGenerator.threads[2].connection = 'failed';
+
+			var analytics = new Analytics({
+				threads: ThreadsGenerator.threads
+
+			});
+
+
+			analytics.closedConnections.should.equal(1);
+			analytics.openConnections.should.equal(2);
+			analytics.failedConnections.should.equal(1);
+
+
+		});
+
 
 	});
 });
