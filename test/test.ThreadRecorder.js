@@ -10,12 +10,18 @@ describe('Module: ThreadRecorder', function() {
 		ThreadRecorder.should.be.a('function');
 	});
 
-	var properties = ['fullPath', 'threads', 'fileName', 'filePath', 'requires', 'save'];
+	var properties = [
+		'fullPath',
+		'fileName',
+		'filePath',
+		'requires',
+		'threads',
+		'save'];
 
 	it('should have properties - ' + properties.join(', '), function() {
 		var threadRecorder = new ThreadRecorder({
 			threads: {},
-			fileName: '',
+
 			requires: {
 				os: mockedRequires.os,
 				fs: mockedRequires.fs
