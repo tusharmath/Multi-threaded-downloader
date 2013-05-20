@@ -10,8 +10,6 @@ describe('Module: ThreadRecorder', function() {
 		ThreadRecorder.should.be.a('function');
 	});
 
-
-
 	var properties = ['fullPath', 'threads', 'fileName', 'filePath', 'requires', 'save'];
 
 	it('should have properties - ' + properties.join(', '), function() {
@@ -26,6 +24,19 @@ describe('Module: ThreadRecorder', function() {
 		properties.forEach(function(p) {
 			threadRecorder.should.have.property(p);
 		});
+
+	});
+
+	it('save file', function() {
+		var threadRecorder = new ThreadRecorder({
+			threads: {},
+			fileName: '',
+			requires: {
+				os: mockedRequires.os,
+				fs: mockedRequires.fs
+			}
+		});
+		threadRecorder.save('12345', 0);
 
 	});
 
