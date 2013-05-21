@@ -7,13 +7,15 @@ describe('Module: Analytics', function() {
 	it('should be a function', function() {
 		Analytics.should.be.a('function');
 	});
-	describe('Methods', function() {
-		var properties = ['tick'];
+
+	describe('Methods:', function() {
+		var methods = ['tick'];
+
 		var analytics = new Analytics({
 			threads: {}
 		});
-		properties.forEach(function(p) {
-			it('should have method - ' + p, function() {
+		it('should have methods - ' + methods.join(', '), function() {
+			methods.forEach(function(p) {
 				analytics.should.have.property(p);
 				analytics[p].should.be.a('function');
 			});
@@ -21,7 +23,7 @@ describe('Module: Analytics', function() {
 	});
 
 
-	describe('Properties', function() {
+	describe('Properties:', function() {
 		var properties = ['fileSize',
 			'blockSize',
 			'dataReceived',
@@ -40,21 +42,18 @@ describe('Module: Analytics', function() {
 			'threads',
 
 			'interval'];
-
 		var analytics = new Analytics({
-			threads: []
+			threads: {}
 		});
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
-
 				analytics.should.have.property(p);
 			});
-
 		});
-
 	});
 
-	describe('working', function() {
+
+	describe('Working:', function() {
 		it('should have valid properties', function() {
 			ThreadsGenerator.destory = true;
 			ThreadsGenerator.create({
@@ -71,28 +70,13 @@ describe('Module: Analytics', function() {
 			analytics.fileSize.should.equal(400);
 			analytics.blockSize.should.equal(100);
 			analytics.downloadSize.should.equal(400);
+			analytics.tick();
+			analytics.tick();
+
 			analytics.interval.should.equal(3000);
+			analytics.elapsedTime.should.equal(6000);
 
 			analytics.threads.should.eql(ThreadsGenerator.threads);
-
-		});
-
-
-		it('should have valid properties', function() {
-			ThreadsGenerator.destory = true;
-			ThreadsGenerator.create({
-				count: 4,
-				fileSize: 400
-			});
-
-			var analytics = new Analytics({
-				threads: ThreadsGenerator.threads,
-				interval: 3000
-			});
-
-			analytics.tick();
-			analytics.tick();
-			analytics.elapsedTime.should.equal(6000);
 
 		});
 
@@ -117,7 +101,6 @@ describe('Module: Analytics', function() {
 
 
 		});
-
 
 	});
 });

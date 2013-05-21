@@ -14,9 +14,8 @@ describe('Module: ThreadsGenerator', function() {
 
 		var properties = ['threads', 'fileSize', 'blockSize', 'count', 'create', 'destroy', 'states'];
 		ThreadsGenerator.create({});
-
-		properties.forEach(function(p) {
-			it('should have property - ' + p, function() {
+		it('should have properties - ' + properties.join(', '), function() {
+			properties.forEach(function(p) {
 				ThreadsGenerator.should.have.property(p);
 			});
 		});

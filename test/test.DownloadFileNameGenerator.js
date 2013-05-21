@@ -1,27 +1,23 @@
 var should = require('should');
 var generator = require('../lib/core/DownloadFileNameGenerator');
 
-describe('DownloadFileNameGenerator class', function() {
+describe('Module: DownloadFileNameGenerator', function() {
 
 	it('should be a function', function() {
 		generator.should.be.a('function');
 	});
 
-	describe('Properties', function() {
+	describe('Properties:', function() {
 		var properties = ['name', 'fullName', 'extension'];
-		properties.forEach(function(p) {
-
-			it('should have property - ' + p, function() {
-
+		it('should have properties - ' + properties.join(', '), function() {
+			properties.forEach(function(p) {
 				var fileName = new generator({});
 				fileName.should.have.property(p);
-
 			});
-
 		});
-
 	});
-	describe('Working', function() {
+
+	describe('Working:', function() {
 		it('test for set values', function() {
 
 			var fileName = new generator({
