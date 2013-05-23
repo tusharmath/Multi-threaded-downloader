@@ -48,6 +48,24 @@ exports.http = {
 	Agent: {
 		defaultMaxSockets: 0
 	},
+	get: function(a, b) {
+		b({
+			addListener: function(a, b) {
+				if (a == 'end') {
+					b();
+				} else if (a == 'data') {
+					b([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+				}
+			}
+		});
+		return {
+			on: function() {
+				return {
+					end: function() {}
+				};
+			}
+		};
+	},
 	request: function(a, b) {
 		b({
 			headers: {

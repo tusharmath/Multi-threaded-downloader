@@ -42,7 +42,7 @@ describe('Module: Downloader', function() {
 					http: Mocked.http,
 					url: Mocked.url
 				},
-				url: 'http://www.wikistuce.info/lib/exe/fetch.php/javascript/colredim.htm'
+				url: ''
 			});
 
 
@@ -63,7 +63,7 @@ describe('Module: Downloader', function() {
 					http: Mocked.http,
 					url: Mocked.url
 				},
-				url: 'http://www.wikistuce.info/lib/exe/fetch.php/javascript/colredim.htm'
+				url: ''
 			});
 			var onStartResponse;
 			downloader.onStart = function(response) {
