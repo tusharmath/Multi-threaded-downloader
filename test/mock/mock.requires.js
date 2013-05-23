@@ -31,3 +31,12 @@ exports.crypto = {
 		};
 	}
 };
+
+exports.http = {
+	globalAgent: {
+		maxSockets: 0
+	},
+	Agent: {
+		defaultMaxSockets: 0
+	}
+};

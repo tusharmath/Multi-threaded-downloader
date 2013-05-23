@@ -1,20 +1,63 @@
 var should = require('should');
 var Downloader = require('../lib/core/Downloader');
+var ThreadsGenerator = require('../lib/core/ThreadsGenerator');
+var Mocked = require('./mock/mock.requires');
+
 
 describe('Module: Downloader', function() {
 
-	it('should be a function', function() {
-		Downloader.should.be.a('function');
+
+	describe('Methods:', function() {
+		var methods = ['onData', 'onEnd', 'start'];
+		it('should have methods - ' + methods.join(', '), function() {
+			ThreadsGenerator.destroy = true;
+			ThreadsGenerator.create();
+			it('should be a function', function() {
+				Downloader.should.be.a('function');
+			});
+
+
+			var downloader = new Downloader({
+				path: '',
+				threads: ThreadsGenerator.threads,
+				requires: {
+					http: Mocked.http
+				}
+
+			});
+
+			methods.forEach(function(p) {
+				downloader.should.have.property(p);
+				downloader[p].should.be.a('function');
+			});
+		});
 	});
 
-var properties = [];
-	it('should return proper name', function() {
 
-		var downloader = new Downloader({});
-		downloader.should.have.property('onPacketReceived');
-		downloader.should.have.property('onDownloadStart');
-		downloader.should.have.property('onDownloadComplete');
-		downloader.should.have.property('setRequires');
-		downloader.should.have.property('start');
+	describe('Properties:', function() {
+		var properties = ['requires', 'url', 'threads'];
+		it('should have properties - ' + properties.join(', '), function() {
+			ThreadsGenerator.destroy = true;
+			ThreadsGenerator.create();
+
+			var downloader = new Downloader({
+				threads: ThreadsGenerator.threads,
+				requires: {
+					http: Mocked.http
+				},
+				url: 'http://www.wikistuce.info/lib/exe/fetch.php/javascript/colredim.htm'
+			});
+
+
+			properties.forEach(function(p) {
+				downloader.should.have.property(p);
+			});
+		});
+	});
+
+
+	describe('Working:', function() {
+
+
 	});
 });
