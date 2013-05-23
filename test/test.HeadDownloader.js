@@ -1,6 +1,5 @@
 var should = require('should');
-var Downloader = require('../lib/core/Downloader');
-var ThreadsGenerator = require('../lib/core/ThreadsGenerator');
+var Downloader = require('../lib/core/HeadDownloader');
 var Mocked = require('./mock/mock.requires');
 
 
@@ -8,20 +7,19 @@ describe('Module: Downloader', function() {
 
 
 	describe('Methods:', function() {
-		var methods = ['onData', 'onEnd', 'start'];
+		var methods = ['onEnd', 'start', 'onError'];
 		it('should have methods - ' + methods.join(', '), function() {
-			ThreadsGenerator.destroy = true;
-			ThreadsGenerator.create();
 			it('should be a function', function() {
 				Downloader.should.be.a('function');
 			});
 
 
 			var downloader = new Downloader({
-				path: '',
-				threads: ThreadsGenerator.threads,
+				url: '',
+
 				requires: {
-					http: Mocked.http
+					http: Mocked.http,
+					url: Mocked.url
 				}
 
 			});
@@ -35,15 +33,14 @@ describe('Module: Downloader', function() {
 
 
 	describe('Properties:', function() {
-		var properties = ['requires', 'url', 'threads'];
+		var properties = ['requires', 'url'];
 		it('should have properties - ' + properties.join(', '), function() {
-			ThreadsGenerator.destroy = true;
-			ThreadsGenerator.create();
 
 			var downloader = new Downloader({
-				threads: ThreadsGenerator.threads,
+
 				requires: {
-					http: Mocked.http
+					http: Mocked.http,
+					url: Mocked.url
 				},
 				url: 'http://www.wikistuce.info/lib/exe/fetch.php/javascript/colredim.htm'
 			});
@@ -58,6 +55,27 @@ describe('Module: Downloader', function() {
 
 	describe('Working:', function() {
 
+		it('should start download', function() {
 
+			var downloader = new Downloader({
+
+				requires: {
+					http: Mocked.http,
+					url: Mocked.url
+				},
+				url: 'http://www.wikistuce.info/lib/exe/fetch.php/javascript/colredim.htm'
+			});
+			var onStartResponse;
+			downloader.onStart = function(response) {
+				onStartResponse = response;
+			};
+			downloader.start();
+			onStartResponse.should.have.property('fileSize');
+			onStartResponse.fileSize.should.equal(100);
+
+			onStartResponse.should.have.property('contentType');
+			onStartResponse.contentType.should.equal('text/html');
+
+		});
 	});
 });

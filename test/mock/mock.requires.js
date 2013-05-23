@@ -31,6 +31,15 @@ exports.crypto = {
 		};
 	}
 };
+exports.url = {
+	parse: function() {
+		return {
+			hostname: '',
+			path: ''
+		};
+	}
+};
+
 
 exports.http = {
 	globalAgent: {
@@ -38,5 +47,21 @@ exports.http = {
 	},
 	Agent: {
 		defaultMaxSockets: 0
+	},
+	request: function(a, b) {
+		b({
+			headers: {
+				'content-length': 100,
+				'content-type': 'text/html'
+			},
+			destroy: function() {}
+		});
+		return {
+			on: function() {
+				return {
+					end: function() {}
+				};
+			}
+		};
 	}
 };
