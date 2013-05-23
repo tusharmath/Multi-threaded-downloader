@@ -8,21 +8,15 @@
 	//A JSON file containing the thread information is created
 	"create_download_log": true,
 
-
 	//Default number of threads
 	"thread_count": 32,
-
-	//Thread creation style
-	"thread_style": "equal",
-
+	
 	//Duration of updating the selected logger
 	"status_update_every": 1000,
 
 	//Default download path
 	"download_path": "/Users/tusharmathur/download/",
 
-	//Type of logger <console, none>
-	"analytics_logger": "console",
 
 	//Details to be logged on the console
 	"console_log_info": [
