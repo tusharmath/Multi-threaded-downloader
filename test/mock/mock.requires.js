@@ -11,5 +11,23 @@ exports.fs = {
 	writeFile: function() {},
 	open: function(a, b, c, d) {
 		d(undefined, {});
+	},
+	ReadStream: function() {
+		return {
+			on: function(a, b) {
+				b();
+			}
+		};
+	}
+};
+
+exports.crypto = {
+	createHash: function() {
+		return {
+			update: function() {},
+			digest: function() {
+				return 'xxxx';
+			}
+		};
 	}
 };
