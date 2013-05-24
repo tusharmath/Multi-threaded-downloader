@@ -1,11 +1,11 @@
 var should = require('should');
 var modules = [
-	'ThreadRecordLoader',
+	'ThreadRecordReader',
 	'DownloadFileNameGenerator',
 	'HeadDownloader',
 	'ThreadsGenerator',
 	'Analytics',
-	'ThreadRecorder',
+	'ThreadRecordWriter',
 	'DownloadWriter',
 	'Checksum',
 	'BodyDownloader'];

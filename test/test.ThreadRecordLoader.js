@@ -1,17 +1,17 @@
 var should = require('should');
-var ThreadRecordLoader = require('../lib/core/ThreadRecordLoader');
+var ThreadRecordReader = require('../lib/core/ThreadRecordReader');
 var MockedRequires = require('./mock/mock.requires');
 
-describe('Module: ThreadRecordLoader', function() {
+describe('Module: ThreadRecordReader', function() {
 
 	it('should be a function', function() {
-		ThreadRecordLoader.should.be.a('function');
+		ThreadRecordReader.should.be.a('function');
 	});
 
 	describe('Methods:', function() {
 		var methods = ['load', 'onLoad'];
 
-		var threadRecordLoader = new ThreadRecordLoader({
+		var threadRecordReader = new ThreadRecordReader({
 			requires: {
 				fs: MockedRequires.fs
 			},
@@ -19,8 +19,8 @@ describe('Module: ThreadRecordLoader', function() {
 		});
 		it('should have methods - ' + methods.join(', '), function() {
 			methods.forEach(function(p) {
-				threadRecordLoader.should.have.property(p);
-				threadRecordLoader[p].should.be.a('function');
+				threadRecordReader.should.have.property(p);
+				threadRecordReader[p].should.be.a('function');
 			});
 		});
 	});
@@ -28,7 +28,7 @@ describe('Module: ThreadRecordLoader', function() {
 
 	describe('Properties:', function() {
 		var properties = ['path', 'requires', 'readOptions'];
-		var threadRecordLoader = new ThreadRecordLoader({
+		var threadRecordReader = new ThreadRecordReader({
 			requires: {
 				fs: MockedRequires.fs
 			},
@@ -36,7 +36,7 @@ describe('Module: ThreadRecordLoader', function() {
 		});
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
-				threadRecordLoader.should.have.property(p);
+				threadRecordReader.should.have.property(p);
 			});
 		});
 	});
@@ -44,17 +44,17 @@ describe('Module: ThreadRecordLoader', function() {
 
 	describe('Working:', function() {
 		it('should load', function() {
-			var threadRecordLoader = new ThreadRecordLoader({
+			var threadRecordReader = new ThreadRecordReader({
 				requires: {
 					fs: MockedRequires.fs
 				},
 				path: ''
 			});
 			var isLoaded;
-			threadRecordLoader.onLoad = function(data) {
+			threadRecordReader.onLoad = function(data) {
 				isLoaded = data;
 			};
-			threadRecordLoader.load();
+			threadRecordReader.load();
 			isLoaded.should.be.a('object');
 		});
 	});

@@ -1,13 +1,13 @@
 var should = require('should');
-var ThreadRecorder = require('../lib/core/ThreadRecorder');
+var ThreadRecordWriter = require('../lib/core/ThreadRecordWriter');
 var mockedRequires = require('./mock/mock.requires');
 
-describe('Module: ThreadRecorder', function() {
+describe('Module: ThreadRecordWriter', function() {
 
 
 	it('should be a function', function() {
 
-		ThreadRecorder.should.be.a('function');
+		ThreadRecordWriter.should.be.a('function');
 	});
 
 	var properties = [
@@ -19,7 +19,7 @@ describe('Module: ThreadRecorder', function() {
 		'save'];
 
 	it('should have properties - ' + properties.join(', '), function() {
-		var threadRecorder = new ThreadRecorder({
+		var threadRecordWriter = new ThreadRecordWriter({
 			threads: {},
 
 			requires: {
@@ -28,13 +28,13 @@ describe('Module: ThreadRecorder', function() {
 			}
 		});
 		properties.forEach(function(p) {
-			threadRecorder.should.have.property(p);
+			threadRecordWriter.should.have.property(p);
 		});
 
 	});
 
 	it('save file', function() {
-		var threadRecorder = new ThreadRecorder({
+		var threadRecordWriter = new ThreadRecordWriter({
 			threads: {},
 			fileName: '',
 			requires: {
@@ -42,7 +42,7 @@ describe('Module: ThreadRecorder', function() {
 				fs: mockedRequires.fs
 			}
 		});
-		threadRecorder.save('12345', 0);
+		threadRecordWriter.save('12345', 0);
 
 	});
 
