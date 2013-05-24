@@ -9,7 +9,7 @@ describe('Module: ThreadRecordReader', function() {
 	});
 
 	describe('Methods:', function() {
-		var methods = ['load', 'onLoad'];
+		var methods = ['load', 'onLoad', 'remove'];
 
 		var threadRecordReader = new ThreadRecordReader({
 			requires: {
@@ -56,6 +56,21 @@ describe('Module: ThreadRecordReader', function() {
 			};
 			threadRecordReader.load();
 			isLoaded.should.be.a('object');
+		});
+
+		it('should remove', function() {
+			var threadRecordReader = new ThreadRecordReader({
+				requires: {
+					fs: MockedRequires.fs
+				},
+				path: ''
+			});
+			var isDeleted = false;
+			threadRecordReader.onRemove = function(data) {
+				isDeleted = true;
+			};
+			threadRecordReader.remove();
+			isDeleted.should.be.ok;
 		});
 	});
 });

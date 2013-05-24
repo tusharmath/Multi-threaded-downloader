@@ -15,6 +15,9 @@ exports.fs = {
 	open: function(a, b, c, d) {
 		d(undefined, {});
 	},
+	unlink: function(a, b) {
+		b();
+	},
 	ReadStream: function() {
 		return {
 			on: function(a, b) {
