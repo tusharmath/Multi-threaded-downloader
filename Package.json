@@ -17,7 +17,7 @@
     "node": ">= 0.10.0"
   },
   "scripts": {
-    "test": "mocha test/test.* -R spec"
+    "test": "istanbul cover _mocha test/test.*"
   },
   "dependencies": {
     "optimist": "*",

@@ -8,6 +8,9 @@ exports.fs = {
 	write: function(a, b, c, d, e, f) {
 		f();
 	},
+	readFile: function(a, b, c) {
+		c('{}');
+	},
 	writeFile: function() {},
 	open: function(a, b, c, d) {
 		d(undefined, {});
