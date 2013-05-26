@@ -1,22 +1,17 @@
 var should = require('should');
-var ThreadRecordReader = require('../lib/core/ThreadRecordReader');
-var MockedRequires = require('./mock/mock.requires');
+// var ThreadRecordReader = require('../lib/core/ThreadRecordReader');
+var Factory = require('../lib/utils/Factory');
+var factory = new Factory;
+factory.init(true);
+//var MockedRequires = require('./mock/mock.requires');
 
 describe('Module: ThreadRecordReader', function() {
 
-	it('should be a function', function() {
-		ThreadRecordReader.should.be.a('function');
-	});
 
 	describe('Methods:', function() {
 		var methods = ['load', 'onLoad', 'remove'];
 
-		var threadRecordReader = new ThreadRecordReader({
-			requires: {
-				fs: MockedRequires.fs
-			},
-			path: ''
-		});
+		var threadRecordReader = factory.create('ThreadRecordReader');
 		it('should have methods - ' + methods.join(', '), function() {
 			methods.forEach(function(p) {
 				threadRecordReader.should.have.property(p);
@@ -28,12 +23,7 @@ describe('Module: ThreadRecordReader', function() {
 
 	describe('Properties:', function() {
 		var properties = ['path', 'requires', 'readOptions'];
-		var threadRecordReader = new ThreadRecordReader({
-			requires: {
-				fs: MockedRequires.fs
-			},
-			path: ''
-		});
+		var threadRecordReader = factory.create('ThreadRecordReader');
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
 				threadRecordReader.should.have.property(p);
@@ -44,27 +34,18 @@ describe('Module: ThreadRecordReader', function() {
 
 	describe('Working:', function() {
 		it('should load', function() {
-			var threadRecordReader = new ThreadRecordReader({
-				requires: {
-					fs: MockedRequires.fs
-				},
-				path: ''
-			});
+			var threadRecordReader = factory.create('ThreadRecordReader');
 			var isLoaded;
 			threadRecordReader.onLoad = function(data) {
 				isLoaded = data;
 			};
+			threadRecordReader.path = '';
 			threadRecordReader.load();
 			isLoaded.should.be.a('object');
 		});
 
 		it('should remove', function() {
-			var threadRecordReader = new ThreadRecordReader({
-				requires: {
-					fs: MockedRequires.fs
-				},
-				path: ''
-			});
+			var threadRecordReader = factory.create('ThreadRecordReader');
 			var isDeleted = false;
 			threadRecordReader.onRemove = function(data) {
 				isDeleted = true;
