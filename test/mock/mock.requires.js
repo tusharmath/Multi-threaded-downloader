@@ -91,3 +91,7 @@ exports.http = {
 		};
 	}
 };
+
+exports.fake = {
+	FakeGlobalModule: true
+};
