@@ -62,7 +62,8 @@ exports.http = {
 				} else if (a == 'data') {
 					b([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
 				}
-			}
+			},
+			destroy: function() {}
 		});
 		return {
 			on: function() {
@@ -70,6 +71,7 @@ exports.http = {
 					end: function() {}
 				};
 			}
+
 		};
 	},
 	request: function(a, b) {

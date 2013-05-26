@@ -21,14 +21,9 @@
   },
   "dependencies": {
     "optimist": "*",
+    "async": "*",
     "grunt": "*",
-    "grunt-zip": "*",
-    "grunt-contrib-watch": "*",
-    "grunt-contrib-copy": "*",
-    "grunt-contrib-nodeunit": "*",
     "grunt-release": "*",
-    "json5": "*",
-    "wordwrap": "*",
     "should": "*",
     "mocha": "*"
   },
