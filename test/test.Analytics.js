@@ -1,19 +1,14 @@
 var should = require('should');
-var Analytics = require('../lib/core/Analytics');
-var ThreadsGenerator = require('../lib/core/ThreadsGenerator');
+var Factory = require('../lib/utils/Factory');
+var factory = new Factory;
+factory.init(true);
 
 describe('Module: Analytics', function() {
-
-	it('should be a function', function() {
-		Analytics.should.be.a('function');
-	});
 
 	describe('Methods:', function() {
 		var methods = ['tick'];
 
-		var analytics = new Analytics({
-			threads: {}
-		});
+		var analytics = factory.create('Analytics');
 		it('should have methods - ' + methods.join(', '), function() {
 			methods.forEach(function(p) {
 				analytics.should.have.property(p);
@@ -42,9 +37,11 @@ describe('Module: Analytics', function() {
 			'threads',
 
 			'interval'];
-		var analytics = new Analytics({
-			threads: {}
-		});
+
+		var analytics = factory.create('Analytics');
+		var ThreadGenerator = factory.create('ThreadsGenerator', undefined, true);
+		analytics.threads = ThreadGenerator.threads;
+		analytics.tick();
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
 				analytics.should.have.property(p);
@@ -55,22 +52,22 @@ describe('Module: Analytics', function() {
 
 	describe('Working:', function() {
 		it('should have valid properties', function() {
-			ThreadsGenerator.destory = true;
-			ThreadsGenerator.create({
+			var ThreadsGenerator = factory.create('ThreadsGenerator', {
 				count: 4,
 				fileSize: 400
+			}, {
+				destroy: true
 			});
 
-			var analytics = new Analytics({
-				threads: ThreadsGenerator.threads,
-				interval: 3000
-			});
+			var analytics = factory.create('Analytics');
+			analytics.interval = 3000;
+			analytics.threads = ThreadsGenerator.threads;
 
-
+			analytics.tick();
 			analytics.fileSize.should.equal(400);
 			analytics.blockSize.should.equal(100);
 			analytics.downloadSize.should.equal(400);
-			analytics.tick();
+
 			analytics.tick();
 
 			analytics.interval.should.equal(3000);
@@ -81,20 +78,19 @@ describe('Module: Analytics', function() {
 		});
 
 		it('should show open connections', function() {
-			ThreadsGenerator.destory = true;
-			ThreadsGenerator.create({
+			var ThreadsGenerator = factory.create('ThreadsGenerator', {
 				count: 4,
 				fileSize: 400
+			}, {
+				destroy: true
 			});
 			ThreadsGenerator.threads[1].connection = 'closed';
 			ThreadsGenerator.threads[2].connection = 'failed';
 
-			var analytics = new Analytics({
-				threads: ThreadsGenerator.threads
+			var analytics = factory.create('Analytics');
+			analytics.threads = ThreadsGenerator.threads;
 
-			});
-
-
+			analytics.tick();
 			analytics.closedConnections.should.equal(1);
 			analytics.openConnections.should.equal(2);
 			analytics.failedConnections.should.equal(1);
