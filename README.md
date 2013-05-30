@@ -41,7 +41,13 @@ This is a multi threaded downloader which is made in nodejs. It is highly config
 
    ```bash
    $ mtd -u "http://mirror.switch.ch/ftp/mirror/videolan/vlc/2.0.6/macosx/vlc-2.0.6.dmg" -f "vlc.latest.dmg"
+
    ```
+
+## Current work on the develop branch
+ 1. Refactoring the code to make it more modular.
+ 2. The downloader should be usable through code.
+ 3. Some feature improvements.
 
 
 ## Issues or Feature Requests?
