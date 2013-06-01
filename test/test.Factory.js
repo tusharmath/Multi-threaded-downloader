@@ -47,12 +47,18 @@ describe('Module: Factory', function() {
 
 		});
 
+		it('should load real fs', function() {
+			Factory.remove('FakeModule');
+			Factory.register('FakeModule');
+			Factory.modules.FakeModule.prototype.requires.fs.should.eql(fs);
+		});
+
 		it('should add "fake" and "http" to fake module', function() {
 			Factory.remove('FakeModule');
 			Factory.register('FakeModule', 'mock');
-			Factory.modules.FakeModule.prototype.requires.should.have.property('fake');
+
 			Factory.modules.FakeModule.prototype.requires.should.have.property('fs');
-			Factory.modules.FakeModule.prototype.requires.fake.should.be.equal(Mocked.fake);
+
 		});
 
 		it('should create fake object as singleton', function() {
