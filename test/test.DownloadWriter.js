@@ -1,21 +1,16 @@
 var should = require('should');
-var DownloadWriter = require('../lib/core/DownloadWriter');
+var Factory = require('../lib/utils/Factory');
+Factory.register('DownloadWriter', 'mock');
+
 var MockRequires = require('./mock/mock.requires');
 
 describe('Module: DownloadWriter', function() {
 
-	it('should be a function', function() {
-		DownloadWriter.should.be.a('function');
-	});
-
 	describe('Methods:', function() {
 		var methods = ['write', 'onWrite'];
 
-		var downloadWriter = new DownloadWriter({
-			requires: {
-				fs: MockRequires.fs
-			}
-		});
+		var downloadWriter = Factory.create('DownloadWriter');
+
 		it('should have methods - ' + methods.join(', '), function() {
 			methods.forEach(function(p) {
 				downloadWriter.should.have.property(p);
@@ -27,11 +22,8 @@ describe('Module: DownloadWriter', function() {
 
 	describe('Properties:', function() {
 		var properties = ['requires'];
-		var downloadWriter = new DownloadWriter({
-			requires: {
-				fs: MockRequires.fs
-			}
-		});
+		var downloadWriter = Factory.create('DownloadWriter');
+
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
 				downloadWriter.should.have.property(p);
@@ -41,11 +33,7 @@ describe('Module: DownloadWriter', function() {
 
 
 	describe('Working:', function() {
-		var downloadWriter = new DownloadWriter({
-			requires: {
-				fs: MockRequires.fs
-			}
-		});
+		var downloadWriter = Factory.create('DownloadWriter');
 		var written = false;
 		downloadWriter.onWrite = function() {
 			written = true;

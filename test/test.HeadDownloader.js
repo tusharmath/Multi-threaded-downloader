@@ -1,29 +1,16 @@
 var should = require('should');
-var Downloader = require('../lib/core/HeadDownloader');
-var Mocked = require('./mock/mock.requires');
+var Factory = require('../lib/utils/Factory');
+Factory.register('HeadDownloader', 'mock');
 
-
-describe('Module: Downloader', function() {
+describe('Module: HeadDownloader', function() {
 
 
 	describe('Methods:', function() {
 		var methods = ['onEnd', 'start', 'onError'];
 		it('should have methods - ' + methods.join(', '), function() {
-			it('should be a function', function() {
-				Downloader.should.be.a('function');
-			});
 
 
-			var downloader = new Downloader({
-				url: '',
-
-				requires: {
-					http: Mocked.http,
-					url: Mocked.url
-				}
-
-			});
-
+			var downloader = Factory.create('HeadDownloader');
 			methods.forEach(function(p) {
 				downloader.should.have.property(p);
 				downloader[p].should.be.a('function');
@@ -36,15 +23,7 @@ describe('Module: Downloader', function() {
 		var properties = ['requires', 'url'];
 		it('should have properties - ' + properties.join(', '), function() {
 
-			var downloader = new Downloader({
-
-				requires: {
-					http: Mocked.http,
-					url: Mocked.url
-				},
-				url: ''
-			});
-
+			var downloader = Factory.create('HeadDownloader');
 
 			properties.forEach(function(p) {
 				downloader.should.have.property(p);
@@ -57,14 +36,8 @@ describe('Module: Downloader', function() {
 
 		it('should start download', function() {
 
-			var downloader = new Downloader({
+			var downloader = Factory.create('HeadDownloader');
 
-				requires: {
-					http: Mocked.http,
-					url: Mocked.url
-				},
-				url: ''
-			});
 			var onStartResponse;
 			downloader.onStart = function(response) {
 				onStartResponse = response;

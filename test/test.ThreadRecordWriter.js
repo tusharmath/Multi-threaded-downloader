@@ -1,11 +1,6 @@
 var should = require('should');
 var Factory = require('../lib/utils/Factory');
-Factory.register({
-	ThreadRecordWriter: {
-		useMocked: true,
-		requires: 'fs os'
-	}
-});
+Factory.register('ThreadRecordWriter', 'mock');
 
 describe('Module: ThreadRecordWriter', function() {
 

@@ -1,9 +1,8 @@
 var should = require('should');
-// var ThreadRecordReader = require('../lib/core/ThreadRecordReader');
+
 var Factory = require('../lib/utils/Factory');
-var factory = new Factory;
-factory.init(true);
-//var MockedRequires = require('./mock/mock.requires');
+Factory.register('ThreadRecordReader', 'mock');
+
 
 describe('Module: ThreadRecordReader', function() {
 
@@ -11,7 +10,7 @@ describe('Module: ThreadRecordReader', function() {
 	describe('Methods:', function() {
 		var methods = ['load', 'onLoad', 'remove'];
 
-		var threadRecordReader = factory.create('ThreadRecordReader');
+		var threadRecordReader = Factory.create('ThreadRecordReader');
 		it('should have methods - ' + methods.join(', '), function() {
 			methods.forEach(function(p) {
 				threadRecordReader.should.have.property(p);
@@ -23,7 +22,7 @@ describe('Module: ThreadRecordReader', function() {
 
 	describe('Properties:', function() {
 		var properties = ['path', 'requires', 'readOptions'];
-		var threadRecordReader = factory.create('ThreadRecordReader');
+		var threadRecordReader = Factory.create('ThreadRecordReader');
 		it('should have properties - ' + properties.join(', '), function() {
 			properties.forEach(function(p) {
 				threadRecordReader.should.have.property(p);
@@ -34,7 +33,7 @@ describe('Module: ThreadRecordReader', function() {
 
 	describe('Working:', function() {
 		it('should load', function() {
-			var threadRecordReader = factory.create('ThreadRecordReader');
+			var threadRecordReader = Factory.create('ThreadRecordReader');
 			var isLoaded;
 			threadRecordReader.onLoad = function(data) {
 				isLoaded = data;
@@ -45,7 +44,7 @@ describe('Module: ThreadRecordReader', function() {
 		});
 
 		it('should remove', function() {
-			var threadRecordReader = factory.create('ThreadRecordReader');
+			var threadRecordReader = Factory.create('ThreadRecordReader');
 			var isDeleted = false;
 			threadRecordReader.onRemove = function(data) {
 				isDeleted = true;

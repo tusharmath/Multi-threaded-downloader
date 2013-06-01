@@ -1,12 +1,7 @@
 var should = require('should');
 var Factory = require('../lib/utils/Factory');
-Factory.register([{
-	Analytics: {}
-}, {
-	ThreadsGenerator: {
-		isSingleton: true
-	}
-}]);
+Factory.register('Analytics');
+Factory.register('ThreadsGenerator', 'singleton');
 
 describe('Module: Analytics', function() {
 

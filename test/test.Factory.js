@@ -23,20 +23,15 @@ describe('Module: Factory', function() {
 
 		it('should remove a module', function() {
 
-			Factory.register({
-				FakeModule: {}
-			});
+			Factory.register('FakeModule', 'mock');
 			Factory.modules.should.have.property('FakeModule');
 			Factory.remove('FakeModule');
 			Factory.modules.should.not.have.property('FakeModule');
-
 		});
 
 		it('should register fake module', function() {
 			Factory.remove('FakeModule');
-			Factory.register({
-				FakeModule: {}
-			});
+			Factory.register('FakeModule', 'mock');
 
 			Factory.modules['FakeModule'].should.equal(FakeModule);
 
@@ -44,9 +39,7 @@ describe('Module: Factory', function() {
 
 		it('should create requires property in prototype', function() {
 			Factory.remove('FakeModule');
-			Factory.register({
-				FakeModule: {}
-			});
+			Factory.register('FakeModule', 'mock');
 
 
 			Factory.modules.FakeModule.prototype.should.have.property('requires');
@@ -56,14 +49,7 @@ describe('Module: Factory', function() {
 
 		it('should add "fake" and "http" to fake module', function() {
 			Factory.remove('FakeModule');
-			Factory.register({
-				FakeModule: {
-					requires: 'fs http fake',
-					useMocked: true
-				}
-			});
-
-
+			Factory.register('FakeModule', 'mock');
 			Factory.modules.FakeModule.prototype.requires.should.have.property('fake');
 			Factory.modules.FakeModule.prototype.requires.should.have.property('fs');
 			Factory.modules.FakeModule.prototype.requires.fake.should.be.equal(Mocked.fake);
@@ -71,13 +57,7 @@ describe('Module: Factory', function() {
 
 		it('should create fake object as singleton', function() {
 			Factory.remove('FakeModule');
-			Factory.register({
-				FakeModule: {
-					requires: 'fs http fake',
-					useMocked: true,
-					isSingleton: true
-				}
-			});
+			Factory.register('FakeModule', 'mock singleton');
 
 			var fake1 = Factory.create('FakeModule');
 			var fake2 = Factory.create('FakeModule');

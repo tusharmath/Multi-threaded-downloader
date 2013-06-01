@@ -1,11 +1,6 @@
 var should = require('should');
 var Factory = require('../lib/utils/Factory');
-Factory.register({
-	ThreadsGenerator: {
-		isSingleton: true
-
-	}
-});
+Factory.register('ThreadsGenerator', 'singleton');
 
 
 
