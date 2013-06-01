@@ -1,14 +1,14 @@
 var should = require('should');
-var ThreadRecordWriter = require('../lib/core/ThreadRecordWriter');
-var mockedRequires = require('./mock/mock.requires');
+var Factory = require('../lib/utils/Factory');
+Factory.register({
+	ThreadRecordWriter: {
+		useMocked: true,
+		requires: 'fs os'
+	}
+});
 
 describe('Module: ThreadRecordWriter', function() {
 
-
-	it('should be a function', function() {
-
-		ThreadRecordWriter.should.be.a('function');
-	});
 
 	var properties = [
 		'fullPath',
@@ -19,14 +19,7 @@ describe('Module: ThreadRecordWriter', function() {
 		'save'];
 
 	it('should have properties - ' + properties.join(', '), function() {
-		var threadRecordWriter = new ThreadRecordWriter({
-			threads: {},
-
-			requires: {
-				os: mockedRequires.os,
-				fs: mockedRequires.fs
-			}
-		});
+		var threadRecordWriter = Factory.create('ThreadRecordWriter');
 		properties.forEach(function(p) {
 			threadRecordWriter.should.have.property(p);
 		});
@@ -34,14 +27,7 @@ describe('Module: ThreadRecordWriter', function() {
 	});
 
 	it('save file', function() {
-		var threadRecordWriter = new ThreadRecordWriter({
-			threads: {},
-			fileName: '',
-			requires: {
-				os: mockedRequires.os,
-				fs: mockedRequires.fs
-			}
-		});
+		var threadRecordWriter = Factory.create('ThreadRecordWriter');
 		threadRecordWriter.save('12345', 0);
 
 	});
