@@ -19,7 +19,7 @@
 	"status_update_every": 1000,
 
 	//Default download path
-	"download_path": "/Users/tusharmathur/download",
+	"download_path": "/Users/tusharmathur/download/",
 
 	//Type of logger <console, none>
 	"analytics_logger": "console",
