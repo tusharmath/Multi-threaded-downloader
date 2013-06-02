@@ -1,7 +1,7 @@
 {
   "name": "mt-downloader",
   "description": "The multi threaded downloader",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
