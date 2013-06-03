@@ -25,6 +25,7 @@
     "grunt": "*",
     "grunt-release": "*",
     "should": "*",
+    "async": "*",
     "mocha": "*"
   },
   "preferGlobal": true
