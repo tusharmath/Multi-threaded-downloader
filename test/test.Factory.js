@@ -1,5 +1,5 @@
 var should = require('should');
-var Factory = require('../lib/utils/Factory');
+var Factory = require('../lib/Factory');
 var FakeModule = require('../lib/core/FakeModule');
 var Mocked = require('./mock/mock.requires');
 var fs = require('fs');

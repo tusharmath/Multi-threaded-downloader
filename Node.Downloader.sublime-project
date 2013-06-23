@@ -1,7 +1,18 @@
 {
-	"folders": [{
-		"path": ".",
-		"folder_exclude_patterns": ["node_modules","temp", "coverage"],
-		"file_exclude_patterns": ["*.sublime*","*.orig"]
-	}]
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"*.sublime*",
+				"*.png"
+			],
+			"folder_exclude_patterns":
+			[
+				"node_modules",
+				"temp"
+			],
+			"path": "/Users/tusharmathur/Projects/Node.Downloader"
+		}
+	]
 }
