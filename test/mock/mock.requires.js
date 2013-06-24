@@ -1,10 +1,12 @@
-exports.os = {
+var mockery = require('mockery');
+
+mockery.registerMock('os', {
 	tmpdir: function() {
 		return '/Users/tusharmathur/desktop';
 	}
-};
+});
 
-exports.fs = {
+mockery.registerMock('fs', {
 	write: function(a, b, c, d, e, f) {
 		f();
 	},
@@ -25,9 +27,9 @@ exports.fs = {
 			}
 		};
 	}
-};
+});
 
-exports.crypto = {
+mockery.registerMock('crypto', {
 	createHash: function() {
 		return {
 			update: function() {},
@@ -36,18 +38,18 @@ exports.crypto = {
 			}
 		};
 	}
-};
-exports.url = {
+});
+
+mockery.registerMock('url', {
 	parse: function() {
 		return {
 			hostname: '',
 			path: ''
 		};
 	}
-};
+});
 
-
-exports.http = {
+mockery.registerMock('http', {
 	globalAgent: {
 		maxSockets: 0
 	},
@@ -90,8 +92,6 @@ exports.http = {
 			}
 		};
 	}
-};
+});
 
-exports.fake = {
-	FakeGlobalModule: true
-};
+module.exports = mockery;
