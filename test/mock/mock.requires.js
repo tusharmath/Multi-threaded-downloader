@@ -82,7 +82,10 @@ mockery.registerMock('http', {
 				'content-length': 100,
 				'content-type': 'text/html'
 			},
-			destroy: function() {}
+			destroy: function() {},
+			addListener: function(a, b) {
+				b('random-data');
+			}
 		});
 		return {
 			on: function() {

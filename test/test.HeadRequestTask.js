@@ -5,7 +5,7 @@ var HeadRequestTask;
 describe('HeadRequestTask', function() {
 	before(function() {
 		mockery.enable({
-			useCleanCache: true
+			warnOnUnregistered: false
 		});
 
 		HeadRequestTask = require('../lib/core/HeadRequestTask');
@@ -19,12 +19,17 @@ describe('HeadRequestTask', function() {
 		var headRequestTask = new HeadRequestTask('http://random/dom');
 
 		var headRequestMade = false;
+		var response;
 
 		headRequestTask.callback = function(data) {
 			headRequestMade = true;
+			response = data;
 		};
 
 		headRequestTask.execute();
 		headRequestMade.should.be.ok;
+		response.fileSize.should.equal(100);
+		response.contentType.should.equal('text/html');
+
 	});
 });
