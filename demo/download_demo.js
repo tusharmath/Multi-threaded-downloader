@@ -1,3 +1,6 @@
+var mockery = require('../test/mock/mock.requires');
+//mockery.enable();
+
 var executer = require('../lib/TaskExecuter');
 
 var options = {
@@ -7,11 +10,8 @@ var options = {
 	range: '0-100'
 };
 var url = 'http://nodejs.org/dist/v0.10.12/node-v0.10.12.pkg';
-var file = '/Users/tusharmathur/Downloads';
+var file = '/Users/tusharmathur/Desktop/temp/dummy.txt';
 
 
 var downloader = new executer(file, url, options);
 downloader.start();
-downloader.defaultCallback = function(a, b) {
-	console.log('Result:', b);
-};
