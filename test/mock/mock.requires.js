@@ -15,7 +15,9 @@ mockery.registerMock('fs', {
 	},
 	writeFile: function() {},
 	open: function(a, b, c, d) {
-		d(undefined, {});
+		d(undefined, {
+			'dumpling': 'dimplings'
+		});
 	},
 	unlink: function(a, b) {
 		b();
