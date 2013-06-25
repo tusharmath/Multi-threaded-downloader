@@ -20,13 +20,12 @@
     "test": "istanbul cover _mocha test/test.*"
   },
   "dependencies": {
-    "optimist": "*",
     "async": "*",
     "grunt": "*",
     "grunt-release": "*",
     "should": "*",
-    "async": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "underscore": "*"
   },
   "preferGlobal": true
 }
