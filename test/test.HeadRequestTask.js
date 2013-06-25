@@ -8,7 +8,7 @@ describe('HeadRequestTask', function() {
 			warnOnUnregistered: false
 		});
 
-		HeadRequestTask = require('../lib/core/HeadRequestTask');
+		HeadRequestTask = require('../lib/core/HeadRequestAsyncTask');
 	});
 
 	after(function() {

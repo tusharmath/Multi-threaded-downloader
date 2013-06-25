@@ -8,7 +8,7 @@ describe('BodyRequestTask', function() {
 			warnOnUnregistered: false
 		});
 
-		BodyRequestTask = require('../lib/core/BodyRequestTask');
+		BodyRequestTask = require('../lib/core/BodyRequestAsyncTask');
 	});
 
 	after(function() {
