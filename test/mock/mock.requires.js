@@ -29,26 +29,6 @@ mockery.registerMock('fs', {
 	}
 });
 
-mockery.registerMock('crypto', {
-	createHash: function() {
-		return {
-			update: function() {},
-			digest: function() {
-				return 'xxxx';
-			}
-		};
-	}
-});
-
-mockery.registerMock('url', {
-	parse: function() {
-		return {
-			hostname: '',
-			path: ''
-		};
-	}
-});
-
 mockery.registerMock('http', {
 	globalAgent: {
 		maxSockets: 0

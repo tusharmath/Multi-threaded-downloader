@@ -23,8 +23,12 @@ describe('BodyRequestTask', function() {
 
 		var bodyRequestMade = false;
 		var response;
-		bodyRequestTask.callback = function(data) {
+
+		bodyRequestTask.callback = function() {
 			bodyRequestMade = true;
+		};
+
+		bodyRequestTask.onData = function(data) {
 			response = data;
 		};
 
