@@ -16,10 +16,9 @@ describe('BodyRequestTask', function() {
 	});
 
 	it('test execute method', function() {
-		var bodyRequestTask = new BodyRequestTask({
-			url: 'http://hihi',
-			header: 'bytes=0-100'
-		});
+		var bodyRequestTask = new BodyRequestTask(
+			'http://hihi.com/qwerty',
+			'bytes=0-100');
 
 		var bodyRequestMade = false;
 		var response;
