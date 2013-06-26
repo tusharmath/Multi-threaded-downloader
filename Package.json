@@ -25,7 +25,8 @@
     "grunt-release": "*",
     "should": "*",
     "mocha": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "json5" : "*"
   },
   "preferGlobal": true
 }
