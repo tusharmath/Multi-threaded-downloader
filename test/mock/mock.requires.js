@@ -19,6 +19,11 @@ mockery.registerMock('fs', {
 			'dumpling': 'dimplings'
 		});
 	},
+	fstat: function() {
+		return {
+			fileSize: 1000
+		};
+	},
 	unlink: function(a, b) {
 		b();
 	},
