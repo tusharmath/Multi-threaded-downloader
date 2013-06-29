@@ -4,13 +4,18 @@ var mockery = require('../test/mock/mock.requires');
 var executer = require('../lib/TaskExecuter');
 
 var options = {
-	threads: 4,
+	count: 4,
 	method: 'GET',
 	port: 80,
-	range: '0-100'
+	range: '0-100',
+	timeout: 5000,
+	//TODO : Implement
+	retry: true
+
+
 };
-var url = 'http://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png';
-var file = '/Users/tusharmathur/Desktop/temp/img.jpg';
+var url = 'http://joaomoreno.github.io/thyme/dist/Thyme-0.4.2.dmg';
+var file = '/Users/tusharmathur/Desktop/temp/Thyme.dmg';
 
 
 var downloader = new executer(file, url, options);

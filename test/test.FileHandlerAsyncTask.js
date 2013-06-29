@@ -19,7 +19,7 @@ describe('FileHandler', function() {
 		var fileHandler = new FileHandler('/Users/temp/demo.json');
 		var fileLoaded = false;
 		var descriptor;
-		fileHandler.callback = function(fd) {
+		fileHandler.callback = function(callback, fd) {
 			fileLoaded = true;
 			descriptor = fd;
 		};
