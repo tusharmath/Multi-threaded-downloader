@@ -1,7 +1,7 @@
 {
   "name": "mt-downloader",
   "description": "The multi threaded downloader",
-  "version": "0.0.14",
+  "version": "0.2.0",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
@@ -10,22 +10,19 @@
     "type": "git",
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
   },
-  "bin": {
-    "mtd": "./lib/utils/ndCommand.js"
-  },
   "engines": {
     "node": ">= 0.10.0"
   },
-  "dependencies": {
-    "optimist": "*",
-    "grunt": "*",
-    "grunt-zip": "*",
-    "grunt-contrib-watch": "*",
-    "grunt-contrib-copy": "*",
-    "grunt-contrib-nodeunit": "*",
-    "grunt-release": "*",
-    "json5": "*",
-    "wordwrap": "*"
+  "main": "./lib/TaskExecuter.js",
+  "scripts": {
+    "test": "istanbul cover _mocha test/test.*"
   },
-  "preferGlobal": true
+  "dependencies": {
+    "async": "*",
+    "grunt": "*",
+    "grunt-release": "*",
+    "should": "*",
+    "mocha": "*",
+    "underscore": "*"
+  }
 }
