@@ -1,5 +1,6 @@
 var _options = {
 	packageFile: './bin/app.nw',
+
 	applicationPath: './bin/mt-downloader.app/Contents/Resources'
 
 };
