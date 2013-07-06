@@ -16,16 +16,12 @@ describe('FileHandler', function() {
 	});
 
 	it('test execute method', function() {
-		var fileHandler = new FileHandler('/Users/temp/demo.json');
-		var fileLoaded = false;
+		var fileHandler = new FileHandler('/Dummy/path/file.txt');
 		var descriptor;
 		fileHandler.callback = function(callback, fd) {
-			fileLoaded = true;
 			descriptor = fd;
 		};
 		fileHandler.execute();
-
-		fileLoaded.should.be.ok;
-		descriptor.should.be.eql(fileHandler.fd);
+		descriptor.should.be.eql(mockery.Fake_FileDescriptor);
 	});
 });

@@ -16,23 +16,34 @@ describe('BodyRequestTask', function() {
 	});
 
 	it('test execute method', function() {
-		var bodyRequestTask = new BodyRequestTask(
-			'http://hihi.com/qwerty',
-			'bytes=0-100');
+		var dataResponse, bodyRequestMade = false,
+			response;
 
-		var bodyRequestMade = false;
-		var response;
+		var options = {
+			method: 'POST',
+			port: '1111'
+		};
 
-		bodyRequestTask.callback = function() {
+		var onData = function(data) {
+			dataResponse = data;
+		};
+
+		var bodyRequestTask = new BodyRequestTask('http://hihi.com/qwerty', 100, 200, onData, options);
+
+
+
+		bodyRequestTask.callback = function(resp) {
 			bodyRequestMade = true;
+			response = resp;
+
 		};
 
-		bodyRequestTask.onData = function(data) {
-			response = data;
-		};
 
 		bodyRequestTask.execute();
-		response.should.equal('random-data');
+		dataResponse.should.equal('random-data');
+		response.method.should.equal('POST');
+		response.port.should.equal('1111');
 		bodyRequestMade.should.be.ok;
+
 	});
 });

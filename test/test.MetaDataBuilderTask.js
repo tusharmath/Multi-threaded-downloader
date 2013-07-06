@@ -1,47 +1,32 @@
 var should = require('should');
-var mockery = require('./mock/mock.requires');
 var DataBuilder = require('../lib/core/MetaDataBuilderSyncTask');
-var ThreadGenerator = require('../lib/core/ThreadsGeneratorSyncTask');
-var fd;
+
 
 describe('MetaDataBuilderSyncTask', function() {
-	var fileSize = 100;
-	var url = 'http://a.com/b';
 
+	it('test execute method', function(done) {
+		var fileSize = 100,
+			url = 'http://a.com/b',
+			method = 'GET',
+			port = '80',
+			threads = {
+				start: 0,
+				position: 10,
+				end: 20
+			},
+			options = {
+				block: 100
+			};
 
-	var threadsGenerator = new ThreadGenerator(fileSize);
-	threadsGenerator.execute();
+		var builder = new DataBuilder(threads, fileSize, url, method, port, options);
 
-
-
-	before(function() {
-		mockery.enable({
-			warnOnUnregistered: false
-		});
-
-		var FileHandler = require('../lib/core/FileHandlerAsyncTask');
-		var fileHandler = new FileHandler('A/Dummy/Path');
-		fileHandler.callback = function(fd) {
-			fd = fd;
-		};
-		fileHandler.execute();
-
-	});
-
-	after(function() {
-		mockery.disable();
-	});
-
-
-	it('test write position', function() {
-
-		var builder = new DataBuilder(threadsGenerator.threads, '/Users/downloads/demo.pkg', 100, fd);
-		var response;
-		builder.callback = function(data) {
-			response = data;
+		builder.callback = function(err, response) {
+			response.position.should.equal(100);
+			response.data.length.should.equal(options.block);
+			done();
 		};
 		builder.execute();
-		response.position.should.equal(100);
+
 
 	});
 });

@@ -2,23 +2,41 @@ var should = require('should');
 var ThreadsGenerator = require('../lib/core/ThreadsGeneratorSyncTask');
 
 describe('ThreadGeneratorTask', function() {
-	it('test creation task', function() {
-		var generator = new ThreadsGenerator(100, {
-			count: 4
-		});
-		var _threads = [];
-		generator.callback = function(threads) {
-			_threads = threads;
+	it('test excution method ', function(done) {
+		var generator = new ThreadsGenerator(100, 4, '0-100');
+
+		generator.callback = function(err, threads) {
+
+			threads[0].start.should.equal(0);
+			threads[0].end.should.equal(25);
+
+			threads[1].start.should.equal(26);
+			threads[1].end.should.equal(50);
+
+			threads[2].start.should.equal(51);
+			threads[2].end.should.equal(75);
+
+			threads[3].start.should.equal(76);
+			threads[3].end.should.equal(100);
+			done();
 		};
 		generator.execute();
-		_threads[0].start.should.equal(0);
-		_threads[0].end.should.equal(25);
-		_threads[1].start.should.equal(26);
-		_threads[1].end.should.equal(50);
-		_threads[2].start.should.equal(51);
-		_threads[2].end.should.equal(75);
-		_threads[3].start.should.equal(76);
-		_threads[3].end.should.equal(100);
+
+	});
+
+	it('test range download', function(done) {
+		var generator = new ThreadsGenerator(100, 2, '50-60');
+
+		generator.callback = function(err, threads) {
+
+			threads[0].start.should.equal(50);
+			threads[0].end.should.equal(55);
+
+			threads[1].start.should.equal(56);
+			threads[1].end.should.equal(60);
+			done();
+		};
+		generator.execute();
 
 	});
 });

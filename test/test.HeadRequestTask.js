@@ -15,21 +15,15 @@ describe('HeadRequestTask', function() {
 		mockery.disable();
 	});
 
-	it('test execute method', function() {
-		var headRequestTask = new HeadRequestTask('http://random/dom');
+	it('test execute method', function(done) {
+		var req = new HeadRequestTask('http://random/dom');
 
-		var headRequestMade = false;
-		var response;
-
-		headRequestTask.callback = function(data) {
-			headRequestMade = true;
-			response = data;
+		req.callback = function(err, data) {
+			data.fileSize.should.equal(100);
+			data.contentType.should.equal('text/html');
+			done();
 		};
-
-		headRequestTask.execute();
-		headRequestMade.should.be.ok;
-		response.fileSize.should.equal(100);
-		response.contentType.should.equal('text/html');
+		req.execute();
 
 	});
 });
