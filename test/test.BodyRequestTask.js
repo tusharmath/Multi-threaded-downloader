@@ -15,7 +15,7 @@ describe('BodyRequestTask', function() {
 		mockery.disable();
 	});
 
-	it('test execute method', function() {
+	it('test execute method', function(done) {
 		var dataResponse, bodyRequestMade = false,
 			response;
 
@@ -24,26 +24,19 @@ describe('BodyRequestTask', function() {
 			port: '1111'
 		};
 
-		var onData = function(data) {
-			dataResponse = data;
+		var bodyRequestTask = new BodyRequestTask('http://hihi.com/qwerty', 100, 200, options);
+
+		bodyRequestTask.callback = function(err, response) {
+			dataResponse = response;
+			dataResponse.connection.should.equal('open');
+			dataResponse.data.should.equal(mockery.Fake_HttpBodyResponse.content);
 		};
 
-		var bodyRequestTask = new BodyRequestTask('http://hihi.com/qwerty', 100, 200, onData, options);
-
-
-
-		bodyRequestTask.callback = function(resp) {
-			bodyRequestMade = true;
-			response = resp;
-
-		};
-
-
+		bodyRequestTask.method.should.equal('POST');
+		bodyRequestTask.port.should.equal('1111');
 		bodyRequestTask.execute();
-		dataResponse.should.equal('random-data');
-		response.method.should.equal('POST');
-		response.port.should.equal('1111');
-		bodyRequestMade.should.be.ok;
 
+		bodyRequestTask.connection.should.equal('closed');
+		done();
 	});
 });
