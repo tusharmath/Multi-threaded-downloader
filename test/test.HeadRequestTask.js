@@ -16,12 +16,23 @@ describe('HeadRequestTask', function() {
 	});
 
 	it('test execute method', function(done) {
-		var req = new HeadRequestTask('http://random/dom');
+		var executedCallbacks = 0;
+		var executed = function() {
+			executedCallbacks++;
+			if (executedCallbacks === 2) {
+				done();
+			}
+		};
+		var options = {};
+		options.onHead = function(err, result) {
+			executed();
+		};
+		var req = new HeadRequestTask('http://random/dom', options);
 
 		req.callback = function(err, data) {
 			data.fileSize.should.equal(100);
 			data.contentType.should.equal('text/html');
-			done();
+			executed();
 		};
 		req.execute();
 
