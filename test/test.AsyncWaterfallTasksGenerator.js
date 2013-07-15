@@ -1,9 +1,9 @@
 var should = require('should');
 var async = require('async');
-WaterfallTasksGenerator = require('../lib/core/AsyncWaterfallGeneratorTask');
+WaterfallExecuter = require('../lib/core/WaterfallExecuterTask');
 
 var DownloadReader;
-describe('AsyncWaterfallTasksGenerator', function() {
+describe('AsyncWaterfallExecuter', function() {
 
 
     it('test execute method', function(done) {
@@ -64,7 +64,7 @@ describe('AsyncWaterfallTasksGenerator', function() {
 
         };
 
-        var tasksGenerator = new WaterfallTasksGenerator(tasksSetup, cParams);
+        var tasksGenerator = new WaterfallExecuter(tasksSetup, cParams);
 
         tasksGenerator.callback = function(err, result) {
 

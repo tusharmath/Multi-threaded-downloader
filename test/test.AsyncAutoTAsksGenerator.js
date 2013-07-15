@@ -1,9 +1,9 @@
 var should = require('should');
 var async = require('async');
-AutoTasksGenerator = require('../lib/core/AsyncAutoGeneratorTask');
+AutoExecuterTask = require('../lib/core/AutoExecuterTask');
 
 var DownloadReader;
-describe('AsyncAutoTasksGenerator', function() {
+describe('AsyncAutoExecuterTask', function() {
 
 
     it('test execute method', function(done) {
@@ -71,7 +71,7 @@ describe('AsyncAutoTasksGenerator', function() {
 
         };
 
-        var tasksGenerator = new AutoTasksGenerator(tasksSetup, cParams);
+        var tasksGenerator = new AutoExecuterTask(tasksSetup, cParams);
 
         tasksGenerator.callback = function(err, result) {
 
