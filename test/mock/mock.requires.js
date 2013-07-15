@@ -7,22 +7,25 @@ mockery.registerMock('os', {
 });
 
 mockery.registerMock('fs', {
+	ftruncate: function(fd, fileSize, callback) {
+		callback(null, fd.content.slice(0, fileSize));
+	},
 	write: function(a, b, c, d, e, f) {
 		f();
 	},
-	readFile: function(a, b, c) {
-		c('{}');
+	open: function(a, b, c, callback) {
+		callback(undefined, mockery.Fake_FileDescriptor);
 	},
-	writeFile: function() {},
-	open: function(a, b, c, d) {
-		d(undefined, {
-			'dumpling': 'dimplings'
+	fstat: function(fd, callback) {
+		//console.log(fd.content.length);
+		callback(null, {
+			size: fd.content.length
 		});
 	},
-	fstat: function() {
-		return {
-			fileSize: 1000
-		};
+	read: function(fd, buffer, start, end, postion, callback) {
+		var blockContent = JSON.stringify(fd.content.slice(postion));
+
+		callback(null, null, new Buffer(blockContent));
 	},
 	unlink: function(a, b) {
 		b();
@@ -43,35 +46,17 @@ mockery.registerMock('http', {
 	Agent: {
 		defaultMaxSockets: 0
 	},
-	get: function(a, b) {
-		b({
-			addListener: function(a, b) {
-				if (a == 'end') {
-					b();
-				} else if (a == 'data') {
-					b([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
-				}
-			},
-			destroy: function() {}
-		});
-		return {
-			on: function() {
-				return {
-					end: function() {}
-				};
-			}
 
-		};
-	},
-	request: function(a, b) {
-		b({
+	request: function(requestOptions, onStart) {
+		onStart({
 			headers: {
 				'content-length': 100,
 				'content-type': 'text/html'
 			},
 			destroy: function() {},
-			addListener: function(a, b) {
-				b('random-data');
+			addListener: function(command, callback) {
+				if (command == 'end') callback();
+				else if (command == 'data') callback(mockery.Fake_HttpBodyResponse.content);
 			}
 		});
 		return {
@@ -83,5 +68,12 @@ mockery.registerMock('http', {
 		};
 	}
 });
+var dummyString = 'AAAA AAAA AAAA AAAA BBBB BBBB BBBB CCCC CCCC EEEE';
+mockery.Fake_FileDescriptor = {
+	content: dummyString
+};
+mockery.Fake_HttpBodyResponse = {
+	content: dummyString
+};
 
 module.exports = mockery;
