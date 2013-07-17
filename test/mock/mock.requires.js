@@ -62,10 +62,12 @@ mockery.registerMock('http', {
             }
         });
         return {
-            on: function() {
+            on: function(cmd, onError) {
+                onError('fake-error');
                 return {
                     end: function() {}
                 };
+
             }
         };
     }

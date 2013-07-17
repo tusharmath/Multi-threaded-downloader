@@ -16,15 +16,31 @@ describe('HeadRequestTask', function() {
     });
 
     it('test execute method', function(done) {
-        var executedCallbacks = 0;
 
-        var options = {};
-        var req = new HeadRequestTask('http://random/dom', options);
+        var req = new HeadRequestTask('http://random/dom');
 
         var callback = function(err, data) {
-            data.fileSize.should.equal(100);
-            data.contentType.should.equal('text/html');
-            done();
+            if (data) {
+                data.fileSize.should.equal(100);
+                data.contentType.should.equal('text/html');
+                done();
+            }
+
+        };
+        req.execute(callback);
+
+    });
+
+    it('test onerror method', function(done) {
+
+        var req = new HeadRequestTask('http://random/dom');
+
+        var callback = function(err, data) {
+            if (err) {
+                err.should.equal('fake-error');
+                done();
+            }
+
         };
         req.execute(callback);
 
