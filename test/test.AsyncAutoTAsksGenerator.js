@@ -1,3 +1,4 @@
+/*
 var should = require('should');
 var async = require('async');
 AutoExecuterTask = require('../lib/core/AutoExecuterTask');
@@ -17,7 +18,7 @@ describe('AsyncAutoExecuterTask', function() {
                 lib: function(a) {
                     this.a = a;
                     this.execute = function(b) {
-                        //console.log('calling first');
+                        
                         this.callback(null, {
                             a: this.a * 10,
                             b: b * 10
@@ -36,7 +37,7 @@ describe('AsyncAutoExecuterTask', function() {
                     this.y = y;
 
                     this.execute = function() {
-                        //console.log('calling second');
+                        
                         this.callback(null, {
                             a: this.x + this.y,
                             b: this.x - this.y
@@ -54,7 +55,7 @@ describe('AsyncAutoExecuterTask', function() {
                     this.y = y;
 
                     this.execute = function(p, q) {
-                        //console.log('calling second');
+                        
                         this.callback(null, {
                             a: this.x,
                             b: this.y,
@@ -95,3 +96,4 @@ describe('AsyncAutoExecuterTask', function() {
         tasksGenerator.execute();
     });
 });
+*/

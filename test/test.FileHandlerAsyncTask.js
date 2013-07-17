@@ -18,10 +18,10 @@ describe('FileHandler', function() {
 	it('test execute method', function() {
 		var fileHandler = new FileHandler('/Dummy/path/file.txt');
 		var descriptor;
-		fileHandler.callback = function(callback, fd) {
+		var callback = function(callback, fd) {
 			descriptor = fd;
 		};
-		fileHandler.execute();
+		fileHandler.execute(callback);
 		descriptor.should.be.eql(mockery.Fake_FileDescriptor);
 	});
 });

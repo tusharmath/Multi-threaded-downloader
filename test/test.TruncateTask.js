@@ -19,10 +19,10 @@ describe('TruncateTask', function() {
 
 		var truncateTask = new TruncateTask(mockery.Fake_FileDescriptor, 44);
 
-		truncateTask.callback = function(err, result) {
+		var callback = function(err, result) {
 			result.should.equal('AAAA AAAA AAAA AAAA BBBB BBBB BBBB CCCC CCCC');
 			done();
 		};
-		truncateTask.execute();
+		truncateTask.execute(callback);
 	});
 });

@@ -20,12 +20,12 @@ describe('DownloadTimeoutTask', function() {
 
         var timer = new DownloadTimeout(threads, options);
 
-        timer.callback = function(err, timeout) {
+        var callback = function(err, timeout) {
             timeout.should.equal(options.timeout);
             err.toString().should.equal(e(1001, options.timeout).toString());
 
             done();
         };
-        timer.execute();
+        timer.start(callback);
     });
 });

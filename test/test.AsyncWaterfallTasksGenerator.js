@@ -1,3 +1,4 @@
+/*
 var should = require('should');
 var async = require('async');
 WaterfallExecuter = require('../lib/core/WaterfallExecuterTask');
@@ -24,7 +25,7 @@ describe('AsyncWaterfallExecuter', function() {
                     this.b = b;
                     this.c = c;
                     this.execute = function(d, e, f) {
-                        //console.log('calling first');
+                        
                         this.callback(null, {
                             first_a: this.a,
                             first_b: this.b,
@@ -46,7 +47,7 @@ describe('AsyncWaterfallExecuter', function() {
                     this.y = y;
                     this.z = z;
                     this.execute = function(p, q, r) {
-                        //console.log('calling second');
+                        
                         this.callback(null, {
                             second_a: this.x,
                             second_b: this.y,
@@ -82,3 +83,4 @@ describe('AsyncWaterfallExecuter', function() {
         tasksGenerator.execute();
     });
 });
+*/

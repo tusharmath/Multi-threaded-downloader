@@ -23,11 +23,11 @@ describe('DownloadReaderTask', function() {
 		};
 		var reader = new DownloadReader(dummyFileDescriptor, options);
 
-		reader.callback = function(callback, blockContent) {
+		var callback = function(callback, blockContent) {
 			content = blockContent;
 		};
 
-		reader.execute();
+		reader.execute(callback);
 		reader.actualSize.should.equal(dummyFileDescriptor.content.length);
 		content.should.equal('EEEE');
 	});

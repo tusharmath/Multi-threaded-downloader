@@ -8,7 +8,7 @@ describe('ThreadGeneratorTask', function() {
             range: '0-100'
         });
 
-        generator.callback = function(err, threads) {
+        var callback = function(err, threads) {
 
             threads[0].start.should.equal(0);
             threads[0].end.should.equal(25);
@@ -23,7 +23,7 @@ describe('ThreadGeneratorTask', function() {
             threads[3].end.should.equal(100);
             done();
         };
-        generator.execute();
+        generator.execute(callback);
 
     });
 
@@ -33,7 +33,7 @@ describe('ThreadGeneratorTask', function() {
             range: '50-60'
         });
 
-        generator.callback = function(err, threads) {
+        var callback = function(err, threads) {
 
             threads[0].start.should.equal(50);
             threads[0].end.should.equal(55);
@@ -42,7 +42,7 @@ describe('ThreadGeneratorTask', function() {
             threads[1].end.should.equal(60);
             done();
         };
-        generator.execute();
+        generator.execute(callback);
 
     });
 });
