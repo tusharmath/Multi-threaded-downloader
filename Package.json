@@ -18,13 +18,13 @@
     "test": "istanbul cover _mocha test/test.*"
   },
   "dependencies": {
-    "async": "~0.2.0",
-    "underscore": "~1.5.0"
+    "async": "0.2.x",
+    "underscore": "1.5.x"
   },
   "devDependencies": {
-    "grunt-release": "*",
-    "istanbul": "*",
-    "mocha": "*",
-    "should": "*"
+    "grunt-release": "0.3.x",
+    "istanbul": "0.1.x",
+    "mocha": "1.12.x",
+    "should": "1.2.x"
   }
 }
