@@ -18,7 +18,6 @@ mockery.registerMock('fs', {
     },
     existsSync: function() {},
     fstat: function(fd, callback) {
-        //console.log(fd.content.length);
         callback(null, {
             size: fd.content.length
         });

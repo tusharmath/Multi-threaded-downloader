@@ -1,28 +1,29 @@
 {
-  "name": "mt-downloader",
-  "description": "The multi threaded downloader",
-  "version": "0.2.0",
-  "author": {
-    "name": "Tushar Mathur <tusharmath@gmail.com>",
-    "url": "http://tusharm.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
-  },
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "main": "./lib/TaskExecuter.js",
-  "scripts": {
-    "test": "istanbul cover _mocha test/test.*"
-  },
-  "dependencies": {
-    "async": "*",
-    "grunt": "*",
-    "grunt-release": "*",
-    "should": "*",
-    "mocha": "*",
-    "underscore": "*"
-  }
+	"name": "mt-downloader",
+	"description": "The multi threaded downloader",
+	"version": "0.2.0",
+	"author": {
+		"name": "Tushar Mathur <tusharmath@gmail.com>",
+		"url": "http://tusharm.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
+	},
+	"engines": {
+		"node": ">= 0.10.0"
+	},
+	"main": "./lib/TaskExecuter.js",
+	"scripts": {
+		"test": "istanbul cover _mocha test/test.*"
+	},
+	"dependencies": {
+		"async": "*",
+		"underscore": "*"
+	},
+	"devDependencies": {
+		"grunt-release": "*",
+		"mocha": "*",
+		"should": "*"
+	}
 }
