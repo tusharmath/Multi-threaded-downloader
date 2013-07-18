@@ -1,7 +1,7 @@
 {
   "name": "mt-downloader",
   "description": "The multi threaded downloader",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "grunt-release": "*",
-    "istanbul" : "*",
+    "istanbul": "*",
     "mocha": "*",
     "should": "*"
   }
