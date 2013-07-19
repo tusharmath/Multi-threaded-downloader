@@ -6,7 +6,7 @@ var DownloadReader;
 describe('DownloadTimeoutTask', function() {
 
 
-    it('test execute method', function(done) {
+    it('test time out', function(done) {
         var timeout;
         var threads = {
             start: 0,
@@ -15,17 +15,18 @@ describe('DownloadTimeoutTask', function() {
         };
 
         var options = {
-            timeout: 100
+            timeout: 0.1
         };
 
         var timer = new DownloadTimeout(threads, options);
 
-        var callback = function(err, timeout) {
-            timeout.should.equal(options.timeout);
-            err.toString().should.equal(e(1001, options.timeout).toString());
+        var callback = function(err, stopper) {
 
-            done();
+            if (err) {
+                err.toString().should.equal(e(1001, options.timeout).toString());
+                done();
+            }
         };
-        timer.start(callback);
+        timer.execute(callback);
     });
 });
