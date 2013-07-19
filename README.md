@@ -68,6 +68,9 @@ var options = {
 		    //HTTP port
 		    port: 80, //(Default: 80)
 		    
+		    //If no data is received the download times out.
+		    timeout: 5, //(Default: 5 seconds)
+		    
 		    //Download Range, to control how much of the file dow you want to download.
 		    range: '0-100', //(Default: '0-100')
 		    
@@ -86,15 +89,27 @@ var options = {
 ```
 
 ##*onStart* Callback
-The onStart method is called with some meta data. This contains three main components.
+The onStart method is called with some meta data. It contains three main components.
 
 1. **url:** This is particularly useful when you want to know the url of a file which was downloaded from a .mtd file. As we learnt from above that we don't need to provide a url parameter to start a download from .mtd file.
 
 2. **size:** This stores the actual download size of the file on the server from where it has to be downloaded.
+
 3. **threads:** This stores the actual download thread information. Fields such as start, end and position. We will learn more about it later.
 	
 ##*threads* Meta
 The ```onStart``` callback return a **threads** object which stores all the information related to the download threads. This vital object is available of consumption for other libraries. With this object you can retrieve all kinds of information related to the download status of the file. A good example is to see it in action is to see how [mt-console](https://github.com/tusharmath/mtd-console) does it [here](https://github.com/tusharmath/mtd-console/blob/master/Analytics.js)
+
+Each thread has a **connection** key which shows its downloading status, namely - 
+
+1. **Idle:** It means that no connection has yet been established successfully.
+
+2. **Open:** Connection has been made and data is getting received through this thread.
+
+3. **Closed:** Download has been completed successfully for this thread.
+
+4. **Failed:** Download abruptly ended for this thread.
+
 
 **Important Note:** Never modify this object or else your download will be corrupted.
 
