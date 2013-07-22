@@ -31,6 +31,17 @@ describe('DataRequest', function() {
 			};
 		};
 		var c1, c2;
+
+		var metaBuilder = function(callback) {
+			callback(null, {
+				data: {
+					length: 20
+				},
+				position: 120
+
+			});
+		};
+
 		var bodyResponse = function(callback) {
 			if (c1) {
 				c2 = callback;
@@ -84,13 +95,24 @@ describe('DataRequest', function() {
 		}];
 
 
-		var req = new DataRequest(writer, threads, fake, fake, threadUpdator, fake, {});
+		var req = new DataRequest(writer, threads, metaBuilder, fake, threadUpdator, fake, {});
 
 		var callback = function(err, result) {
-			outputFile.length.should.equal(100);
-			_.each(outputFile, function(item) {
+			//console.log(outputFile);
+			var dataFile = outputFile.slice(0, 100);
+			var metaFile = outputFile.slice(120, 140);
+
+			_.each(dataFile, function(item) {
 				item.should.equal(1);
 			});
+
+
+			_.each(metaFile, function(item) {
+				item.should.equal(10);
+			});
+
+			outputFile.length.should.equal(140);
+
 			done();
 		};
 
