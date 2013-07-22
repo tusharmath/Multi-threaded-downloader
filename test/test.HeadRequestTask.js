@@ -1,5 +1,6 @@
 var mockery = require('./mock/mock.requires');
 var should = require('should');
+var e = require('../lib/Exceptions');
 
 var HeadRequestTask;
 describe('HeadRequestTask', function() {
@@ -37,7 +38,7 @@ describe('HeadRequestTask', function() {
 
 		var callback = function(err, data) {
 			if (err) {
-				err.should.equal('fake-error');
+				err.should.eql(e(1004, 'random'));
 				done();
 			}
 
