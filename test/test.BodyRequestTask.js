@@ -41,6 +41,20 @@ describe('BodyRequestTask', function() {
 
 	});
 
+	it('test completed threads', function(done) {
+		var bodyRequestTask = new BodyRequestTask('http://hihi.com/qwerty', 100, 100);
+
+		var callback = function(err, response) {
+
+			response.event.should.equal('end');
+			done();
+		};
+
+
+		bodyRequestTask.execute(callback);
+
+	});
+
 	it('test onError method', function(done) {
 		var dataResponse, bodyRequestMade = false,
 			_response;
