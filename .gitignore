@@ -1,3 +1,4 @@
 test/core.downloaded.png
 coverage
 __*
+*.diff
