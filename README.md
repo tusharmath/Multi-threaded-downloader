@@ -8,18 +8,18 @@ This is a nodejs based application which help you in performing downloads via Ht
 
 2. **Stop and start from the last downloaded byte:**. You don't have to worry about internet getting disconnected or your computer shutting down while downloading. You can quite easily start from the last byte that was downloaded.
 
-4. **Console application:** If you don't want to use it as a library, instead as an application we have a console application for you - [mt-console](https://github.com/tusharmath/mtd-console)
+4. **Console application:** If you don't want to use it as a library and want to use it as an application instead we have a console application for you - [mt-console](https://github.com/tusharmath/mtd-console)
 
 ##Installation
 
-The conventional nom installation process needs to be followed.
+The conventional npm installation process needs to be followed.
 
 ```bash
 $ npm install mt-downloader
 ```
 
-##mtd file 
-Once the download starts the library will create a file with a **.mtd** extension. This file contains all meta information and is a little bigger *(around 10kb)* than than the original download. The **.mtd** file can be used later to restart downloads from where it stopped. After the download is completed the downloader will truncate the file to remove that meta data.
+##.mtd file 
+Once the download starts the library will create a file with a **.mtd** extension. This file contains some meta information related to the download and is a little bigger *(around 10kb)* than the original download size. The **.mtd** file can be used later to restart downloads from where the last byte that was downloaded. After the download is completed the downloader will truncate the file to remove that meta data.
 
 ##New-Downloads
 When you want to start a new download you just need to provide a download url and a download path and call the ```start()``` method.
@@ -68,10 +68,10 @@ var options = {
 		    //HTTP port
 		    port: 80, //(Default: 80)
 		    
-		    //If no data is received the download times out.
+		    //If no data is received the download times out. It is measured in seconds.
 		    timeout: 5, //(Default: 5 seconds)
 		    
-		    //Download Range, to control how much of the file dow you want to download.
+		    //Control the part of file that needs to be downloaded.
 		    range: '0-100', //(Default: '0-100')
 		    
 		    
@@ -83,7 +83,7 @@ var options = {
 		    //Triggered when the download is completed
 		    onEnd: function(err, result) {
 		        if (err) console.error(err);
-		        console.log('Download Complete');
+		        else console.log('Download Complete');
 		    }
 		};
 ```
@@ -91,14 +91,14 @@ var options = {
 ##*onStart* Callback
 The onStart method is called with some meta data. It contains three main components.
 
-1. **url:** This is particularly useful when you want to know the url of a file which was downloaded from a .mtd file. As we learnt from above that we don't need to provide a url parameter to start a download from .mtd file.
+1. **url:** As we learnt from above that we don't need to provide a url parameter to start a download from .mtd file. So this is particularly useful when you want to know the url of a file which is getting downloaded from a .mtd file.
 
-2. **size:** This stores the actual download size of the file on the server from where it has to be downloaded.
+2. **size:** This stores the actual download size of the file on the server.
 
 3. **threads:** This stores the actual download thread information. Fields such as start, end and position. We will learn more about it later.
 	
 ##*threads* Meta
-The ```onStart``` callback return a **threads** object which stores all the information related to the download threads. This vital object is available of consumption for other libraries. With this object you can retrieve all kinds of information related to the download status of the file. A good example is to see it in action is to see how [mt-console](https://github.com/tusharmath/mtd-console) does it [here](https://github.com/tusharmath/mtd-console/blob/master/Analytics.js)
+The ```onStart``` callback return a **threads** object which stores all the information related to the download threads. This vital object is available of consumption for other libraries. With this object you can retrieve all kinds of information related to the download status of the file. A good example to see it in action is to see how [mt-console](https://github.com/tusharmath/mtd-console) uses it [here](https://github.com/tusharmath/mtd-console/blob/master/Analytics.js).
 
 Each thread has a **connection** key which shows its downloading status, namely - 
 
@@ -113,4 +113,4 @@ Each thread has a **connection** key which shows its downloading status, namely 
 
 **Important Note:** Never modify this object or else your download will be corrupted.
 
-
+The threads also have ```start```, ```position``` and ```end``` keys. They tell what part of the download does each thread represent in terms of *bytes*. ```start``` represents the start byte, ```end``` represents the end byte and ```position``` represents the bytes that have been downloaded till now.
