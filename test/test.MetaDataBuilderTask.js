@@ -14,11 +14,12 @@ describe('MetaDataBuilderSyncTask', function() {
 				position: 10,
 				end: 20
 			},
+			headers = [1, 2, 3, 4, 5],
 			options = {
 				block: 100
 			};
 
-		var builder = new DataBuilder(threads, fileSize, url, method, port, options);
+		var builder = new DataBuilder(threads, fileSize, url, method, port, headers, options);
 
 		var callback = function(err, response) {
 			response.position.should.equal(100);

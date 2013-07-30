@@ -23,7 +23,7 @@ describe('HeadRequestTask', function() {
 		var callback = function(err, data) {
 			if (data) {
 				data.fileSize.should.equal(100);
-				data.contentType.should.equal('text/html');
+				data.headers.should.equal(mockery.Fake_HttpBodyResponse.headers);
 				done();
 			}
 

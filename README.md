@@ -60,7 +60,7 @@ A set of custom options can be sent to control the way a download is performed.
 ```javascript
 var options = {
 		    //To set the total number of download threads
-		    count: 2, //(Default: 2)
+		    count: 2, //(Default: 6)
 		    
 		    //HTTP method
 		    method: 'GET', //(Default: GET)
@@ -89,13 +89,15 @@ var options = {
 ```
 
 ##*onStart* Callback
-The onStart method is called with some meta data. It contains three main components.
+The onStart method is called with some meta data. The main components are as follows - 
 
 1. **url:** This is particularly useful when you want to know the url of a file which was downloaded from a .mtd file. As we learnt from above that we don't need to provide a url parameter to start a download from .mtd file.
 
 2. **size:** This stores the actual download size of the file on the server from where it has to be downloaded.
 
 3. **threads:** This stores the actual download thread information. Fields such as start, end and position. We will learn more about it later.
+
+4. **headers:** You can get all the http Headers of the download in case you want to use them. For instance, you might want to use the **Content-Disposition** header to get the name of the downloaded file.
 	
 ##*threads* Meta
 The ```onStart``` callback return a **threads** object which stores all the information related to the download threads. This vital object is available of consumption for other libraries. With this object you can retrieve all kinds of information related to the download status of the file. A good example is to see it in action is to see how [mt-console](https://github.com/tusharmath/mtd-console) does it [here](https://github.com/tusharmath/mtd-console/blob/master/Analytics.js)
@@ -112,5 +114,3 @@ Each thread has a **connection** key which shows its downloading status, namely 
 
 
 **Important Note:** Never modify this object or else your download will be corrupted.
-
-

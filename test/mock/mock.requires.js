@@ -1,5 +1,20 @@
 var mockery = require('mockery');
 
+var dummyString = 'AAAA AAAA AAAA AAAA BBBB BBBB BBBB CCCC CCCC EEEE';
+
+mockery.Fake_FileDescriptor = {
+	content: dummyString
+};
+
+mockery.Fake_HttpBodyResponse = {
+	content: dummyString,
+	headers: {
+		'content-length': 100,
+		'content-type': 'text/html',
+		'content-disposition': 'attachment; filename="10 Trips You NEED To Take In Your 20s.mp4"'
+	}
+};
+
 mockery.registerMock('os', {
 	tmpdir: function() {
 		return '/Users/tusharmathur/desktop';
@@ -50,10 +65,7 @@ mockery.registerMock('http', {
 	request: function(requestOptions, onStart) {
 		onStart({
 			'is-fake': true,
-			headers: {
-				'content-length': 100,
-				'content-type': 'text/html'
-			},
+			headers: mockery.Fake_HttpBodyResponse.headers,
 			destroy: function() {},
 			addListener: function(command, callback) {
 				if (command == 'end') callback();
@@ -71,12 +83,6 @@ mockery.registerMock('http', {
 		};
 	}
 });
-var dummyString = 'AAAA AAAA AAAA AAAA BBBB BBBB BBBB CCCC CCCC EEEE';
-mockery.Fake_FileDescriptor = {
-	content: dummyString
-};
-mockery.Fake_HttpBodyResponse = {
-	content: dummyString
-};
+
 
 module.exports = mockery;
