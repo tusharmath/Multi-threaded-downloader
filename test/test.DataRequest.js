@@ -127,13 +127,20 @@ describe('DataRequest', function() {
 			callback('http-error');
 		};
 
+		var destroy = function(){
+			done();
+		};
+
 		var threads = [{
 			bodyRequest: bodyRequest,
-			connection: 'open'
+			connection: 'open',
+			destroy : destroy
 		}];
 
 		var threadUpdator = function(item, err, response, destroy, callback) {
 			item.connection = 'failed';
+			item.destroy();
+			callback();
 		};
 
 
@@ -142,7 +149,6 @@ describe('DataRequest', function() {
 		var callback = function(err, result) {
 			should.not.exist(err);
 			threads[0].connection.should.equal('failed');
-			done();
 		};
 		req.execute(callback);
 

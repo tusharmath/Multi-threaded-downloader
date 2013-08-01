@@ -12,12 +12,16 @@ describe('ThreadUpdateTask', function() {
 	var failed = 'failed';
 	var idle = 'idle';
 
-	it('test execute for failed', function() {
+	it('test execute for failed', function(done) {
 		var thread = {
-			connection: open
+			connection: open,
+			destroy: function() {
+				thread.connection.should.equal(failed);
+				done();
+			}
 		};
 		u.executor(ThreadUpdator)(thread, {});
-		thread.connection.should.equal(failed);
+
 	});
 
 	it('test execute for open', function() {
