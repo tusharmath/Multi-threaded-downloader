@@ -127,14 +127,14 @@ describe('DataRequest', function() {
 			callback('http-error');
 		};
 
-		var destroy = function(){
+		var destroy = function() {
 			done();
 		};
 
 		var threads = [{
 			bodyRequest: bodyRequest,
 			connection: 'open',
-			destroy : destroy
+			destroy: destroy
 		}];
 
 		var threadUpdator = function(item, err, response, destroy, callback) {

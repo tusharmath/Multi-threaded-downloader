@@ -12,15 +12,41 @@ describe('ThreadUpdateTask', function() {
 	var failed = 'failed';
 	var idle = 'idle';
 
+	it('test for error on closed connections', function() {
+		var callback = 0;
+		var thread = {
+			connection: open
+		};
+		var updator = u.executor(ThreadUpdator);
+
+		var response = {
+			event: 'end'
+		};
+
+		updator(thread, {}, null, null, function() {
+			callback++;
+		});
+		updator(thread, null, response, null, function() {
+			callback++;
+		});
+
+		callback.should.equal(1);
+
+	});
+
 	it('test execute for failed', function(done) {
+		var isDestroyed = false;
 		var thread = {
 			connection: open,
 			destroy: function() {
-				thread.connection.should.equal(failed);
-				done();
+				isDestroyed = true;
 			}
 		};
-		u.executor(ThreadUpdator)(thread, {});
+		u.executor(ThreadUpdator)(thread, {}, {}, null, function() {
+			isDestroyed.should.be.ok;
+			thread.connection.should.equal(failed);
+			done();
+		});
 
 	});
 
