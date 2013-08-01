@@ -1,6 +1,7 @@
 var should = require('should');
 
 ThreadUpdator = require('../lib/core/ThreadUpdateTask');
+var u = require('../lib/Utils');
 
 var DownloadReader;
 
@@ -11,85 +12,96 @@ describe('ThreadUpdateTask', function() {
 	var failed = 'failed';
 	var idle = 'idle';
 
+	it('test execute for failed', function() {
+		var thread = {
+			connection: open
+		};
+		u.executor(ThreadUpdator)(thread, {});
+		thread.connection.should.equal(failed);
+	});
 
-	it('test execute method', function() {
-		var threadUpdater = new ThreadUpdator();
+	it('test execute for open', function() {
 
 		var thread = {
 			connection: idle
 		};
-		threadUpdater.execute(thread, null, {});
-		thread.connection.should.equal(idle);
 
-		thread = {
-			connection: idle
-		};
-		threadUpdater.execute(thread, null, {
+		u.executor(ThreadUpdator)(thread, null, {
 			event: 'response'
 		});
+
 		thread.connection.should.equal(open);
+	});
 
-		thread = {
-			connection: open
-		};
-		threadUpdater.execute(thread, {});
-		thread.connection.should.equal(failed);
-
-		thread = {
+	it('test execute for position', function() {
+		var thread = {
 			connection: open,
 			position: 10
 		};
 
-		threadUpdater.execute(thread, null, {
+		u.executor(ThreadUpdator)(thread, null, {
 			event: 'data',
 			data: 'AAAA'
 		});
 
 		thread.position.should.equal(14);
 
-		var shouldEnd = false;
-		thread = {
+	});
+
+	it('test execute for callback on end', function(done) {
+
+
+		var thread = {
 			connection: open,
 			position: 5,
 			end: 10
 		};
-		threadUpdater.execute(thread, null, {
+
+		u.executor(ThreadUpdator)(thread, null, {
 			event: 'end'
 		}, null, function() {
-			shouldEnd = true;
+			thread.connection.should.equal(failed);
+			done();
 		});
-		thread.connection.should.equal(failed);
-		shouldEnd.should.be.ok;
 
+	});
 
-		thread = {
+	it('test execute for connection closed', function() {
+		var thread = {
 			position: 11,
 			end: 10,
 			connection: open
 		};
-		threadUpdater.execute(thread, null, {
+
+		u.executor(ThreadUpdator)(thread, null, {
 			event: 'end'
 		}, null, function() {});
 		thread.connection.should.equal(closed);
 
+	});
 
+	it('test execute for destroyed', function(done) {
 
-		var destroyed;
-		thread = {
+		var thread = {
 			connection: open
-
 		};
-		threadUpdater.execute(thread, null, {
+
+		u.executor(ThreadUpdator)(thread, null, {
 			event: 'response',
-
 			destroy: function() {
-				destroyed = true;
+				done();
 			}
-
 		}, true);
-		destroyed.should.be.ok;
+	});
 
+	it('test execute method for idle', function() {
 
+		var thread = {
+			connection: idle
+		};
+
+		u.executor(ThreadUpdator)(thread, null, {});
+		thread.connection.should.equal(idle);
 
 	});
 });
