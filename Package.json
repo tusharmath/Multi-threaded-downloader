@@ -15,7 +15,7 @@
   },
   "main": "./lib/TaskExecuter.js",
   "scripts": {
-    "test": "istanbul cover _mocha test/test.*"
+    "test": ".node_modules/mocha/bin/mocha test/test.*"
   },
   "dependencies": {
     "async": "0.2.x",
@@ -25,6 +25,7 @@
     "grunt-release": "0.3.x",
     "istanbul": "0.1.x",
     "mocha": "1.12.x",
-    "should": "1.2.x"
+    "should": "1.2.x",
+    "mockery": "1.4.x"
   }
 }
