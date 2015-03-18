@@ -22,7 +22,8 @@
     "grunt-release": "0.3.x",
     "istanbul": "0.1.x",
     "mocha": "1.12.x",
+    "mockery": "1.4.x",
     "should": "1.2.x",
-    "mockery": "1.4.x"
+    "sinon": "^1.14.1"
   }
 }
