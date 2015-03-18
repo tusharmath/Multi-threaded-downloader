@@ -6,6 +6,9 @@ var options = {
 	port: 80,
 	range: '0-100',
 	onStart: function(meta) {
+	headers: {
+		cookie: 'aa=bb'
+	},
 		console.log('Download Started', meta);
 	},
 	onEnd: function(err, result) {

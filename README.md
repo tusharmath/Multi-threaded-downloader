@@ -62,6 +62,9 @@ var options = {
 		    //To set the total number of download threads
 		    count: 2, //(Default: 6)
 
+			//To set custom headers, such as cookies etc.
+		    headers: {cookies: 'abc=pqr;'},
+
 		    //HTTP method
 		    method: 'GET', //(Default: GET)
 
