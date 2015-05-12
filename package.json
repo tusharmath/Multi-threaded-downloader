@@ -15,15 +15,17 @@
   },
   "main": "./lib/TaskExecuter.js",
   "dependencies": {
-    "async": "0.2.x",
-    "underscore": "1.5.x"
+    "lodash": "^3.8.0",
+    "q": "^1.4.0",
+    "request": "^2.55.0"
   },
   "devDependencies": {
+    "chai": "^2.3.0",
+    "chai-as-promised": "^5.0.0",
     "grunt-release": "0.3.x",
     "istanbul": "0.1.x",
-    "mocha": "1.12.x",
+    "mocha": "^2.2.4",
     "mockery": "1.4.x",
-    "should": "1.2.x",
     "sinon": "^1.14.1"
   }
 }

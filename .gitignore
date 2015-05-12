@@ -4,3 +4,4 @@ __*
 *.diff
 node_modules/
 *.sublime-*
+.idea
