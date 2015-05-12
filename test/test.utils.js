@@ -1,0 +1,30 @@
+var chai = require('chai');
+chai.use(require('chai-as-promised'));
+var should = chai.should();
+var u = require('../lib/utils');
+describe('utils', function () {
+    describe('qromise()', function () {
+        function successful(a, b, c, d) {
+            setTimeout(function () {
+                d(null ,a + b + c);
+            })
+        }
+        function failed(a, b, c, d) {
+            setTimeout(function () {
+                d('sample-exception');
+            })
+        }
+
+
+        it('should return promises', function () {
+            should.exist(u.qromise(successful)(100, 200, 300).then);
+        });
+        it('should return promises', function () {
+            return u.qromise(successful)(100, 200, 300).should.eventually.equal(600)
+        });
+        it('should return promises', function () {
+            return u.qromise(failed)(100, 200, 300)
+                .should.be.rejectedWith('sample-exception')
+        });
+    });
+});
