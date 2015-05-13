@@ -5,3 +5,4 @@ __*
 node_modules/
 *.sublime-*
 .idea
+.example.js
