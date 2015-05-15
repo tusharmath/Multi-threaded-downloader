@@ -17,16 +17,13 @@
   "dependencies": {
     "common-js-pub-sub": "^1.0.4",
     "lodash": "^3.8.0",
-    "q": "^1.4.0",
     "request": "^2.55.0"
   },
   "devDependencies": {
     "chai": "^2.3.0",
-    "chai-as-promised": "^5.0.0",
     "grunt-release": "0.3.x",
     "istanbul": "0.1.x",
     "mocha": "^2.2.4",
-    "mockery": "^1.4.0",
     "sinon": "^1.14.1"
   }
 }

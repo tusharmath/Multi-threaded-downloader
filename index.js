@@ -43,7 +43,6 @@ var utils = function (params, ev) {
         },
 
         writeBufferAtPosition: function (buffer) {
-            console.log(params.position)
             fs.write(params.fd, buffer, 0, u.getItemLength(buffer), params.position, u.TRIGGER_DATA_SAVE);
         },
 
@@ -53,21 +52,29 @@ var utils = function (params, ev) {
                 .on('response', u.TRIGGER_DATA_START)
                 .on('error', u.TRIGGER_ERROR)
         },
-        updateAndSetPositionOnParams : function (buffer){
+        updateAndSetPositionOnParams: function (buffer) {
             params.position += buffer.length;
+        },
+        createTriggerFor: function (eventName) {
+            return _.partial(ev.publish, eventName);
         }
+
     };
-    //EVENTS
-    u.TRIGGER_FILE_OPEN = u.stripFirstParamAsError(_.partial(ev.publish, 'FILE_OPEN'));
-    u.TRIGGER_DATA_SAVE = u.stripFirstParamAsError(_.partial(ev.publish, 'DATA_SAVE'));
-    u.TRIGGER_DATA_RECEIVE = _.partial(ev.publish, 'DATA_RECEIVE');
-    u.TRIGGER_DATA_START = _.partial(ev.publish, 'DATA_START');
-    u.TRIGGER_ERROR = _.partial(ev.publish, 'ERROR');
     //THUNKS (PRETTY METHODS!)
+    u.stripErrorParamAndCreateTrigger = _.flow(u.createTriggerFor, u.stripFirstParamAsError);
+
+    //EVENTS
+    u.TRIGGER_FILE_OPEN = u.stripFirstParamAsError(u.createTriggerFor('FILE_OPEN'));
+    u.TRIGGER_DATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('DATA_SAVE'));
+    u.TRIGGER_DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
+    u.TRIGGER_DATA_START = u.createTriggerFor('DATA_START');
+    u.TRIGGER_ERROR = _.partial(ev.publish, 'ERROR');
+
     u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.TRIGGER_FILE_OPEN);
     u.setFileDescriptorOnParams = _.partial(u.setProperty, params, 'fd');
     u.extractAndSetContentLengthOnParams = _.partial(u.extractAndSetProperty, params, 'totalFileSize', u.getContentLength);
     u.setDownloadedBytes = _.partial(u.setProperty, params, 'downloadedBytes');
+
     return u;
 };
 
