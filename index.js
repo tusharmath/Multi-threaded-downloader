@@ -66,6 +66,11 @@ var utils = function (params, ev) {
         },
         rename: function () {
             fs.rename(params.path, params.path.replace('.mtd', ''), u.FILE_RENAME);
+        },
+        checkForCompletion: function () {
+            if (params.position === params.totalFileSize) {
+                u.FILE_COMPLETE();
+            }
         }
 
     };
@@ -124,11 +129,7 @@ function download(options) {
             ev.subscribe('DATA_SAVE', u.setDownloadedBytesOnParams);
             ev.subscribe('DATA_SAVE', u.saveDownloadedBytes);
 
-            ev.subscribe('METADATA_SAVE', function () {
-                if (params.position === params.totalFileSize) {
-                    u.FILE_COMPLETE();
-                }
-            });
+            ev.subscribe('METADATA_SAVE', u.checkForCompletion);
 
             //START
             ev.publish('INIT', null);
