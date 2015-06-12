@@ -6,6 +6,7 @@ var _ = require('lodash');
 var request = require('request');
 var fs = require('fs');
 var event = require('common-js-pub-sub');
+var MAX_BUFFER = 1000;
 var utils = function (params, ev) {
     var u = {
         //DIRTY METHODS
@@ -59,7 +60,9 @@ var utils = function (params, ev) {
             return _.partial(ev.publish, eventName);
         },
         saveDownloadedBytes: function () {
-            fs.write(params.fd, JSON.stringify(params), params.totalFileSize, 'utf8', u.METADATA_SAVE)
+            var buf = new Buffer(MAX_BUFFER);
+            buf.write(JSON.stringify(params));
+            fs.write(params.fd, buf, params.totalFileSize, 'utf8', u.METADATA_SAVE)
         },
         truncate: function () {
             fs.truncate(params.fd, params.totalFileSize, u.FILE_TRUNCATE);
