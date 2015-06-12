@@ -43,13 +43,13 @@ var utils = function (params, ev) {
         },
 
         writeBufferAtPosition: function (buffer) {
-            fs.write(params.fd, buffer, 0, u.getItemLength(buffer), params.position, u.TRIGGER_DATA_SAVE);
+            fs.write(params.fd, buffer, 0, u.getItemLength(buffer), params.position, u.DATA_SAVE);
         },
 
         makeRequest: function () {
             request(params.uri, params.headers)
-                .on('data', u.TRIGGER_DATA_RECEIVE)
-                .on('response', u.TRIGGER_DATA_START)
+                .on('data', u.DATA_RECEIVE)
+                .on('response', u.DATA_START)
                 .on('error', u.TRIGGER_ERROR)
         },
         updateAndSetPositionOnParams: function (buffer) {
@@ -57,6 +57,9 @@ var utils = function (params, ev) {
         },
         createTriggerFor: function (eventName) {
             return _.partial(ev.publish, eventName);
+        },
+        saveDownloadedBytes: function () {
+            fs.write(params.fd, JSON.stringify(params), params.totalFileSize, 'utf8', u.METADATA_SAVE)
         }
 
     };
@@ -64,16 +67,19 @@ var utils = function (params, ev) {
     u.stripErrorParamAndCreateTrigger = _.flow(u.createTriggerFor, u.stripFirstParamAsError);
 
     //EVENTS
-    u.TRIGGER_FILE_OPEN = u.stripFirstParamAsError(u.createTriggerFor('FILE_OPEN'));
-    u.TRIGGER_DATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('DATA_SAVE'));
-    u.TRIGGER_DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
-    u.TRIGGER_DATA_START = u.createTriggerFor('DATA_START');
+    u.FILE_OPEN = u.stripFirstParamAsError(u.createTriggerFor('FILE_OPEN'));
+    u.METADATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('METADATA_SAVE'));
+    u.FILE_TRUNCATE = u.stripFirstParamAsError(u.createTriggerFor('FILE_TRUNCATE'));
+    u.DATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('DATA_SAVE'));
+    u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
+    u.DATA_START = u.createTriggerFor('DATA_START');
+    u.FILE_COMPLETE = u.createTriggerFor('FILE_COMPLETE');
     u.TRIGGER_ERROR = _.partial(ev.publish, 'ERROR');
 
-    u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.TRIGGER_FILE_OPEN);
+    u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.FILE_OPEN);
     u.setFileDescriptorOnParams = _.partial(u.setProperty, params, 'fd');
     u.extractAndSetContentLengthOnParams = _.partial(u.extractAndSetProperty, params, 'totalFileSize', u.getContentLength);
-    u.setDownloadedBytes = _.partial(u.setProperty, params, 'downloadedBytes');
+    u.setDownloadedBytesOnParams = _.partial(u.setProperty, params, 'downloadedBytes');
 
     return u;
 };
@@ -86,12 +92,13 @@ function download(options) {
     return {
         start: function (cb) {
             var params = {
-                position: 0, path: options.path, uri: options.uri
+                position: 0, path: options.path + '.mtd', uri: options.uri
             }, ev = event();
             var u = utils(params, ev);
 
             //Thunks
             //TODO: Public to test
+            ev.subscribe('FILE_COMPLETE', cb);
             ev.subscribe('ERROR', u.onError);
 
             ev.subscribe('INIT', u.createFileDescriptor);
@@ -104,7 +111,14 @@ function download(options) {
             ev.subscribe('DATA_RECEIVE', u.writeBufferAtPosition);
             ev.subscribe('DATA_RECEIVE', u.updateAndSetPositionOnParams);
 
-            ev.subscribe('DATA_SAVE', u.setDownloadedBytes);
+            ev.subscribe('DATA_SAVE', u.setDownloadedBytesOnParams);
+            ev.subscribe('DATA_SAVE', u.saveDownloadedBytes);
+
+            ev.subscribe('METADATA_SAVE', function () {
+                if (params.position === params.totalFileSize) {
+                    u.FILE_COMPLETE();
+                }
+            });
 
             //START
             ev.publish('INIT', null);

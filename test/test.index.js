@@ -57,7 +57,7 @@ describe('Downloader', function () {
 
     it("createFileDescriptor()", function () {
         u.createFileDescriptor(1,2,3);
-        fs.open.calledWith('file.txt', 'w+', u.TRIGGER_FILE_OPEN).should.be.ok;
+        fs.open.calledWith('file.txt', 'w+', u.FILE_OPEN).should.be.ok;
         fs.open.getCall(0).args.length.should.equal(3);
 
     });
@@ -70,7 +70,7 @@ describe('Downloader', function () {
     it("writeBufferAtPosition()", function () {
         var buffer = {length: 100};
         u.writeBufferAtPosition(buffer);
-        fs.write.calledWith(params.fd, buffer, 0, 100, 120, u.TRIGGER_DATA_SAVE).should.be.ok;
+        fs.write.calledWith(params.fd, buffer, 0, 100, 120, u.DATA_SAVE).should.be.ok;
     });
 
     it("extractAndSetContentLengthOnParams()", function () {
