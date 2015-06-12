@@ -78,7 +78,7 @@ var utils = function (params, ev) {
     u.FILE_TRUNCATE = u.stripErrorParamAndCreateTrigger('FILE_TRUNCATE');
     u.DATA_SAVE = u.stripErrorParamAndCreateTrigger('DATA_SAVE');
     u.FILE_RENAME = u.stripErrorParamAndCreateTrigger('FILE_RENAME');
-    
+
     u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
     u.DATA_START = u.createTriggerFor('DATA_START');
     u.FILE_COMPLETE = u.createTriggerFor('FILE_COMPLETE');
