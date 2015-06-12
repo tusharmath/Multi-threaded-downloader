@@ -32,7 +32,7 @@ var utils = function (params, ev) {
         stripFirstParamAsError: function (func) {
             return function (err, res) {
                 if (err instanceof Error) {
-                    throw err;
+                    u.onError(err);
                 }
                 func(res);
             };
@@ -50,7 +50,7 @@ var utils = function (params, ev) {
             request(params.uri, params.headers)
                 .on('data', u.DATA_RECEIVE)
                 .on('response', u.DATA_START)
-                .on('error', u.TRIGGER_ERROR)
+                .on('error', u.ERROR)
         },
         updateAndSetPositionOnParams: function (buffer) {
             params.position += buffer.length;
@@ -60,6 +60,12 @@ var utils = function (params, ev) {
         },
         saveDownloadedBytes: function () {
             fs.write(params.fd, JSON.stringify(params), params.totalFileSize, 'utf8', u.METADATA_SAVE)
+        },
+        truncate: function () {
+            fs.truncate(params.fd, params.totalFileSize, u.FILE_TRUNCATE);
+        },
+        rename: function () {
+            fs.rename(params.path, params.path.replace('.mtd', ''), u.FILE_RENAME);
         }
 
     };
@@ -67,14 +73,16 @@ var utils = function (params, ev) {
     u.stripErrorParamAndCreateTrigger = _.flow(u.createTriggerFor, u.stripFirstParamAsError);
 
     //EVENTS
-    u.FILE_OPEN = u.stripFirstParamAsError(u.createTriggerFor('FILE_OPEN'));
-    u.METADATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('METADATA_SAVE'));
-    u.FILE_TRUNCATE = u.stripFirstParamAsError(u.createTriggerFor('FILE_TRUNCATE'));
-    u.DATA_SAVE = u.stripFirstParamAsError(u.createTriggerFor('DATA_SAVE'));
+    u.FILE_OPEN = u.stripErrorParamAndCreateTrigger('FILE_OPEN');
+    u.METADATA_SAVE = u.stripErrorParamAndCreateTrigger('METADATA_SAVE');
+    u.FILE_TRUNCATE = u.stripErrorParamAndCreateTrigger('FILE_TRUNCATE');
+    u.DATA_SAVE = u.stripErrorParamAndCreateTrigger('DATA_SAVE');
+    u.FILE_RENAME = u.stripErrorParamAndCreateTrigger('FILE_RENAME');
+    
     u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
     u.DATA_START = u.createTriggerFor('DATA_START');
     u.FILE_COMPLETE = u.createTriggerFor('FILE_COMPLETE');
-    u.TRIGGER_ERROR = _.partial(ev.publish, 'ERROR');
+    u.ERROR = _.partial(ev.publish, 'ERROR');
 
     u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.FILE_OPEN);
     u.setFileDescriptorOnParams = _.partial(u.setProperty, params, 'fd');
@@ -98,7 +106,9 @@ function download(options) {
 
             //Thunks
             //TODO: Public to test
-            ev.subscribe('FILE_COMPLETE', cb);
+            ev.subscribe('FILE_RENAME', cb);
+            ev.subscribe('FILE_TRUNCATE', u.rename);
+            ev.subscribe('FILE_COMPLETE', u.truncate);
             ev.subscribe('ERROR', u.onError);
 
             ev.subscribe('INIT', u.createFileDescriptor);
