@@ -11,7 +11,11 @@ var utils = function (params, ev) {
     var u = {
         //DIRTY METHODS
         onError: function (err) {
-            throw err;
+            if (err instanceof Error) {
+                throw err;
+            } else {
+                throw Error(err);
+            }
         },
 
         setProperty: function (obj, key, val) {
