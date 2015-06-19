@@ -86,16 +86,21 @@ var utils = function (params, ev) {
     u.stripErrorParamAndCreateTrigger = _.flow(u.createTriggerFor, u.stripFirstParamAsError);
 
     //EVENTS
+    //File:DATA
     u.FILE_OPEN = u.stripErrorParamAndCreateTrigger('FILE_OPEN');
-    u.METADATA_SAVE = u.stripErrorParamAndCreateTrigger('METADATA_SAVE');
     u.FILE_TRUNCATE = u.stripErrorParamAndCreateTrigger('FILE_TRUNCATE');
-    u.DATA_SAVE = u.stripErrorParamAndCreateTrigger('DATA_SAVE');
     u.FILE_RENAME = u.stripErrorParamAndCreateTrigger('FILE_RENAME');
+    u.FILE_COMPLETE = _.once(u.createTriggerFor('FILE_COMPLETE'));
 
+    //FILE:META
+    u.METADATA_SAVE = u.stripErrorParamAndCreateTrigger('METADATA_SAVE');
+
+    //HTTP:DATA
     u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
     u.DATA_COMPLETE = u.createTriggerFor('DATA_COMPLETE');
     u.DATA_START = u.createTriggerFor('DATA_START');
-    u.FILE_COMPLETE = _.once(u.createTriggerFor('FILE_COMPLETE'));
+    u.DATA_SAVE = u.stripErrorParamAndCreateTrigger('DATA_SAVE');
+
     u.ERROR = _.partial(ev.publish, 'ERROR');
 
     u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.FILE_OPEN);
