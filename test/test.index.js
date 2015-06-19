@@ -36,19 +36,13 @@ describe('Downloader', function () {
         ev.publish.restore();
     });
 
-    describe("stripFirstParamAsError()", function () {
-        it("strips first param", function () {
-            var temp = sinon.spy();
-            u.stripFirstParamAsError(temp)(100, 200);
-            temp.calledWith(200).should.be.ok;
-        });
-
-        it("throws if type is error", function () {
-            var temp = sinon.spy();
-            expect(function () {
-                u.stripFirstParamAsError(temp)(Error(100), 200);
-            }).to.throw('100');
-        });
+    it("stripFirstParamAsError()", function () {
+        var spy1 = sinon.spy(), spy2 = sinon.spy();
+        u.stripFirstParamAsError(spy1)(100, 200);
+        spy1.calledWith(200).should.be.ok;
+        expect(function () {
+            u.stripFirstParamAsError(spy2)(Error(100), 200);
+        }).to.throw('100');
     });
 
     it("setFileDescriptorOnParams()", function () {
@@ -83,5 +77,13 @@ describe('Downloader', function () {
         var buffer = {length: 1000};
         u.updateAndSetPositionOnParams(buffer);
         params.position.should.equal(1120);
+    });
+
+    it("setProperty()", function () {
+        var a = {name: 100, age: 20},
+            b = {name: 100, age: 30};
+        u.setProperty(a, null, b);
+        a.age.should.equal(30);
+        a.name.should.equal(100);
     });
 });

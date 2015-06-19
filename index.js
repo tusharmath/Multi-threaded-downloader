@@ -19,7 +19,11 @@ var utils = function (params, ev) {
         },
 
         setProperty: function (obj, key, val) {
-            obj[key] = val;
+            if (!key) {
+                _.assign(obj, val);
+            } else {
+                obj[key] = val;
+            }
         },
 
         extractAndSetProperty: function (obj, key, func, val) {
