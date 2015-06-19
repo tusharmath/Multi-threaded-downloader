@@ -67,7 +67,7 @@ var utils = function (params, ev) {
         saveDownloadedBytes: function () {
             var buf = new Buffer(MAX_BUFFER);
             buf.write(JSON.stringify(params));
-            fs.write(params.fd, buf, params.totalFileSize, 'utf8', u.METADATA_SAVE)
+            fs.write(params.fd, buf, 0, buf.length, params.totalFileSize, u.METADATA_SAVE)
         },
         truncate: function () {
             fs.truncate(params.fd, params.totalFileSize, u.FILE_TRUNCATE);
