@@ -5,7 +5,7 @@ var downloader = require('../').download,
     crypto = require('crypto'),
     fs = require('fs'),
     md5HashBuilder = crypto.createHash('md5'),
-    FILENAME = './out',
+    FILENAME = './out.jpg',
     mtd = downloader({
         path: FILENAME
     }),
