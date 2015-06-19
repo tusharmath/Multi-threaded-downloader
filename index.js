@@ -112,14 +112,12 @@ var defaultOptions = {
 function download(options) {
     options = _.assign(options, defaultOptions);
     return {
-        start: function (cb) {
+        start: function (uri, cb) {
             var params = {
-                position: 0, path: options.path + '.mtd', uri: options.uri
+                position: 0, path: options.path + '.mtd', uri: uri
             }, ev = event();
             var u = utils(params, ev);
 
-            //Thunks
-            //TODO: Public to test
             ev.subscribe('FILE_RENAME', cb);
             ev.subscribe('FILE_TRUNCATE', u.rename);
             ev.subscribe('FILE_COMPLETE', u.truncate);
