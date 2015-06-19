@@ -11,7 +11,7 @@ var downloader = require('../').download,
     }),
     s = fs.ReadStream(FILENAME),
     uri = 'http://i.ytimg.com/vi/pzPxhaYQQK8/hqdefault.jpg';
-
+chai.should();
 describe('RealDownload', function () {
 
     it("download pug picture", function (done) {
