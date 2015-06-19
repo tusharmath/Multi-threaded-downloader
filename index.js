@@ -95,7 +95,7 @@ var utils = function (params, ev) {
     u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
     u.DATA_COMPLETE = u.createTriggerFor('DATA_COMPLETE');
     u.DATA_START = u.createTriggerFor('DATA_START');
-    u.FILE_COMPLETE = u.createTriggerFor('FILE_COMPLETE');
+    u.FILE_COMPLETE = _.once(u.createTriggerFor('FILE_COMPLETE'));
     u.ERROR = _.partial(ev.publish, 'ERROR');
 
     u.createFileDescriptor = _.partial(_.ary(fs.open, 3), params.path, 'w+', u.FILE_OPEN);
