@@ -69,9 +69,11 @@ var utils = function (params, ev) {
             return _.partial(ev.publish, eventName);
         },
         saveDownloadedBytes: function () {
+        saveParamsAsMeta: function () {
             var buf = new Buffer(MAX_BUFFER);
+            _.fill(buf, null);
             buf.write(JSON.stringify(params));
-            fs.write(params.fd, buf, 0, buf.length, params.totalFileSize, u.METADATA_SAVE)
+            fs.write(params.fd, buf, 0, buf.length, params.totalFileSize, u.METADATA_SAVE);
         },
         truncate: function () {
             fs.truncate(params.fd, params.totalFileSize, u.FILE_TRUNCATE);
@@ -143,7 +145,7 @@ function download(options) {
             ev.subscribe('DATA_RECEIVE', u.updateAndSetPositionOnParams);
 
             ev.subscribe('DATA_SAVE', u.setDownloadedBytesOnParams);
-            ev.subscribe('DATA_SAVE', u.saveDownloadedBytes);
+            ev.subscribe('DATA_SAVE', u.saveParamsAsMeta);
 
             ev.subscribe('METADATA_SAVE', u.checkForCompletion);
 
