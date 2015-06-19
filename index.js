@@ -33,6 +33,9 @@ var utils = function (params, ev) {
         getContentLength: function (res) {
             return parseInt(res.headers['content-length'], 10);
         },
+        getFileSize: function (stats) {
+            return parseInt(stats.size, 10);
+        },
 
         addParamPosition: function (val) {
             return params.position + val;
