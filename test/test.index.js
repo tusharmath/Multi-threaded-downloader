@@ -45,8 +45,9 @@ describe('Downloader', function () {
 
         it("throws if type is error", function () {
             var temp = sinon.spy();
-            expect(() => u.stripFirstParamAsError(temp)(Error(100), 200))
-                .to.throw('100');
+            expect(function () {
+                u.stripFirstParamAsError(temp)(Error(100), 200);
+            }).to.throw('100');
         });
     });
 
@@ -56,7 +57,7 @@ describe('Downloader', function () {
     });
 
     it("createFileDescriptor()", function () {
-        u.createFileDescriptor(1,2,3);
+        u.createFileDescriptor(1, 2, 3);
         fs.open.calledWith('file.txt', 'w+', u.FILE_OPEN).should.be.ok;
         fs.open.getCall(0).args.length.should.equal(3);
 
@@ -74,7 +75,7 @@ describe('Downloader', function () {
     });
 
     it("extractAndSetContentLengthOnParams()", function () {
-        u.extractAndSetContentLengthOnParams({headers:{'content-length': 1000}});
+        u.extractAndSetContentLengthOnParams({headers: {'content-length': 1000}});
         params.totalFileSize.should.equal(1000);
     });
 
