@@ -56,6 +56,7 @@ var utils = function (params, ev) {
                 .on('data', u.DATA_RECEIVE)
                 .on('response', u.DATA_START)
                 .on('error', u.ERROR)
+                .on('complete', u.DATA_COMPLETE)
         },
         updateAndSetPositionOnParams: function (buffer) {
             params.position += buffer.length;
@@ -92,6 +93,7 @@ var utils = function (params, ev) {
     u.FILE_RENAME = u.stripErrorParamAndCreateTrigger('FILE_RENAME');
 
     u.DATA_RECEIVE = u.createTriggerFor('DATA_RECEIVE');
+    u.DATA_COMPLETE = u.createTriggerFor('DATA_COMPLETE');
     u.DATA_START = u.createTriggerFor('DATA_START');
     u.FILE_COMPLETE = u.createTriggerFor('FILE_COMPLETE');
     u.ERROR = _.partial(ev.publish, 'ERROR');
