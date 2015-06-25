@@ -6,14 +6,11 @@ var _ = require('lodash'),
     request = require('request'),
     co = require('co'),
     MAX_BUFFER = 512,
-    THREAD_COUNT = 3,
+    THREAD_COUNT = 1,
     u = require('./Utility');
 var defaultOptions = {
     headers: {}
 };
-function print() {
-    console.log.apply(console, arguments);
-}
 function download(options) {
     options = _.assign(options, defaultOptions);
     options.path += '.mtd';
@@ -22,13 +19,13 @@ function download(options) {
             var dataComplete = false,
                 totalBytes = parseInt((yield u.requestHead(url)).headers['content-length'], 10),
                 fd = yield u.fsOpen(options.path, 'w+');
-            return yield Promise.all(_.times(THREAD_COUNT, co.wrap(function (threadIndex) {
+            return yield Promise.all(_.times(THREAD_COUNT, function (threadIndex) {
                 var defer = Promise.defer(),
                     async = _.partial(u.async, defer.reject),
                     bytesPerThread = Math.round(totalBytes / THREAD_COUNT),
                     position = Math.floor(bytesPerThread * threadIndex),
                     endPosition = THREAD_COUNT - threadIndex === 1 ? totalBytes : position + bytesPerThread - 1,
-                    headers = {'content-range': `bytes ${position}-${endPosition}`};
+                    headers = {'range': `bytes=${position}-${endPosition}`};
 
                 request({url, headers})
                     .on('data', async(function *(buffer) {
@@ -44,7 +41,7 @@ function download(options) {
                         yield u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, totalBytes);
 
                         //Data Completed
-                        if (dataComplete && position >= totalBytes) {
+                        if (dataComplete && position === endPosition) {
                             yield u.fsTruncate(fd, totalBytes);
                             yield u.fsRename(options.path, options.path.replace('.mtd', ''));
                             defer.resolve();
@@ -56,7 +53,7 @@ function download(options) {
                     .on('error', defer.reject);
 
                 return defer.promise;
-            })));
+            }));
         })
     }
 }

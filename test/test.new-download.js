@@ -10,7 +10,7 @@ var downloader = require('../').download,
         path: FILENAME
     }),
     fileStream = fs.ReadStream(FILENAME),
-    uri = 'http://i.ytimg.com/vi/pzPxhaYQQK8/hqdefault.jpg';
+    uri = 'http://localhost:3000/out.jpg';
 chai.should();
 chai.use(require("chai-as-promised"));
 describe('NewDownload', function () {
@@ -29,7 +29,7 @@ describe('NewDownload', function () {
                 defer.resolve(shasum.digest('hex'))
             });
             return defer.promise;
-        }).should.eventually.equal('c4ad77ad6468c54b11bcbc52cb56cb938c6a2dee');
+        }).should.eventually.equal('e20b6f984be9ab2e07e7ac287b831c9303d21101');
     });
 });
 
