@@ -23,6 +23,7 @@ var createMetaData = function (totalBytes, url, path, count) {
         },
         updatePosition: function (index, distance) {
             data.threads[index].position += distance;
+            return this;
         },
         setRange: function (index, range) {
             var thread = data.threads[index];
@@ -57,10 +58,9 @@ function download(options) {
 
                         //console.log(position, headers, buffer.length);
                         yield u.fsWrite(fd, buffer, 0, buffer.length, position - buffer.length);
-                        meta.updatePosition(threadIndex, buffer.length);
-
+                        
                         //Write Meta
-                        var metaBuffer = meta.toBuffer();
+                        var metaBuffer = meta.updatePosition(threadIndex, buffer.length).toBuffer();
                         yield u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, totalBytes);
 
                         //Data Completed
