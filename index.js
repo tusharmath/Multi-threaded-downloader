@@ -2,59 +2,25 @@
  * Created by tusharmathur on 5/15/15.
  */
 "use strict";
-var _ = require('lodash');
-var request = require('request');
-var co = require('co');
-var fs = require('fs');
-var MAX_BUFFER = 512;
-
+var _ = require('lodash'),
+    request = require('request'),
+    co = require('co'),
+    MAX_BUFFER = 512,
+    u = require('./Utility');
 var defaultOptions = {
     headers: {}
 };
+
 function download(options) {
     options = _.assign(options, defaultOptions);
     options.path += '.mtd';
     return {
         start: co.wrap(function * (uri) {
-            var position = 0, totalBytes, fd, defer, dataComplete = false;
+            var position = 0, totalBytes, fd, defer, dataComplete = false, async;
 
-            var u = {
-                async: function (func) {
-                    var coFunc = co.wrap(func);
-                    return function () {
-                        try {
-                            coFunc.apply(null, arguments).catch(u.onError);
-                        } catch (e) {
-                            u.onError(e);
-                        }
-                    };
-                },
-                onError: function (err) {
-                    defer.reject(err);
-                },
-                promisify: function (func) {
-                    var defer = Promise.defer(),
-                        handle = function (err, data) {
-                            if (err) {
-                                defer.reject(err);
-                            } else {
-                                defer.resolve(data);
-                            }
-                        };
-                    return _.restParam(function (args) {
-                        args.push(handle);
-                        func.apply(null, args);
-                        return defer.promise;
-                    })
-                }
-            };
-
-            u.fsWrite = u.promisify(fs.write);
-            u.fsOpen = u.promisify(fs.open);
-            u.fsTruncate = u.promisify(fs.truncate);
-            u.fsRename = u.promisify(fs.rename);
             fd = yield u.fsOpen(options.path, 'w+');
             defer = Promise.defer();
+            async = _.partial(u.async, defer.reject);
             var onData = function *(buffer) {
                 var writeAt = position;
                 position += buffer.length;
@@ -78,9 +44,9 @@ function download(options) {
             };
 
             request(uri)
-                .on('data', u.async(onData))
-                .on('response', u.async(onResponse))
-                .on('complete', u.async(onComplete));
+                .on('data', async(onData))
+                .on('response', async(onResponse))
+                .on('complete', async(onComplete));
 
             return yield defer.promise;
         })
