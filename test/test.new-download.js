@@ -29,7 +29,7 @@ describe('NewDownload', function () {
                 defer.resolve(shasum.digest('hex'))
             });
             return defer.promise;
-        }).should.eventually.equal('e20b6f984be9ab2e07e7ac287b831c9303d21101');
+        }).should.eventually.equal('E20B6F984BE9AB2E07E7AC287B831C9303D21101'.toLowerCase());
     });
 });
 
