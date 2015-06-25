@@ -3,6 +3,7 @@
  */
 var fs = require('fs'),
     _ = require('lodash'),
+    request = require('request'),
     co = require('co');
 
 var u = {
@@ -37,5 +38,6 @@ u.fsWrite = u.promisify(fs.write);
 u.fsOpen = u.promisify(fs.open);
 u.fsTruncate = u.promisify(fs.truncate);
 u.fsRename = u.promisify(fs.rename);
+u.requestHead = u.promisify(request.head);
 
 module.exports = u;
