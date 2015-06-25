@@ -19,7 +19,7 @@ function download(options) {
             var dataComplete = false,
                 totalBytes = parseInt((yield u.requestHead(url)).headers['content-length'], 10),
                 fd = yield u.fsOpen(options.path, 'w+');
-            return yield Promise.all(_.times(THREAD_COUNT, function (threadIndex) {
+            var iterable = _.times(THREAD_COUNT, function (threadIndex) {
                 var defer = Promise.defer(),
                     async = _.partial(u.async, defer.reject),
                     bytesPerThread = Math.round(totalBytes / THREAD_COUNT),
@@ -41,9 +41,7 @@ function download(options) {
                         yield u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, totalBytes);
 
                         //Data Completed
-                        if (dataComplete && position === endPosition) {
-                            yield u.fsTruncate(fd, totalBytes);
-                            yield u.fsRename(options.path, options.path.replace('.mtd', ''));
+                        if (dataComplete && position >= endPosition) {
                             defer.resolve();
                         }
                     }))
@@ -53,6 +51,10 @@ function download(options) {
                     .on('error', defer.reject);
 
                 return defer.promise;
+            });
+            return yield Promise.all(iterable).then(co.wrap(function * () {
+                yield u.fsTruncate(fd, totalBytes);
+                yield u.fsRename(options.path, options.path.replace('.mtd', ''));
             }));
         })
     }
