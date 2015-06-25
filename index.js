@@ -6,7 +6,7 @@ var _ = require('lodash'),
     request = require('request'),
     co = require('co'),
     MAX_BUFFER = 512,
-    THREAD_COUNT = 1,
+    THREAD_COUNT = 8,
     u = require('./Utility');
 var defaultOptions = {
     headers: {}
@@ -58,7 +58,7 @@ function download(options) {
 
                         //console.log(position, headers, buffer.length);
                         yield u.fsWrite(fd, buffer, 0, buffer.length, position - buffer.length);
-                        
+
                         //Write Meta
                         var metaBuffer = meta.updatePosition(threadIndex, buffer.length).toBuffer();
                         yield u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, totalBytes);
