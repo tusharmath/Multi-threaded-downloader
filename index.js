@@ -14,10 +14,10 @@ var defaultOptions = {
 var onDataAsync = _.curry(function *(meta, fd, totalBytes, threadIndex, connection, range, buffer) {
     var writePosition = range.start;
     range.start += buffer.length;
-    yield u.writeData(fd, buffer, writePosition);
+    yield writeBufferAt(buffer, writePosition);
     meta.thread(threadIndex).updatePosition(buffer.length);
 
-    yield u.writeData(fd, meta.toBuffer(), totalBytes + 1);
+    yield writeBufferAt(meta.toBuffer(), totalBytes + 1);
     if (connection.complete && range.start >= range.end) {
         connection.resolve();
     }
