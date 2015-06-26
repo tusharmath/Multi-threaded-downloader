@@ -39,8 +39,8 @@ u.fsOpen = u.promisify(fs.open);
 u.fsTruncate = u.promisify(fs.truncate);
 u.fsRename = u.promisify(fs.rename);
 u.requestHead = u.promisify(request.head);
-u.writeMetaData = function (fd, metaBuffer, position) {
-    return u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, position);
+u.writeData = function (fd, buffer, position) {
+    return u.fsWrite(fd, buffer, 0, buffer.length, position);
 };
 u.getTotalBytesFromResponse = function (headResponse) {
     return parseInt(headResponse.headers['content-length'], 10);
@@ -59,16 +59,24 @@ u.createMetaData = function (totalBytes, url, path, count) {
             metaBuffer.write(JSON.stringify(data));
             return metaBuffer;
         },
-        updatePosition: function (index, distance) {
-            data.threads[index].position += distance;
-            return this;
-        },
-        setRange: function (index, range) {
-            var thread = data.threads[index];
-            thread.start = range.start;
-            thread.end = range.end;
-            thread.position = range.start;
+        thread: function (index) {
+            var _this = this;
+            return {
+                getPosition: function () {
+                    return data.threads[index].position;
+                },
+                updatePosition: function (distance) {
+                    data.threads[index].position += distance;
+                },
+                setRange: function (range) {
+                    var thread = data.threads[index];
+                    thread.start = range.start;
+                    thread.end = range.end;
+                    thread.position = range.start;
+                }
+            }
         }
+
     }
 };
 u.getThreadRange = function (count, index, total) {
