@@ -9,21 +9,15 @@ var _ = require('lodash'),
     u = require('./Utility');
 var defaultOptions = {
     headers: {}
-};
+}, writeBufferAt;
 
 var onDataAsync = _.curry(function *(meta, fd, totalBytes, threadIndex, connection, range, buffer) {
-
-    //Write Data
+    var writePosition = range.start;
     range.start += buffer.length;
+    yield u.writeData(fd, buffer, writePosition);
+    meta.thread(threadIndex).updatePosition(buffer.length);
 
-    //console.log(startPosition, headers, buffer.length);
-    yield u.fsWrite(fd, buffer, 0, buffer.length, range.start - buffer.length);
-
-    //Write Meta
-    var metaBuffer = meta.updatePosition(threadIndex, buffer.length).toBuffer();
-    yield u.writeMetaData(fd, metaBuffer, totalBytes + 1);
-
-    //Data Completed
+    yield u.writeData(fd, meta.toBuffer(), totalBytes + 1);
     if (connection.complete && range.start >= range.end) {
         connection.resolve();
     }
@@ -37,7 +31,7 @@ function download(options) {
             var totalBytes = u.getTotalBytesFromResponse(yield u.requestHead(url)),
                 meta = u.createMetaData(totalBytes, url, options.path, THREAD_COUNT),
                 fd = yield u.createFileDescriptor(options);
-
+            writeBufferAt = _.partial(u.writeData, fd);
             var iterable = _.times(THREAD_COUNT, function (threadIndex) {
                 var connection = Promise.defer(),
 
@@ -45,7 +39,7 @@ function download(options) {
                     range = u.getThreadRange(THREAD_COUNT, threadIndex, totalBytes),
                     headers = {'range': `bytes=${range.start}-${range.end}`};
                 connection.complete = false;
-                meta.setRange(threadIndex, range);
+                meta.thread(threadIndex).setRange(range);
 
                 request({url, headers})
                     .on('data', async(onDataAsync(meta, fd, totalBytes, threadIndex, connection, range)))
