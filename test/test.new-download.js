@@ -1,16 +1,17 @@
 "use strict";
 
-var downloader = require('../').download,
+var Download = require('../'),
     chai = require('chai'),
     crypto = require('crypto'),
     fs = require('fs'),
     md5HashBuilder = crypto.createHash('md5'),
+    uri = 'http://localhost:3000/out.jpg',
     FILENAME = './out.jpg',
-    mtd = downloader({
-        path: FILENAME
+    mtd = new Download({
+        path: FILENAME, url: uri
     }),
-    fileStream = fs.ReadStream(FILENAME),
-    uri = 'http://localhost:3000/out.jpg';
+    fileStream = fs.ReadStream(FILENAME)
+    ;
 chai.should();
 chai.use(require("chai-as-promised"));
 describe('NewDownload', function () {
