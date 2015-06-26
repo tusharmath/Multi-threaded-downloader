@@ -11,17 +11,11 @@ var defaultOptions = {
     headers: {}
 }, writeBufferAt;
 
-var onDataAsync = _.curry(function *(meta, fd, totalBytes, threadIndex, connection, range, buffer) {
-    var writePosition = range.start;
-    range.start += buffer.length;
-    yield writeBufferAt(buffer, writePosition);
-    meta.thread(threadIndex).updatePosition(buffer.length);
-
-    yield writeBufferAt(meta.toBuffer(), totalBytes + 1);
+var connectionCompleted = function (connection, range, thread) {
     if (connection.complete && range.start >= range.end) {
         connection.resolve();
     }
-});
+};
 
 function download(options) {
     options = _.assign(options, defaultOptions);
@@ -42,7 +36,15 @@ function download(options) {
                 meta.thread(threadIndex).setRange(range);
 
                 request({url, headers})
-                    .on('data', async(onDataAsync(meta, fd, totalBytes, threadIndex, connection, range)))
+                    .on('data', async(function *(buffer) {
+                        var writePosition = range.start;
+                        range.start += buffer.length;
+                        yield writeBufferAt(buffer, writePosition);
+                        meta.thread(threadIndex).updatePosition(buffer.length);
+
+                        yield writeBufferAt(meta.toBuffer(), totalBytes + 1);
+                        connectionCompleted(connection, range, meta.thread(threadIndex));
+                    }))
                     .on('complete', async(function * () {
                         connection.complete = true;
                     }))
