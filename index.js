@@ -16,14 +16,13 @@ function download(options) {
     options.path += '.mtd';
     return {
         start: co.wrap(function * (url) {
-            var headResponse = yield u.requestHead(url);
-            var dataComplete = false,
-                totalBytes = u.getTotalBytesFromResponse(headResponse),
+            var totalBytes = u.getTotalBytesFromResponse(yield u.requestHead(url)),
                 meta = u.createMetaData(totalBytes, url, options.path, THREAD_COUNT),
                 fd = yield u.createFileDescriptor(options);
             var iterable = _.times(THREAD_COUNT, function (threadIndex) {
-                var defer = Promise.defer(),
-                    async = _.partial(u.async, defer.reject),
+                var connection = Promise.defer(),
+                    dataComplete = false,
+                    async = _.partial(u.async, connection.reject),
                     range = u.getThreadRange(THREAD_COUNT, threadIndex, totalBytes),
                     headers = {'range': `bytes=${range.start}-${range.end}`};
                 meta.setRange(threadIndex, range);
@@ -42,15 +41,15 @@ function download(options) {
 
                         //Data Completed
                         if (dataComplete && range.start >= range.end) {
-                            defer.resolve();
+                            connection.resolve();
                         }
                     }))
                     .on('complete', async(function * () {
                         dataComplete = true;
                     }))
-                    .on('error', defer.reject);
+                    .on('error', connection.reject);
 
-                return defer.promise;
+                return connection.promise;
             });
             return yield Promise.all(iterable).then(co.wrap(function * () {
                 yield u.fsTruncate(fd, totalBytes);
