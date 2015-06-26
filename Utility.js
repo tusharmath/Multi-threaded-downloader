@@ -39,5 +39,42 @@ u.fsOpen = u.promisify(fs.open);
 u.fsTruncate = u.promisify(fs.truncate);
 u.fsRename = u.promisify(fs.rename);
 u.requestHead = u.promisify(request.head);
-
+u.writeMetaData = function (fd, metaBuffer, position) {
+    return u.fsWrite(fd, metaBuffer, 0, metaBuffer.length, position);
+};
+u.getTotalBytesFromResponse = function (headResponse) {
+    return parseInt(headResponse.headers['content-length'], 10);
+};
+u.createFileDescriptor = function (options) {
+    return u.fsOpen(options.path, 'w+');
+};
+u.createMetaData = function (totalBytes, url, path, count) {
+    var MAX_BUFFER = 512;
+    var threads = _.fill(_.times(count), {});
+    var data = {totalBytes, url, path, threads};
+    return {
+        toBuffer: function () {
+            var metaBuffer = new Buffer(MAX_BUFFER);
+            _.fill(metaBuffer, null);
+            metaBuffer.write(JSON.stringify(data));
+            return metaBuffer;
+        },
+        updatePosition: function (index, distance) {
+            data.threads[index].position += distance;
+            return this;
+        },
+        setRange: function (index, range) {
+            var thread = data.threads[index];
+            thread.start = range.start;
+            thread.end = range.end;
+            thread.position = range.start;
+        }
+    }
+};
+u.getThreadRange = function (count, index, total) {
+    var bytesPerThread = Math.round(total / count),
+        start = Math.floor(bytesPerThread * index),
+        end = count - index === 1 ? total : start + bytesPerThread - 1;
+    return {start, end}
+};
 module.exports = u;
