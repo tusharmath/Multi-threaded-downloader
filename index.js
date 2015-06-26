@@ -11,6 +11,24 @@ var defaultOptions = {
     headers: {}
 };
 
+var onDataAsync = _.curry(function *(meta, fd, totalBytes, threadIndex, connection, range, buffer) {
+
+    //Write Data
+    range.start += buffer.length;
+
+    //console.log(startPosition, headers, buffer.length);
+    yield u.fsWrite(fd, buffer, 0, buffer.length, range.start - buffer.length);
+
+    //Write Meta
+    var metaBuffer = meta.updatePosition(threadIndex, buffer.length).toBuffer();
+    yield u.writeMetaData(fd, metaBuffer, totalBytes + 1);
+
+    //Data Completed
+    if (connection.complete && range.start >= range.end) {
+        connection.resolve();
+    }
+});
+
 function download(options) {
     options = _.assign(options, defaultOptions);
     options.path += '.mtd';
@@ -19,33 +37,20 @@ function download(options) {
             var totalBytes = u.getTotalBytesFromResponse(yield u.requestHead(url)),
                 meta = u.createMetaData(totalBytes, url, options.path, THREAD_COUNT),
                 fd = yield u.createFileDescriptor(options);
+
             var iterable = _.times(THREAD_COUNT, function (threadIndex) {
                 var connection = Promise.defer(),
-                    dataComplete = false,
+
                     async = _.partial(u.async, connection.reject),
                     range = u.getThreadRange(THREAD_COUNT, threadIndex, totalBytes),
                     headers = {'range': `bytes=${range.start}-${range.end}`};
+                connection.complete = false;
                 meta.setRange(threadIndex, range);
+
                 request({url, headers})
-                    .on('data', async(function *(buffer) {
-
-                        //Write Data
-                        range.start += buffer.length;
-
-                        //console.log(startPosition, headers, buffer.length);
-                        yield u.fsWrite(fd, buffer, 0, buffer.length, range.start - buffer.length);
-
-                        //Write Meta
-                        var metaBuffer = meta.updatePosition(threadIndex, buffer.length).toBuffer();
-                        yield u.writeMetaData(fd, metaBuffer, totalBytes + 1);
-
-                        //Data Completed
-                        if (dataComplete && range.start >= range.end) {
-                            connection.resolve();
-                        }
-                    }))
+                    .on('data', async(onDataAsync(meta, fd, totalBytes, threadIndex, connection, range)))
                     .on('complete', async(function * () {
-                        dataComplete = true;
+                        connection.complete = true;
                     }))
                     .on('error', connection.reject);
 
