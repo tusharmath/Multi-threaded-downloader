@@ -65,6 +65,9 @@ u.createMetaData = function (totalBytes, url, path, count) {
                 getPosition: function () {
                     return data.threads[index].position;
                 },
+                hasCompleted: function () {
+                    return data.threads[index].position >= data.threads[index].end;
+                },
                 updatePosition: function (distance) {
                     data.threads[index].position += distance;
                 },

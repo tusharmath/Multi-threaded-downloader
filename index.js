@@ -11,8 +11,8 @@ var defaultOptions = {
     headers: {}
 }, writeBufferAt;
 
-var connectionCompleted = function (connection, range, thread) {
-    if (connection.complete && range.start >= range.end) {
+var connectionCompleted = function (connection, thread) {
+    if (connection.complete && thread.hasCompleted()) {
         connection.resolve();
     }
 };
@@ -31,19 +31,20 @@ function download(options) {
 
                     async = _.partial(u.async, connection.reject),
                     range = u.getThreadRange(THREAD_COUNT, threadIndex, totalBytes),
+                    position = range.start,
                     headers = {'range': `bytes=${range.start}-${range.end}`};
                 connection.complete = false;
                 meta.thread(threadIndex).setRange(range);
 
                 request({url, headers})
                     .on('data', async(function *(buffer) {
-                        var writePosition = range.start;
-                        range.start += buffer.length;
+                        var writePosition = position;
+                        position+= buffer.length;
                         yield writeBufferAt(buffer, writePosition);
                         meta.thread(threadIndex).updatePosition(buffer.length);
 
                         yield writeBufferAt(meta.toBuffer(), totalBytes + 1);
-                        connectionCompleted(connection, range, meta.thread(threadIndex));
+                        connectionCompleted(connection, meta.thread(threadIndex));
                     }))
                     .on('complete', async(function * () {
                         connection.complete = true;
