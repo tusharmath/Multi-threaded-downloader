@@ -40,10 +40,7 @@ function promisify(func) {
 var writeData = (fd, buffer, position) => fsWrite(fd, buffer, 0, buffer.length, position);
 var getLength = (res) => parseInt(res.headers['content-length'], 10);
 var createFileDescriptor = (path) => fsOpen(path, 'w+');
-var createRangeHeader = function (count, totalBytes, i) {
-    var range = getThreadRange(count, totalBytes, i);
-    return {'range': `bytes=${range.start}-${range.end}`};
-};
+var createRangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
 var createThread = function (range) {
     return {
         defer: Promise.defer(),
