@@ -17,7 +17,7 @@ var fsWrite = promisify(fs.write),
     fsRename = promisify(fs.rename),
     requestHead = promisify(request.head);
 
-function asyncFunc(onError, func) {
+function asyncCatcher(onError, func) {
     var coFunc = co.wrap(func);
     return () => {
         try {
@@ -67,7 +67,7 @@ function toBuffer(data, size) {
     metaBuffer.write(JSON.stringify(data));
     return metaBuffer;
 }
-function getByteRange(count, total, index) {
+function byteRange(count, total, index) {
     var bytesPerThread = Math.round(total / count),
         start = Math.floor(bytesPerThread * index),
         end = count - index === 1 ? total : start + bytesPerThread - 1;
@@ -81,8 +81,8 @@ var httpRequest = function (url, headers, onData) {
         .on('error', defer.reject);
     return defer.promise;
 };
-var getDeferRejectCb = _.partial(_.rearg(_.get, 1, 0), 'defer.reject');
-var invokeEvery = (invocationList) => _.partial(_.invoke, invocationList, _.call, null);
+var writerThreadOnReject = _.partial(_.rearg(_.get, 1, 0), 'defer.reject');
+var invoke = (invocationList) => _.partial(_.invoke, invocationList, _.call, null);
 function * saveData(_fsWrite, meta, size, thread, buffer) {
     yield _fsWrite(buffer, thread.writeAt(buffer.length));
     thread.updatePosition(buffer.length);
@@ -95,21 +95,20 @@ function * download(options) {
         size = getLength(yield requestHead(url)),
         meta = {url, path: path, threads: []},
         fd = yield fsOpen(path),
-        _fsWrite = _.partial(writeData, fd),
         _fsTruncate = _.partial(fsTruncate, fd, size),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
-        _httpRequest = _.curry(httpRequest)(url),
-        _asyncFuncSpread = _.spread(asyncFunc),
-        _saveData = _.partial(saveData, _fsWrite, meta, size),
+        _httpRequest = _.spread(_.curry(httpRequest)(url)),
+        _asyncCatcher = _.spread(asyncCatcher),
+        _write = _.partial(saveData, _.partial(writeData, fd), meta, size),
         _rangeHeader = _.partial(rangeHeader, threadCount, size),
-        _getByteRange = _.partial(getByteRange, threadCount, size);
-    var threads = meta.threads = _(threadCount).times(_getByteRange).map(createWriteThread).value();
-    var _getAsyncFuncSpreadParams = invokeEvery([getDeferRejectCb, _.curry(_saveData, 2)]);
-    var onData = _.flowRight(_asyncFuncSpread, _getAsyncFuncSpreadParams);
+        _byteRange = _.partial(byteRange, threadCount, size);
+    var threads = meta.threads = _(threadCount).times(_byteRange).map(createWriteThread).value();
+    var _getAsyncFuncSpreadParams = invoke([writerThreadOnReject, _.curry(_write, 2)]);
+    var onResponseData = _.flowRight(_asyncCatcher, _getAsyncFuncSpreadParams);
     var WriterPromises = _.pluck(threads, 'defer.promise');
     var HttpPromises = _(threads)
-        .map(invokeEvery([rangeHeader, _.ary(onData, 1)]))
-        .map(_.spread(_httpRequest))
+        .map(invoke([rangeHeader, _.ary(onResponseData, 1)]))
+        .map(_httpRequest)
         .value();
     yield _.flatten([WriterPromises, HttpPromises]);
     yield _fsTruncate();
@@ -122,6 +121,7 @@ class Download {
         this.options = _.assign(options, defaultOptions);
         this.options.path += '.mtd';
     }
+
     start() {
         return co.wrap(download)(this.options);
     }
