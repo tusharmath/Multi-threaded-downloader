@@ -100,7 +100,6 @@ function * download(options) {
         _httpRequest = _.spread(_.curry(httpRequest)(url)),
         _asyncCatcher = _.spread(asyncCatcher),
         _write = _.partial(saveData, _.partial(writeData, fd), meta, size),
-        _rangeHeader = _.partial(rangeHeader, threadCount, size),
         _byteRange = _.partial(byteRange, threadCount, size);
     var threads = meta.threads = _(threadCount).times(_byteRange).map(createWriteThread).value();
     var _getAsyncFuncSpreadParams = invoke([writerThreadOnReject, _.curry(_write, 2)]);
