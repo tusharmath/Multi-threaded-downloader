@@ -6,7 +6,7 @@ var Download = require('../'),
     fs = require('fs'),
     md5HashBuilder = crypto.createHash('md5'),
     uri = 'http://localhost:3000/in.txt',
-    FILENAME = './test/mock/out.txt',
+    FILENAME = './.temp/out.txt',
     mtd = new Download({
         path: FILENAME, url: uri
     }),
@@ -31,7 +31,7 @@ describe('NewDownload', function () {
             });
             return defer.promise;
             //    http://onlinemd5.com/
-        }).should.eventually.equal('033C56D114C922E1C60C8404697C1FDC30DE5559'.toLowerCase());
+        }).should.eventually.equal('60E5CAAE3BABBEDC4CA95B9AA3ED7AC2A9B031C9'.toLowerCase());
     });
 });
 
