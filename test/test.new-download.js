@@ -5,8 +5,8 @@ var Download = require('../'),
     crypto = require('crypto'),
     fs = require('fs'),
     md5HashBuilder = crypto.createHash('md5'),
-    uri = 'http://localhost:3000/out.jpg',
-    FILENAME = './out.jpg',
+    uri = 'http://localhost:3000/out.txt',
+    FILENAME = './out.txt',
     mtd = new Download({
         path: FILENAME, url: uri
     }),
@@ -30,7 +30,8 @@ describe('NewDownload', function () {
                 defer.resolve(shasum.digest('hex'))
             });
             return defer.promise;
-        }).should.eventually.equal('E20B6F984BE9AB2E07E7AC287B831C9303D21101'.toLowerCase());
+            //    http://onlinemd5.com/
+        }).should.eventually.equal('033C56D114C922E1C60C8404697C1FDC30DE5559'.toLowerCase());
     });
 });
 
