@@ -93,6 +93,12 @@ var createThreadEndPositions = function (threadCount, size) {
     positions[positions.length - 1] = size;
     return positions;
 };
+var iterate = function * (list, func) {
+    var count = 0;
+    for (var i of list) {
+        yield func(i, count++, list);
+    }
+};
 function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
@@ -102,19 +108,18 @@ function * download(options) {
         fd = yield fsOpen(path),
         _fsTruncate = _.partial(fsTruncate, fd, size),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
-        _write = _.partial(writeData, fd),
+        _write = function * (fd, thread, buffer) {
+            yield writeData(fd, buffer, thread.writeAt(buffer.length));
+            thread.updatePosition(buffer.length);
+            yield writeData(fd, toBuffer(meta), size + 1);
+        },
         _byteRange = _.partial(byteRange, threadCount, size);
     var threads = meta.threads = _(threadCount).times(_byteRange).map(createWriteThread).value();
 
-    yield _.map(threads, co.wrap(function * (thread) {
+    yield _.map(threads, function * (thread) {
         let response = yield httpRequest(url, thread.start, thread.end);
-        let readableStream = response.read();
-        for (let buffer of readableStream) {
-            yield _write(buffer, thread.writeAt(buffer.length));
-            thread.updatePosition(buffer.length);
-            yield _write(toBuffer(meta), size + 1);
-        }
-    }));
+        yield iterate(response.read(), _.partial(_write, fd, thread));
+    });
 
     yield _fsTruncate();
     yield _fsRename();

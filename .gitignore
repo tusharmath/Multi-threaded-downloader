@@ -9,4 +9,5 @@ node_modules/
 *.temp
 *.jpg
 *.mtd
-out.*
+*.txt
+test/mock/in.txt
