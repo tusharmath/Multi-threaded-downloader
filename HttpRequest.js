@@ -6,7 +6,7 @@ module.exports = function (url, headers) {
     var defer = Promise.defer();
     request({url, headers})
         .on('response', function (_response) {
-            if(_response.statusCode !== 200){
+            if (!_.contains([200, 206], _response.statusCode)) {
                 throw Error(_response.statusMessage);
             }
             _response.pause();
