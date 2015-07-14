@@ -1,7 +1,7 @@
 "use strict";
 var _ = require('lodash'),
     request = require('request'),
-    DuplexStream = require('./DuplexStream');
+    DuplexStream = require('./ObservableStream');
 
 module.exports = function (url, headers) {
     var defer = Promise.defer(),

@@ -2,11 +2,11 @@
  * Created by tusharmathur on 7/14/15.
  */
 "use strict";
-var DuplexStream = require('../DuplexStream');
-describe('DuplexStream', function () {
+var ObservableStream = require('../ObservableStream');
+describe('ObservableStream', function () {
     var d;
     beforeEach(function () {
-        d = new DuplexStream();
+        d = new ObservableStream();
     });
 
     it("basic read write", function () {

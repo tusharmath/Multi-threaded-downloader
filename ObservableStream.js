@@ -3,7 +3,7 @@
  */
 "use strict";
 
-function Queue() {
+function ObservableStream() {
     var _queue = [],
         done = false,
         _this = this;
@@ -29,4 +29,4 @@ function Queue() {
     };
 
 }
-module.exports = Queue;
+module.exports = ObservableStream;
