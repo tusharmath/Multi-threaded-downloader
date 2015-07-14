@@ -8,7 +8,8 @@ var fs = require('fs'),
     request = require('request'),
     HttpRequest = require('./HttpRequest'),
     co = require('co'),
-    MAX_BUFFER = 128;
+    MAX_BUFFER = 128,
+    MIN_WAIT = 500;
 
 var defaultOptions = {
     headers: {},
@@ -20,35 +21,33 @@ var fsTruncate = utils.promisify(fs.truncate),
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
-    rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
+    rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
+    toBuffer = _.partial(utils.toBuffer, MAX_BUFFER);
 
 function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
         path = options.path,
         size = getLength(yield requestHead(url)),
-        meta = {url, path: path, positions: []},
         fd = yield fsOpen(path),
         _fsTruncate = _.partial(fsTruncate, fd, size),
-        _write = _.partial(fsWrite, fd),
+        _fsWrite = _.partial(fsWrite, fd),
         _httpRequest = _.partial(HttpRequest, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
         _ranges = utils.sliceRange(threadCount, size),
-        _positions = _.pluck(_ranges, 'start'),
-        _writeAt = _.clone(_positions);
+        meta = {url, path: path, positions: _.pluck(_ranges, 'start')};
     yield _.map(_ranges, function * (range, i) {
-        let responseStream = yield _httpRequestRange(range);
+        let position = range.start,
+            responseStream = yield _httpRequestRange(range);
         for (let buffer of responseStream.read()) {
             if (buffer) {
-                let writePosition = _writeAt[i];
-                _writeAt[i] += buffer.length;
-                yield _write(buffer, writePosition);
-                _positions[i] += buffer.length;
-                meta.positions = _positions;
-                yield _write(utils.toBuffer(meta, MAX_BUFFER), size + 1);
-            }else{
-                yield utils.delay(500);
+                let writable = _fsWrite(buffer, position);
+                position += buffer.length;
+                meta.positions[i] += yield writable;
+                yield _fsWrite(toBuffer(MAX_BUFFER), size + 1);
+            } else {
+                yield utils.delay(MIN_WAIT);
             }
         }
     });
