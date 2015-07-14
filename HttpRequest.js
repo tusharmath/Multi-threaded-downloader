@@ -1,16 +1,18 @@
 "use strict";
 var _ = require('lodash'),
-    request = require('request');
+    request = require('request'),
+    DuplexStream = require('./DuplexStream');
 
 module.exports = function (url, headers) {
     var defer = Promise.defer(),
+        stream = new DuplexStream(),
         response,
-        data = [],
         done = false,
         resolve = _.once(() => defer.resolve({read, response})),
+        isComplete = () => stream.hasData() || done === false,
         read = function * () {
-            while (data.length > 0) {
-                yield data.shift();
+            while (isComplete()) {
+                yield stream.read();
             }
         };
     request({url, headers})
@@ -20,7 +22,7 @@ module.exports = function (url, headers) {
             }
             response = x
         })
-        .on('data', (buffer) => data.push(Promise.resolve(buffer)))
+        .on('data', (buffer) => stream.write(buffer))
         .on('data', resolve)
         .on('complete', () => done = true);
     return defer.promise;
