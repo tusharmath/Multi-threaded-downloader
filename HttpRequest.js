@@ -3,22 +3,20 @@ var _ = require('lodash'),
     request = require('request');
 
 module.exports = function (url, headers) {
-    var defer = Promise.defer();
-    request({url, headers})
-        .on('response', function (_response) {
-            if (!_.contains([200, 206], _response.statusCode)) {
-                throw Error(_response.statusMessage);
+    var defer = Promise.defer(),
+        response,
+        data = [],
+        done = false,
+        resolve = _.once(() => defer.resolve({read, response})),
+        read = function * () {
+            while (data.length > 0) {
+                yield data.shift();
             }
-            _response.pause();
-            defer.resolve({
-                read: function * () {
-                    var chunk;
-                    while (null !== (chunk = _response.read())) {
-                        yield chunk;
-                    }
-                }
-            });
-        });
-
+        };
+    request({url, headers})
+        .on('response', (x) => response = x)
+        .on('data', (buffer) => data.push(buffer))
+        .on('data', resolve)
+        .on('complete', () => done = true);
     return defer.promise;
 };
