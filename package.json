@@ -1,7 +1,7 @@
 {
   "name": "mt-downloader",
   "description": "The multi threaded downloader",
-  "version": "0.2.9",
+  "version": "1.0.0",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
@@ -16,8 +16,7 @@
   "main": "./index.js",
   "dependencies": {
     "co": "^4.5.4",
-    "common-js-pub-sub": "^1.0.4",
-    "lodash": "^3.8.0",
+    "lodash": "^3.10.0",
     "request": "^2.55.0"
   },
   "devDependencies": {
