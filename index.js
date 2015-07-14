@@ -39,7 +39,8 @@ function * download(options) {
         _writeAt = _.clone(_positions);
     yield _.map(_ranges, function * (range, i) {
         let response = yield _httpRequestRange(range);
-        for (let buffer of response.read()) {
+        for (let data of response.read()) {
+            let buffer = yield data;
             let writePosition = _writeAt[i];
             _writeAt[i] += buffer.length;
             yield _write(buffer, writePosition);

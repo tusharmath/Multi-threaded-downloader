@@ -20,7 +20,7 @@ module.exports = function (url, headers) {
             }
             response = x
         })
-        .on('data', (buffer) => data.push(buffer))
+        .on('data', (buffer) => data.push(Promise.resolve(buffer)))
         .on('data', resolve)
         .on('complete', () => done = true);
     return defer.promise;
