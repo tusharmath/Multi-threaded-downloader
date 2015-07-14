@@ -23,7 +23,7 @@ exports.toBuffer = function (obj, size) {
 exports.sliceRange = function (count, total) {
     var bytesPerThread = _.round(total / count);
     return _.times(count, function (index) {
-        var start = Math.floor(bytesPerThread * index),
+        var start = bytesPerThread * index,
             end = count - index === 1 ? total : start + bytesPerThread - 1;
         return {start, end}
     });
