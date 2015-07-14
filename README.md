@@ -121,4 +121,4 @@ The threads also have ```start```, ```position``` and ```end``` keys. They tell 
 
 
 ---
-Make sure to checkout the [develop](https://github.com/tusharmath/multi-threaded-downloader/tree/develop) branch, where version 2.0 is being built from scratch.
+Make sure to checkout the [develop](https://github.com/tusharmath/multi-threaded-downloader/tree/develop) branch, where version 2.0 is being written from scratch.
