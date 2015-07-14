@@ -5,28 +5,19 @@
 var fs = require('fs'),
     _ = require('lodash'),
     request = require('request'),
+    HttpRequest = require('./HttpRequest'),
     co = require('co'),
-    MAX_BUFFER = 512;
+    MAX_BUFFER = 128;
 
 var defaultOptions = {
     headers: {},
-    threadCount: 3
+    threadCount: 10
 };
 var fsWrite = promisify(fs.write),
     fsTruncate = promisify(fs.truncate),
     fsRename = promisify(fs.rename),
     requestHead = promisify(request.head);
 
-function asyncCatcher(onError, func) {
-    var coFunc = co.wrap(func);
-    return () => {
-        try {
-            coFunc.apply(null, arguments).catch(onError);
-        } catch (e) {
-            onError(e);
-        }
-    };
-}
 function promisify(func) {
     var defer = Promise.defer(),
         handle = (err, data) => err ? defer.reject(err) : defer.resolve(data);
@@ -74,11 +65,6 @@ function byteRange(count, total, index) {
     return {start, end}
 }
 
-var HttpRequest = require('./HttpRequest');
-var httpRequest = function (url, start, end) {
-    return HttpRequest(url, rangeHeader({start, end}))
-};
-
 var writerThreadOnReject = _.partial(_.rearg(_.get, 1, 0), 'defer.reject');
 var invoke = (invocationList) => _.partial(_.invoke, invocationList, _.call, null);
 var bytesPerThread = (threadCount, size) => Math.floor(size / threadCount);
@@ -107,18 +93,20 @@ function * download(options) {
         meta = {url, path: path, threads: []},
         fd = yield fsOpen(path),
         _fsTruncate = _.partial(fsTruncate, fd, size),
+        _write = _.partial(writeData, fd),
+        _httpRequest = _.partial(HttpRequest, url),
+        _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
-        _write = function * (fd, thread, buffer) {
-            yield writeData(fd, buffer, thread.writeAt(buffer.length));
-            thread.updatePosition(buffer.length);
-            yield writeData(fd, toBuffer(meta), size + 1);
-        },
         _byteRange = _.partial(byteRange, threadCount, size);
-    var threads = meta.threads = _(threadCount).times(_byteRange).map(createWriteThread).value();
+    meta.threads = _.chain(threadCount).times(_byteRange).map(createWriteThread).value();
 
-    yield _.map(threads, function * (thread) {
-        let response = yield httpRequest(url, thread.start, thread.end);
-        yield iterate(response.read(), _.partial(_write, fd, thread));
+    yield _.map(meta.threads, function * (thread) {
+        let response = yield _httpRequestRange(thread);
+        for (let buffer of response.read()) {
+            yield _write(buffer, thread.writeAt(buffer.length));
+            thread.updatePosition(buffer.length);
+            yield _write(toBuffer(meta), size + 1);
+        }
     });
 
     yield _fsTruncate();
