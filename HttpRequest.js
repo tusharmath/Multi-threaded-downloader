@@ -14,7 +14,12 @@ module.exports = function (url, headers) {
             }
         };
     request({url, headers})
-        .on('response', (x) => response = x)
+        .on('response', (x) => {
+            if(x.statusCode > 299){
+                throw Error(x.statusMessage);
+            }
+            response = x
+        })
         .on('data', (buffer) => data.push(buffer))
         .on('data', resolve)
         .on('complete', () => done = true);
