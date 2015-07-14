@@ -12,7 +12,7 @@ var fs = require('fs'),
 
 var defaultOptions = {
     headers: {},
-    threadCount: 10
+    threadCount: 3
 };
 var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
@@ -22,26 +22,6 @@ var fsTruncate = utils.promisify(fs.truncate),
 
 var getLength = (res) => parseInt(res.headers['content-length'], 10);
 var rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
-var createWriteThread = function (range) {
-    var start = range.start,
-        end = range.end,
-        position = range.start,
-        nextByte = range.start;
-    return {
-        start: range.start,
-        end: range.end,
-        position: range.start,
-        nextByte: range.start,
-        updatePosition: function (distance) {
-            this.position += distance;
-        },
-        writeAt: function (distance) {
-            var writeAt = this.nextByte;
-            this.nextByte += distance;
-            return writeAt;
-        }
-    };
-};
 function byteRange(count, total, index) {
     var bytesPerThread = Math.round(total / count),
         start = Math.floor(bytesPerThread * index),
@@ -54,21 +34,25 @@ function * download(options) {
         threadCount = options.threadCount,
         path = options.path,
         size = getLength(yield requestHead(url)),
-        meta = {url, path: path, threads: []},
+        meta = {url, path: path, positions: []},
         fd = yield fsOpen(path),
         _fsTruncate = _.partial(fsTruncate, fd, size),
         _write = _.partial(fsWrite, fd),
         _httpRequest = _.partial(HttpRequest, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
-        _byteRange = _.partial(byteRange, threadCount, size);
-    meta.threads = _.chain(threadCount).times(_byteRange).map(createWriteThread).value();
-
-    yield _.map(meta.threads, function * (thread) {
-        let response = yield _httpRequestRange(thread);
+        _byteRange = _.partial(byteRange, threadCount, size),
+        _ranges = _.chain(threadCount).times(_byteRange).value(),
+        _positions = _.pluck(_ranges, 'start'),
+        _writeAt = _.clone(_positions);
+    yield _.map(_ranges, function * (range, i) {
+        let response = yield _httpRequestRange(range);
         for (let buffer of response.read()) {
-            yield _write(buffer, thread.writeAt(buffer.length));
-            thread.updatePosition(buffer.length);
+            let writePosition = _writeAt[i];
+            _writeAt[i] += buffer.length;
+            yield _write(buffer, writePosition);
+            _positions[i] += buffer.length;
+            meta.positions = _positions;
             yield _write(utils.toBuffer(meta, MAX_BUFFER), size + 1);
         }
     });
