@@ -18,17 +18,10 @@ var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
     requestHead = utils.promisify(request.head),
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
-    fsOpen = (path) => utils.promisify(fs.open)(path, 'w+');
+    fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
+    getLength = (res) => parseInt(res.headers['content-length'], 10),
+    rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
 
-var getLength = (res) => parseInt(res.headers['content-length'], 10);
-var rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
-function byteRange(count, total, index) {
-    var bytesPerThread = Math.round(total / count),
-        start = Math.floor(bytesPerThread * index),
-        end = count - index === 1 ? total : start + bytesPerThread - 1;
-    return {start, end}
-}
-var bytesPerThread = (threadCount, size) => Math.floor(size / threadCount);
 function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
@@ -41,8 +34,7 @@ function * download(options) {
         _httpRequest = _.partial(HttpRequest, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
-        _byteRange = _.partial(byteRange, threadCount, size),
-        _ranges = _.chain(threadCount).times(_byteRange).value(),
+        _ranges = utils.sliceRange(threadCount, size),
         _positions = _.pluck(_ranges, 'start'),
         _writeAt = _.clone(_positions);
     yield _.map(_ranges, function * (range, i) {
