@@ -5,26 +5,28 @@
 
 function Queue() {
     var _queue = [],
-        _queueRequests = [];
+        done = false,
+        _this = this;
     this.write = function (buffer) {
-        if (_queueRequests.length > 0) {
-            let node = _queueRequests.shift();
-            node.resolve(buffer);
-        } else {
-            _queue.push(Promise.resolve(buffer));
+        _queue.push(buffer);
+        return _this;
+    };
+    this.read = function * () {
+        while (!done || _queue.length) {
+            if (_queue.length > 0) {
+                yield _queue.shift();
+            } else {
+                yield null;
+            }
         }
+        return null;
     };
-    this.read = function () {
-        if (_queue.length > 0) {
-            return _queue.shift();
-        } else {
-            let defer = Promise.defer();
-            _queueRequests.push(defer);
-            return defer.promise;
+    this.end = function (val) {
+        if (val) {
+            _queue.push(val);
         }
+        done = true;
     };
-    this.hasData = function () {
-        return _queue.length > 0;
-    };
+
 }
 module.exports = Queue;
