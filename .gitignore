@@ -6,8 +6,6 @@ node_modules/
 *.sublime-*
 .idea
 .example.js
-*.temp
 *.jpg
 *.mtd
 *.txt
-test/mock/in.txt

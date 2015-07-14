@@ -4,9 +4,9 @@
 "use strict";
 var fs = require('fs'),
     _ = require('lodash'),
-    utils = require('./utils'),
+    utils = require('./lib/Utility'),
     request = require('request'),
-    HttpRequest = require('./HttpRequest'),
+    HttpRequest = require('./lib/HttpRequest'),
     co = require('co'),
     MAX_BUFFER = 128,
     MIN_WAIT = 500;

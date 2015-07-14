@@ -1,6 +1,6 @@
 "use strict";
 
-var Download = require('../'),
+var Download = require('../src/app'),
     chai = require('chai'),
     crypto = require('crypto'),
     fs = require('fs'),
@@ -10,7 +10,7 @@ var Download = require('../'),
     mtd = new Download({
         path: FILENAME, url: uri
     }),
-    server = require('../test-server'),
+    server = require('../src/perf/TestServer'),
     fileStream = fs.ReadStream(FILENAME)
     ;
 chai.should();

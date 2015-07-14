@@ -2,7 +2,7 @@
  * Created by tusharmathur on 7/14/15.
  */
 "use strict";
-var ObservableStream = require('../ObservableStream');
+var ObservableStream = require('../src/lib/ObservableStream');
 describe('ObservableStream', function () {
     var d;
     beforeEach(function () {
