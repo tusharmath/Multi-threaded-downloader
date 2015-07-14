@@ -1,3 +1,2 @@
 --require=chai
---require=sinon
 --require=co-mocha
