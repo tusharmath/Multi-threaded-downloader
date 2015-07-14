@@ -23,17 +23,17 @@ var fsTruncate = utils.promisify(fs.truncate),
 var getLength = (res) => parseInt(res.headers['content-length'], 10);
 var rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`});
 var createWriteThread = function (range) {
+    var start = range.start,
+        end = range.end,
+        position = range.start,
+        nextByte = range.start;
     return {
-        defer: Promise.defer(),
         start: range.start,
         end: range.end,
         position: range.start,
         nextByte: range.start,
         updatePosition: function (distance) {
             this.position += distance;
-            if (this.position >= this.end) {
-                this.defer.resolve(this);
-            }
         },
         writeAt: function (distance) {
             var writeAt = this.nextByte;
