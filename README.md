@@ -118,3 +118,7 @@ Each thread has a **connection** key which shows its downloading status, namely 
 
 **Important Note:** Never modify this object or else your download will be corrupted.
 The threads also have ```start```, ```position``` and ```end``` keys. They tell what part of the download does each thread represent in terms of *bytes*. ```start``` represents the start byte, ```end``` represents the end byte and ```position``` represents the bytes that have been downloaded till now.
+
+
+---
+Make sure to checkout the [develop](https://github.com/tusharmath/multi-threaded-downloader/tree/develop) branch, where version 2.0 is being built from scratch.
