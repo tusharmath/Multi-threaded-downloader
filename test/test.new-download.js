@@ -10,28 +10,30 @@ var Download = require('../'),
     mtd = new Download({
         path: FILENAME, url: uri
     }),
+    server = require('../test-server'),
     fileStream = fs.ReadStream(FILENAME)
     ;
 chai.should();
-chai.use(require("chai-as-promised"));
 describe('NewDownload', function () {
+    before(function *() {
+        yield server.start();
+    });
 
-    it("download pug picture", function () {
+    it("download pug picture", function * () {
         this.timeout(5000);
-        return mtd.start(uri).then(function () {
-            var defer = Promise.defer();
-            var shasum = crypto.createHash('sha1');
-            var s = fs.ReadStream(FILENAME);
-            s.on('data', function (d) {
-                shasum.update(d);
-            });
+        yield mtd.start(uri);
+        var defer = Promise.defer();
+        var shasum = crypto.createHash('sha1');
+        var s = fs.ReadStream(FILENAME);
+        s.on('data', function (d) {
+            shasum.update(d);
+        });
 
-            s.on('end', function () {
-                defer.resolve(shasum.digest('hex'))
-            });
-            return defer.promise;
-            //    http://onlinemd5.com/
-        }).should.eventually.equal('60E5CAAE3BABBEDC4CA95B9AA3ED7AC2A9B031C9'.toLowerCase());
+        s.on('end', function () {
+            defer.resolve(shasum.digest('hex'))
+        });
+        var digest = yield defer.promise;
+        digest.should.equal('60E5CAAE3BABBEDC4CA95B9AA3ED7AC2A9B031C9'.toLowerCase());
     });
 });
 

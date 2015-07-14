@@ -1,20 +1,14 @@
 "use strict";
 var _ = require('lodash'),
     request = require('request'),
-    DuplexStream = require('./ObservableStream');
+    Observer = require('./ObservableStream');
 
 module.exports = function (url, headers) {
     var defer = Promise.defer(),
-        stream = new DuplexStream(),
+        observer = new Observer(),
         response,
-        done = false,
         resolve = _.once(() => defer.resolve({read, response})),
-        isComplete = () => stream.hasData() || done === false,
-        read = function * () {
-            while (isComplete()) {
-                yield stream.read();
-            }
-        };
+        read = observer.read;
     request({url, headers})
         .on('response', (x) => {
             if (x.statusCode != 206) {
@@ -22,8 +16,8 @@ module.exports = function (url, headers) {
             }
             response = x
         })
-        .on('data', (buffer) => stream.write(buffer))
+        .on('data', (buffer) => observer.write(buffer))
         .on('data', resolve)
-        .on('complete', () => done = true);
+        .on('complete', () => observer.end());
     return defer.promise;
 };

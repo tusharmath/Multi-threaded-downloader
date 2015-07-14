@@ -28,3 +28,9 @@ exports.sliceRange = function (count, total) {
         return {start, end}
     });
 };
+
+exports.delay = function (timeout) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, timeout);
+    });
+};

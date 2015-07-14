@@ -38,15 +38,18 @@ function * download(options) {
         _positions = _.pluck(_ranges, 'start'),
         _writeAt = _.clone(_positions);
     yield _.map(_ranges, function * (range, i) {
-        let response = yield _httpRequestRange(range);
-        for (let data of response.read()) {
-            let buffer = yield data;
-            let writePosition = _writeAt[i];
-            _writeAt[i] += buffer.length;
-            yield _write(buffer, writePosition);
-            _positions[i] += buffer.length;
-            meta.positions = _positions;
-            yield _write(utils.toBuffer(meta, MAX_BUFFER), size + 1);
+        let responseStream = yield _httpRequestRange(range);
+        for (let buffer of responseStream.read()) {
+            if (buffer) {
+                let writePosition = _writeAt[i];
+                _writeAt[i] += buffer.length;
+                yield _write(buffer, writePosition);
+                _positions[i] += buffer.length;
+                meta.positions = _positions;
+                yield _write(utils.toBuffer(meta, MAX_BUFFER), size + 1);
+            }else{
+                yield utils.delay(500);
+            }
         }
     });
     yield _fsTruncate();
