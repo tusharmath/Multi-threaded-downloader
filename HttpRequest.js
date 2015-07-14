@@ -15,7 +15,7 @@ module.exports = function (url, headers) {
         };
     request({url, headers})
         .on('response', (x) => {
-            if(x.statusCode > 299){
+            if (x.statusCode != 206) {
                 throw Error(x.statusMessage);
             }
             response = x
