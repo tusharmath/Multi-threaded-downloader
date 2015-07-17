@@ -39,19 +39,18 @@ function * download(options) {
         meta = {url, path: path, positions: _.pluck(_ranges, 'start')};
     yield _.map(_ranges, function * (range, i) {
         let position = range.start,
-            response = yield _httpRequestRange(range);
+            onData = function *(buffer) {
+                if (buffer) {
+                    let writable = _fsWrite(buffer, position);
+                    position += buffer.length;
+                    meta.positions[i] += yield writable;
+                    yield _fsWrite(toBuffer(MAX_BUFFER), size + 1);
+                } else {
+                    yield utils.wait(MIN_WAIT);
+                }
+            };
+        yield _httpRequestRange(range).map(onData);
 
-        var onBuffer = function *(buffer) {
-            if (buffer) {
-                let writable = _fsWrite(buffer, position);
-                position += buffer.length;
-                meta.positions[i] += yield writable;
-                yield _fsWrite(toBuffer(MAX_BUFFER), size + 1);
-            } else {
-                yield utils.wait(MIN_WAIT);
-            }
-        };
-        yield utils.map(response.stream, onBuffer);
     });
     yield _fsTruncate();
     yield _fsRename();

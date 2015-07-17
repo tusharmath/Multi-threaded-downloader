@@ -9,4 +9,4 @@ exports.start = function () {
     app.listen(port, defer.resolve);
     return defer.promise;
 };
-exports.stop = ()=> app.close;
+exports.stop = ()=> app._close;
