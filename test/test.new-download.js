@@ -20,7 +20,7 @@ describe('NewDownload', function () {
     });
 
     it("download pug picture", function * () {
-        this.timeout(5000);
+        this.timeout(1000);
         yield mtd.start(uri);
         var defer = Promise.defer();
         var shasum = crypto.createHash('sha1');
