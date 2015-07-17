@@ -28,17 +28,3 @@ exports.sliceRange = function (count, total) {
         return {start, end}
     });
 };
-
-exports.wait = function (timeout) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, timeout);
-    });
-};
-
-exports.map = function (gen, itar) {
-    var results = [];
-    for (let buffer of gen()) {
-        results.push(itar(buffer));
-    }
-    return results;
-};
