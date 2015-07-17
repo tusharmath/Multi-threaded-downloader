@@ -29,7 +29,7 @@ exports.sliceRange = function (count, total) {
     });
 };
 
-exports.delay = function (timeout) {
+exports.wait = function (timeout) {
     return new Promise(function (resolve) {
         setTimeout(resolve, timeout);
     });
