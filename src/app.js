@@ -39,8 +39,9 @@ function * download(options) {
         meta = {url, path: path, positions: _.pluck(_ranges, 'start')};
     yield _.map(_ranges, function * (range, i) {
         let position = range.start,
-            responseStream = yield _httpRequestRange(range);
-        for (let buffer of responseStream.read()) {
+            response = yield _httpRequestRange(range);
+
+        var onBuffer = function *(buffer) {
             if (buffer) {
                 let writable = _fsWrite(buffer, position);
                 position += buffer.length;
@@ -49,7 +50,8 @@ function * download(options) {
             } else {
                 yield utils.wait(MIN_WAIT);
             }
-        }
+        };
+        yield utils.map(response.stream, onBuffer);
     });
     yield _fsTruncate();
     yield _fsRename();

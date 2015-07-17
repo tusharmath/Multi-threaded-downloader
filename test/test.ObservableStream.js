@@ -9,7 +9,6 @@ describe('ObservableStream', function () {
         d = new ObservableStream();
     });
 
-    it("basic read write", function () {
     it("basic stream write", function () {
         var next = () => stream.next().should.deep;
         d.write('AAA').write('BBB');
