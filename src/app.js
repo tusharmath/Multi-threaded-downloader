@@ -22,8 +22,11 @@ var fsTruncate = utils.promisify(fs.truncate),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
-    toBuffer = _.partial(utils.toBuffer, MAX_BUFFER);
-
+    toBuffer = _.partial(utils.toBuffer, MAX_BUFFER),
+    metaCreate = function (url, path, _ranges) {
+        var positions = _.pluck(_ranges, 'start');
+        return {url, path: path, nextByte: _.clone(positions), positions};
+    };
 function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
@@ -36,25 +39,19 @@ function * download(options) {
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
         _ranges = utils.sliceRange(threadCount, size),
-        meta = {url, path: path, positions: _.pluck(_ranges, 'start')};
+        _meta = metaCreate(url, path, _ranges),
+        _onBuffer = _.curry(function * (i, buffer) {
+            let writable = _fsWrite(buffer, _meta.nextByte[i]);
+            _meta.nextByte[i] += buffer.length;
+            _meta.positions[i] += yield writable;
+            yield _fsWrite(toBuffer(MAX_BUFFER), size);
+        });
     yield _.map(_ranges, function * (range, i) {
-        let position = range.start,
-            onData = function *(buffer) {
-                if (buffer) {
-                    let writable = _fsWrite(buffer, position);
-                    position += buffer.length;
-                    meta.positions[i] += yield writable;
-                    yield _fsWrite(toBuffer(MAX_BUFFER), size + 1);
-                } else {
-                    yield utils.wait(MIN_WAIT);
-                }
-            };
-        yield _httpRequestRange(range).map(onData);
-
+        yield _httpRequestRange(range).map(_onBuffer(i)).value();
     });
     yield _fsTruncate();
     yield _fsRename();
-    return meta;
+    return _meta;
 }
 
 class Download {

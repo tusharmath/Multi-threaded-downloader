@@ -19,8 +19,9 @@ class Queue {
         };
         this.map = function (_cb) {
             cb = _cb;
-            return this.promise;
-        }
+            return this;
+        };
+        this.value = () => this.promise;
     }
 }
 module.exports = function (url, headers) {
