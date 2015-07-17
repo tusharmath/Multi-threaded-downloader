@@ -47,7 +47,7 @@ function * download(options) {
                 meta.positions[i] += yield writable;
                 yield _fsWrite(toBuffer(MAX_BUFFER), size + 1);
             } else {
-                yield utils.delay(MIN_WAIT);
+                yield utils.wait(MIN_WAIT);
             }
         }
     });

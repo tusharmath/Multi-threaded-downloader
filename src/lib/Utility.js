@@ -34,3 +34,11 @@ exports.wait = function (timeout) {
         setTimeout(resolve, timeout);
     });
 };
+
+exports.map = function (gen, itar) {
+    var results = [];
+    for (let buffer of gen()) {
+        results.push(itar(buffer));
+    }
+    return results;
+};

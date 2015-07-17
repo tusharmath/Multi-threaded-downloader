@@ -11,7 +11,7 @@ function ObservableStream() {
         _queue.push(buffer);
         return _this;
     };
-    this.read = function * () {
+    this.stream = function * () {
         while (!done || _queue.length) {
             if (_queue.length > 0) {
                 yield _queue.shift();

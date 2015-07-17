@@ -7,8 +7,7 @@ module.exports = function (url, headers) {
     var defer = Promise.defer(),
         observer = new Observer(),
         response,
-        resolve = _.once(() => defer.resolve({read, response})),
-        read = observer.read;
+        resolve = _.once(()=> defer.resolve(observer));
     request({url, headers})
         .on('response', (x) => {
             if (x.statusCode != 206) {
