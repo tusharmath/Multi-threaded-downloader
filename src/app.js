@@ -8,7 +8,7 @@ var fs = require('fs'),
     request = require('request'),
     HttpRequest = require('./lib/HttpRequest'),
     co = require('co'),
-    MAX_BUFFER = 128,
+    MAX_BUFFER = 512,
     MIN_WAIT = 500;
 
 var defaultOptions = {
@@ -22,7 +22,7 @@ var fsTruncate = utils.promisify(fs.truncate),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
-    toBuffer = _.partial(utils.toBuffer, MAX_BUFFER),
+    toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER),
     metaCreate = function (url, path, _ranges) {
         var positions = _.pluck(_ranges, 'start');
         return {url, path: path, nextByte: _.clone(positions), positions};
@@ -44,7 +44,7 @@ function * download(options) {
             let writable = _fsWrite(buffer, _meta.nextByte[i]);
             _meta.nextByte[i] += buffer.length;
             _meta.positions[i] += yield writable;
-            yield _fsWrite(toBuffer(MAX_BUFFER), size);
+            yield _fsWrite(toBuffer(_meta), size);
         });
     yield _.map(_ranges, function * (range, i) {
         yield _httpRequestRange(range).map(_onBuffer(i)).value();
