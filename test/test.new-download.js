@@ -33,7 +33,7 @@ describe('NewDownload', function () {
             defer.resolve(shasum.digest('hex'))
         });
         var digest = yield defer.promise;
-        digest.should.equal('A9070D71168B5135910A04F0650A91541B72762E'.toLowerCase());
+        digest.should.equal('41BE89713FA15BC83D093DD67E558BADA8546388'.toLowerCase());
     });
 });
 

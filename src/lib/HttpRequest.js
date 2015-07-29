@@ -1,33 +1,13 @@
 "use strict";
 var _ = require('lodash'),
     request = require('request'),
+    rx = require('rx'),
     co = require('co');
-
-class Queue {
-    constructor() {
-        var cb, queue = [], defer = Promise.defer();
-        this.promise = defer.promise;
-        this._write = function (buff) {
-            queue.push(co.wrap(cb)(buff));
-        };
-        this._close = function () {
-            try {
-                Promise.all(queue).then(defer.resolve, defer.reject);
-            } catch (e) {
-                defer.reject(e);
-            }
-        };
-        this.map = function (_cb) {
-            cb = _cb;
-            return this;
-        };
-        this.value = () => this.promise;
-    }
-}
 module.exports = function (url, headers) {
-    var queue = new Queue();
-    request({url, headers})
-        .on('data', queue._write)
-        .on('complete', queue._close);
-    return queue;
+    return rx.Observable.create(function (observer) {
+        request({url, headers})
+            .on('data', x => observer.onNext(x))
+            .on('complete', x => observer.onCompleted(x))
+            .on('error', x => observer.onError(x));
+    });
 };

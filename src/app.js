@@ -6,10 +6,11 @@ var fs = require('fs'),
     _ = require('lodash'),
     utils = require('./lib/Utility'),
     request = require('request'),
+    rx = require('rx'),
     HttpRequest = require('./lib/HttpRequest'),
     co = require('co'),
     MAX_BUFFER = 512,
-    MIN_WAIT = 500;
+    MIN_WAIT = 1;
 
 var defaultOptions = {
     headers: {},
@@ -19,6 +20,9 @@ var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
     requestHead = utils.promisify(request.head),
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
+    fsWriteObservable = rx.Observable.fromCallback(fs.write),
+    fsTruncateObservable = rx.Observable.fromCallback(fs.truncate),
+    fsRenameObservable = rx.Observable.fromCallback(fs.rename),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
@@ -33,24 +37,49 @@ function * download(options) {
         path = options.path,
         size = getLength(yield requestHead(url)),
         fd = yield fsOpen(path),
-        _fsTruncate = _.partial(fsTruncate, fd, size),
-        _fsWrite = _.partial(fsWrite, fd),
+        _fsTruncate = ()=> fsTruncateObservable(fd, size),
+        _fsRename = function () {
+            return fsRenameObservable(path, path.replace('.mtd', ''))
+        },
         _httpRequest = _.partial(HttpRequest, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
-        _fsRename = _.partial(fsRename, path, path.replace('.mtd', '')),
         _ranges = utils.sliceRange(threadCount, size),
         _meta = metaCreate(url, path, _ranges),
-        _onBuffer = _.curry(function * (i, buffer) {
-            let writable = _fsWrite(buffer, _meta.nextByte[i]);
-            _meta.nextByte[i] += buffer.length;
-            _meta.positions[i] += yield writable;
-            yield _fsWrite(toBuffer(_meta), size);
-        });
-    yield _.map(_ranges, function * (range, i) {
-        yield _httpRequestRange(range).map(_onBuffer(i)).value();
-    });
-    yield _fsTruncate();
-    yield _fsRename();
+        _bufferThread = _.curry(function (thread, buffer) {
+            return {buffer, thread};
+        }),
+        _threadPacket = function (range, thread) {
+            return _httpRequestRange(range).map(_bufferThread(thread));
+        },
+        _attachPacketPosition = function (packet) {
+            packet.position = _meta.nextByte[packet.thread];
+            _updateNextByte(packet);
+            return packet;
+        },
+        _updateNextByte = function (packet) {
+            _meta.nextByte[packet.thread] += packet.buffer.length;
+        },
+        _updatePosition = function (packet) {
+            _meta.positions[packet.thread] += packet.buffer.length;
+        },
+        _fsWrite = function (fd, buffer, position) {
+            return fsWriteObservable(fd, buffer, 0, buffer.length, position);
+        }
+        ;
+    var defer = Promise.defer();
+    rx.Observable
+        .from(_ranges)
+        .selectMany(_threadPacket)
+        .select(_attachPacketPosition)
+        .selectMany(packet => _fsWrite(fd, packet.buffer, packet.position), _.identity)
+        .select(_updatePosition)
+        .selectMany(() => _fsWrite(fd, toBuffer(_meta), size))
+        .last()
+        .selectMany(_fsTruncate)
+        .selectMany(_fsRename)
+       .subscribe(defer.resolve, defer.reject);
+
+    yield defer.promise;
     return _meta;
 }
 
