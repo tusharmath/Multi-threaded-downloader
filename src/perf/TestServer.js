@@ -12,7 +12,7 @@ var defer = Promise.defer(),
         }
     };
 app
-    .use(express.static(__dirname + '/files'))
+    .use('/files', express.static(__dirname + '/files'))
     .get('/chunk/:size.txt', function (req, res) {
         var count = 0,
             size = parseInt(req.params.size),

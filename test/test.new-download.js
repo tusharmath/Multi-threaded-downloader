@@ -31,7 +31,7 @@ describe('NewDownload', function () {
     });
 
     it("download static pug image", function * () {
-        var digest = yield createDownload('http://localhost:3000/pug.jpg', './.temp/pug.jpg');
+        var digest = yield createDownload('http://localhost:3000/files/pug.jpg', './.temp/pug.jpg');
         digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase());
     });
 });
