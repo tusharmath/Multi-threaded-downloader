@@ -5,7 +5,7 @@ var Download = require('../src/app'),
     crypto = require('crypto'),
     fs = require('fs'),
     md5HashBuilder = crypto.createHash('md5'),
-    uri = 'http://localhost:3000/in.txt',
+    uri = 'http://localhost:3000/range/1024.txt',
     FILENAME = './.temp/out.txt',
     mtd = new Download({
         path: FILENAME, url: uri
