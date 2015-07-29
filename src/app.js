@@ -66,8 +66,8 @@ function * download(options) {
             return fsWriteObservable(fd, buffer, 0, buffer.length, position);
         }
         ;
-    var defer = Promise.defer();
-    rx.Observable
+
+    yield rx.Observable
         .from(_ranges)
         .selectMany(_httpRequestThread)
         .select(_attachPacketPosition)
@@ -77,9 +77,8 @@ function * download(options) {
         .last()
         .selectMany(_fsTruncate)
         .selectMany(_fsRename)
-       .subscribe(defer.resolve, defer.reject);
+        .toPromise();
 
-    yield defer.promise;
     return _meta;
 }
 
