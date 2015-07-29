@@ -21,10 +21,6 @@ function * createDownload(url, path) {
 }
 
 describe('NewDownload', function () {
-    before(function *() {
-        yield server.start();
-    });
-
     it("download dynamically created 1024 bytes file", function * () {
         var digest = yield createDownload('http://localhost:3000/range/1024.txt', './.temp/1024.txt');
         digest.should.equal('41BE89713FA15BC83D093DD67E558BADA8546388'.toLowerCase());
