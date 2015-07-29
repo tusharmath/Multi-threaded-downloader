@@ -18,7 +18,7 @@ var defaultOptions = {
 };
 var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
-    requestHead = utils.promisify(request.head),
+    requestHead = HttpRequest.head,
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
     fsWriteObservable = rx.Observable.fromCallback(fs.write),
     fsTruncateObservable = rx.Observable.fromCallback(fs.truncate),

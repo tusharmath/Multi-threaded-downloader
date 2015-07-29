@@ -1,9 +1,11 @@
 "use strict";
 var _ = require('lodash'),
     request = require('request'),
+    utils = require('./Utility'),
     rx = require('rx'),
     co = require('co');
-module.exports = function (url, headers) {
+
+var _request = function (url, headers) {
     return rx.Observable.create(function (observer) {
         request({url, headers})
             .on('data', x => observer.onNext(x))
@@ -11,3 +13,5 @@ module.exports = function (url, headers) {
             .on('error', x => observer.onError(x));
     });
 };
+_request.head = utils.promisify(request.head);
+module.exports = _request;
