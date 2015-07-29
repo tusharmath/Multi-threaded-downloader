@@ -45,11 +45,11 @@ function * download(options) {
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _ranges = utils.sliceRange(threadCount, size),
         _meta = metaCreate(url, path, _ranges),
-        _bufferThread = _.curry(function (thread, buffer) {
+        _attachThread = _.curry(function (thread, buffer) {
             return {buffer, thread};
         }),
-        _threadPacket = function (range, thread) {
-            return _httpRequestRange(range).map(_bufferThread(thread));
+        _httpRequestThread = function (range, thread) {
+            return _httpRequestRange(range).map(_attachThread(thread));
         },
         _attachPacketPosition = function (packet) {
             packet.position = _meta.nextByte[packet.thread];
@@ -69,7 +69,7 @@ function * download(options) {
     var defer = Promise.defer();
     rx.Observable
         .from(_ranges)
-        .selectMany(_threadPacket)
+        .selectMany(_httpRequestThread)
         .select(_attachPacketPosition)
         .selectMany(packet => _fsWrite(fd, packet.buffer, packet.position), _.identity)
         .select(_updatePosition)
