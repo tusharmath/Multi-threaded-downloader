@@ -4,9 +4,11 @@
 "use strict";
 var _ = require('lodash');
 exports.promisify = function (func) {
-    var defer = Promise.defer(),
-        handle = (err, data) => err ? defer.reject(err) : defer.resolve(data);
     return _.restParam(function (args) {
+        //TODO: Write test case for why this is not above the return
+        var defer = Promise.defer(),
+            handle = (err, data) => err ? defer.reject(err) : defer.resolve(data);
+
         args.push(handle);
         func.apply(null, args);
         return defer.promise;
