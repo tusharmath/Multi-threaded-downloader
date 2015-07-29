@@ -14,7 +14,7 @@ function * createDownload(url, path) {
     yield mtd.start();
     var defer = Promise.defer();
     var hash = crypto.createHash('sha1');
-    fs.ReadStream(path)
+    fs.createReadStream(path)
         .on('data', x => hash.update(x))
         .on('end', () => defer.resolve(hash.digest('hex')));
     return yield defer.promise;
