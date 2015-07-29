@@ -25,9 +25,14 @@ describe('NewDownload', function () {
         yield server.start();
     });
 
-    it("download dynamically created files", function * () {
+    it("download dynamically created 1024 bytes file", function * () {
         var digest = yield createDownload('http://localhost:3000/range/1024.txt', './.temp/1024.txt');
         digest.should.equal('41BE89713FA15BC83D093DD67E558BADA8546388'.toLowerCase());
+    });
+
+    it("download static pug image", function * () {
+        var digest = yield createDownload('http://localhost:3000/pug.jpg', './.temp/pug.jpg');
+        digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase());
     });
 });
 
