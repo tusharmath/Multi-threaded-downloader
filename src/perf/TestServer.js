@@ -34,8 +34,4 @@ app
         res.send(str);
     });
 
-exports.start = function () {
-    app.listen(port, defer.resolve);
-    return defer.promise;
-};
-exports.stop = ()=> app._close;
+app.listen(port);
