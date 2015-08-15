@@ -16,10 +16,7 @@ var defaultOptions = {
     headers: {},
     threadCount: 3
 };
-var fsTruncate = utils.promisify(fs.truncate),
-    fsRename = utils.promisify(fs.rename),
-    requestHead = ob.requestHead,
-    fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
+var fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
@@ -32,7 +29,7 @@ function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
         path = options.path,
-        size = getLength(yield requestHead(url)),
+        size = getLength(yield ob.requestHead(url)),
         fd = yield fsOpen(path),
         _fsTruncate = ()=> ob.fsTruncate(fd, size),
         _fsRename = function () {
