@@ -12,16 +12,16 @@ var requestBody = function (url, headers) {
                 .on('error', x => observer.onError(x));
         });
     },
-    requestHead = utils.promisify(request.head),
-    fsOpen = utils.promisify(fs.open),
+    requestHeadAsync = utils.promisify(request.head),
+    fsOpenAsync = utils.promisify(fs.open),
     fsWrite = rx.Observable.fromCallback(fs.write),
     fsTruncate = rx.Observable.fromCallback(fs.truncate),
     fsRename = rx.Observable.fromCallback(fs.rename);
 
 module.exports = {
     requestBody,
-    requestHead,
-    fsOpen,
+    requestHeadAsync,
+    fsOpenAsync,
     fsWrite,
     fsTruncate,
     fsRename
