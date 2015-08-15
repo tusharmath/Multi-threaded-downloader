@@ -27,10 +27,6 @@ function * download(options) {
         path = options.path,
         size = getLength(yield ob.requestHead(url)),
         fd = (yield ob.fsOpen(path, 'w+').toPromise())[1],
-        _fsTruncate = ()=> ob.fsTruncate(fd, size),
-        _fsRename = function () {
-            return ob.fsRename(path, path.replace('.mtd', ''));
-        },
         _httpRequest = _.partial(ob.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _ranges = utils.sliceRange(threadCount, size),
@@ -65,8 +61,8 @@ function * download(options) {
         .select(_updatePosition)
         .selectMany(() => _fsWrite(fd, toBuffer(_meta), size))
         .last()
-        .selectMany(_fsTruncate)
-        .selectMany(_fsRename)
+        .selectMany(()=> ob.fsTruncate(fd, size))
+        .selectMany(()=> ob.fsRename(path, path.replace('.mtd', '')))
         .toPromise();
 
     return _meta;
