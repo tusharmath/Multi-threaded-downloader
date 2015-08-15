@@ -7,7 +7,7 @@ var fs = require('fs'),
     utils = require('./lib/Utility'),
     request = require('request'),
     rx = require('rx'),
-    HttpRequest = require('./lib/HttpRequest'),
+    Observables = require('./lib/Observables'),
     co = require('co'),
     MAX_BUFFER = 512,
     MIN_WAIT = 1;
@@ -18,7 +18,7 @@ var defaultOptions = {
 };
 var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
-    requestHead = HttpRequest.head,
+    requestHead = Observables.head,
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
     fsWriteObservable = rx.Observable.fromCallback(fs.write),
     fsTruncateObservable = rx.Observable.fromCallback(fs.truncate),
@@ -41,7 +41,7 @@ function * download(options) {
         _fsRename = function () {
             return fsRenameObservable(path, path.replace('.mtd', ''))
         },
-        _httpRequest = _.partial(HttpRequest, url),
+        _httpRequest = _.partial(Observables, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _ranges = utils.sliceRange(threadCount, size),
         _meta = metaCreate(url, path, _ranges),
