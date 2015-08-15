@@ -7,7 +7,7 @@ var fs = require('fs'),
     utils = require('./lib/Utility'),
     request = require('request'),
     rx = require('rx'),
-    Observables = require('./lib/Observables'),
+    ob = require('./lib/Observables'),
     co = require('co'),
     MAX_BUFFER = 512,
     MIN_WAIT = 1;
@@ -18,11 +18,8 @@ var defaultOptions = {
 };
 var fsTruncate = utils.promisify(fs.truncate),
     fsRename = utils.promisify(fs.rename),
-    requestHead = Observables.requestHead,
+    requestHead = ob.requestHead,
     fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
-    fsWriteObservable = rx.Observable.fromCallback(fs.write),
-    fsTruncateObservable = rx.Observable.fromCallback(fs.truncate),
-    fsRenameObservable = rx.Observable.fromCallback(fs.rename),
     fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
@@ -37,11 +34,11 @@ function * download(options) {
         path = options.path,
         size = getLength(yield requestHead(url)),
         fd = yield fsOpen(path),
-        _fsTruncate = ()=> fsTruncateObservable(fd, size),
+        _fsTruncate = ()=> ob.fsTruncate(fd, size),
         _fsRename = function () {
-            return fsRenameObservable(path, path.replace('.mtd', ''))
+            return ob.fsRename(path, path.replace('.mtd', ''))
         },
-        _httpRequest = _.partial(Observables.requestBody, url),
+        _httpRequest = _.partial(ob.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _ranges = utils.sliceRange(threadCount, size),
         _meta = metaCreate(url, path, _ranges),
@@ -63,7 +60,7 @@ function * download(options) {
             _meta.positions[packet.thread] += packet.buffer.length;
         },
         _fsWrite = function (fd, buffer, position) {
-            return fsWriteObservable(fd, buffer, 0, buffer.length, position);
+            return ob.fsWrite(fd, buffer, 0, buffer.length, position);
         }
         ;
 
