@@ -26,7 +26,7 @@ function * download(options) {
         threadCount = options.threadCount,
         path = options.path,
         size = getLength(yield ob.requestHead(url)),
-        fd = (yield ob.fsOpen(path, 'w+').toPromise())[1],
+        fd = yield ob.fsOpen(path, 'w+'),
         _httpRequest = _.partial(ob.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
@@ -49,8 +49,7 @@ function * download(options) {
         },
         _fsWrite = function (fd, buffer, position) {
             return ob.fsWrite(fd, buffer, 0, buffer.length, position);
-        }
-        ;
+        };
 
     var ranges = rx.Observable.from(utils.sliceRange(threadCount, size));
     yield ranges

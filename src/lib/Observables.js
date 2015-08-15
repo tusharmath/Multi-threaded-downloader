@@ -13,7 +13,7 @@ var requestBody = function (url, headers) {
         });
     },
     requestHead = utils.promisify(request.head),
-    fsOpen = rx.Observable.fromCallback(fs.open),
+    fsOpen = utils.promisify(fs.open),
     fsWrite = rx.Observable.fromCallback(fs.write),
     fsTruncate = rx.Observable.fromCallback(fs.truncate),
     fsRename = rx.Observable.fromCallback(fs.rename);
