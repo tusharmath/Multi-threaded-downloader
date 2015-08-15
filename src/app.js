@@ -1,23 +1,20 @@
 /**
  * Created by tusharmathur on 5/15/15.
  */
-"use strict";
+'use strict';
 var fs = require('fs'),
     _ = require('lodash'),
     utils = require('./lib/Utility'),
-    request = require('request'),
     rx = require('rx'),
     ob = require('./lib/Observables'),
     co = require('co'),
-    MAX_BUFFER = 512,
-    MIN_WAIT = 1;
+    MAX_BUFFER = 512;
 
 var defaultOptions = {
     headers: {},
     threadCount: 3
 };
-var fsWrite = (fd, buffer, position) => utils.promisify(fs.write)(fd, buffer, 0, buffer.length, position),
-    fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
+var fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
     getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
     toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER),

@@ -1,10 +1,8 @@
-"use strict";
-var _ = require('lodash'),
-    request = require('request'),
+'use strict';
+var request = require('request'),
     utils = require('./Utility'),
     rx = require('rx'),
-    fs = require('fs'),
-    co = require('co');
+    fs = require('fs');
 
 var requestBody = function (url, headers) {
         return rx.Observable.create(function (observer) {
