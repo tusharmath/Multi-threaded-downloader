@@ -13,6 +13,9 @@ var requestBody = function (url, headers) {
             .on('error', x => observer.onError(x));
     });
 };
-requestBody.requestHead = utils.promisify(request.head);
+var requestHead = utils.promisify(request.head);
 
-module.exports = requestBody;
+module.exports = {
+    requestBody,
+    requestHead
+};

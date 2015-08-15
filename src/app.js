@@ -41,7 +41,7 @@ function * download(options) {
         _fsRename = function () {
             return fsRenameObservable(path, path.replace('.mtd', ''))
         },
-        _httpRequest = _.partial(Observables, url),
+        _httpRequest = _.partial(Observables.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _ranges = utils.sliceRange(threadCount, size),
         _meta = metaCreate(url, path, _ranges),
