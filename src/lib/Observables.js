@@ -5,7 +5,7 @@ var _ = require('lodash'),
     rx = require('rx'),
     co = require('co');
 
-var _request = function (url, headers) {
+var requestBody = function (url, headers) {
     return rx.Observable.create(function (observer) {
         request({url, headers})
             .on('data', x => observer.onNext(x))
@@ -13,5 +13,6 @@ var _request = function (url, headers) {
             .on('error', x => observer.onError(x));
     });
 };
-_request.head = utils.promisify(request.head);
-module.exports = _request;
+requestBody.requestHead = utils.promisify(request.head);
+
+module.exports = requestBody;
