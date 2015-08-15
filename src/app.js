@@ -14,8 +14,7 @@ var defaultOptions = {
     headers: {},
     threadCount: 3
 };
-var fsOpen = (path) => utils.promisify(fs.open)(path, 'w+'),
-    getLength = (res) => parseInt(res.headers['content-length'], 10),
+var getLength = (res) => parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
     toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER),
     metaCreate = function (url, path, _ranges) {
@@ -27,10 +26,10 @@ function * download(options) {
         threadCount = options.threadCount,
         path = options.path,
         size = getLength(yield ob.requestHead(url)),
-        fd = yield fsOpen(path),
+        fd = (yield ob.fsOpen(path, 'w+').toPromise())[1],
         _fsTruncate = ()=> ob.fsTruncate(fd, size),
         _fsRename = function () {
-            return ob.fsRename(path, path.replace('.mtd', ''))
+            return ob.fsRename(path, path.replace('.mtd', ''));
         },
         _httpRequest = _.partial(ob.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
