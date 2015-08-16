@@ -1,6 +1,5 @@
 'use strict';
 var request = require('request'),
-    utils = require('./Utility'),
     Rx = require('Rx'),
     fs = require('fs');
 
@@ -12,16 +11,23 @@ var requestBody = function (url, headers) {
                 .on('error', x => observer.onError(x));
         });
     },
-    requestHeadAsync = utils.promisify(request.head),
-    fsOpenAsync = utils.promisify(fs.open),
-    fsWrite = Rx.Observable.fromCallback(fs.write),
-    fsTruncate = Rx.Observable.fromCallback(fs.truncate),
-    fsRename = Rx.Observable.fromCallback(fs.rename);
+    requestHead = function (url) {
+        var method = 'HEAD';
+        return Rx.Observable.fromNodeCallback(function (url, method, callback) {
+            request.head(url, function (err, res) {
+                callback(err, res);
+            });
+        })(url, method);
+    },
+    fsOpen = Rx.Observable.fromNodeCallback(fs.open),
+    fsWrite = Rx.Observable.fromNodeCallback(fs.write),
+    fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate),
+    fsRename = Rx.Observable.fromNodeCallback(fs.rename);
 
 module.exports = {
     requestBody,
-    requestHeadAsync,
-    fsOpenAsync,
+    requestHead,
+    fsOpen,
     fsWrite,
     fsTruncate,
     fsRename

@@ -12,7 +12,7 @@ var defaultOptions = {
     headers: {},
     threadCount: 3
 };
-var getLength = (res) => parseInt(res.headers['content-length'], 10),
+var getContentLength = (res) =>parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
     toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER),
     metaCreate = function (url, path, _ranges) {
@@ -23,8 +23,8 @@ function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
         path = options.path,
-        size = getLength(yield ob.requestHeadAsync(url)),
-        fd = yield ob.fsOpenAsync(path, 'w+'),
+        size = getContentLength(yield ob.requestHead(url)),
+        fd = yield ob.fsOpen(path, 'w+'),
         _httpRequest = _.partial(ob.requestBody, url),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
@@ -57,8 +57,7 @@ function * download(options) {
         .selectMany(() => _fsWrite(fd, toBuffer(_meta), size))
         .last()
         .selectMany(()=> ob.fsTruncate(fd, size))
-        .selectMany(()=> ob.fsRename(path, path.replace('.mtd', '')))
-        .toPromise();
+        .selectMany(()=> ob.fsRename(path, path.replace('.mtd', '')));
 
     return _meta;
 }
