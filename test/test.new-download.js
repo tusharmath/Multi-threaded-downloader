@@ -9,7 +9,7 @@ require('../src/perf/TestServer');
 chai.should();
 
 function * createDownload(url, path) {
-    var mtd = new Download({path, url});
+    var mtd = new Download({path, url, strictSSL: false});
     yield mtd.start();
     var defer = Promise.defer();
     var hash = crypto.createHash('sha1');
@@ -39,6 +39,11 @@ describe('NewDownload', function () {
 
         it("download static pug image", function * () {
             var digest = yield createDownload('http://localhost:3000/files/pug.jpg', './.temp/pug.jpg');
+            digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase());
+        });
+
+        it("download static pug image over SSL", function * () {
+            var digest = yield createDownload('https://localhost:3001/files/pug.jpg', './.temp/pug.jpg');
             digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase());
         });
     });

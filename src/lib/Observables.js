@@ -4,9 +4,9 @@ var request = require('request'),
     _ = require('lodash'),
     fs = require('fs');
 
-var requestBody = function (url, headers) {
+var requestBody = function (url, strictSSL, headers) {
         return Rx.Observable.create(function (observer) {
-            request({url, headers})
+            request({url, headers, strictSSL})
                 .on('data', x => observer.onNext(x))
                 .on('complete', x => observer.onCompleted(x))
                 .on('error', x => observer.onError(x));

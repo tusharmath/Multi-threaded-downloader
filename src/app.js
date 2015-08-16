@@ -10,7 +10,8 @@ var _ = require('lodash'),
 
 var defaultOptions = {
     headers: {},
-    threadCount: 3
+    threadCount: 3,
+    strictSSL: true
 };
 var getContentLength = (res) =>parseInt(res.headers['content-length'], 10),
     rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`}),
@@ -23,9 +24,10 @@ function * download(options) {
     var url = options.url,
         threadCount = options.threadCount,
         path = options.path,
-        size = getContentLength(yield ob.requestHead(url)),
+        strictSSL = options.strictSSL,
+        size = getContentLength(yield ob.requestHead({url, strictSSL})),
         fd = yield ob.fsOpen(path, 'w+'),
-        _httpRequest = _.partial(ob.requestBody, url),
+        _httpRequest = _.partial(ob.requestBody, url, strictSSL),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
         _attachThread = _.curry(function (thread, buffer) {
@@ -64,7 +66,7 @@ function * download(options) {
 
 class Download {
     constructor(options) {
-        this.options = _.assign(options, defaultOptions);
+        this.options = _.defaults(options, defaultOptions);
         this.options.path += '.mtd';
     }
 
