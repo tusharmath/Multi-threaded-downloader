@@ -5,9 +5,11 @@ var request = require('request'),
     fs = require('fs');
 
 var requestBody = function (url, strictSSL, headers) {
+        var responseHeaders;
         return Rx.Observable.create(function (observer) {
             request({url, headers, strictSSL})
-                .on('data', x => observer.onNext(x))
+                .on('data', buffer => observer.onNext({buffer, headers: responseHeaders}))
+                .on('response', x => responseHeaders = x.headers)
                 .on('complete', x => observer.onCompleted(x))
                 .on('error', x => observer.onError(x));
         });

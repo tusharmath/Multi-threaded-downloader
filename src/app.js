@@ -30,11 +30,8 @@ function * download(options) {
         _httpRequest = _.partial(ob.requestBody, url, strictSSL),
         _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
-        _attachThread = _.curry(function (thread, buffer) {
-            return {buffer, thread};
-        }),
         _httpRequestThread = function (range, thread) {
-            return _httpRequestRange(range).map(_attachThread(thread));
+            return _httpRequestRange(range).map(packet => _.merge(packet, {thread}));
         },
         _attachPacketPosition = function (packet) {
             packet.position = _meta.nextByte[packet.thread];
