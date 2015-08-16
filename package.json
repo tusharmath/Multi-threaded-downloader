@@ -15,10 +15,9 @@
   },
   "main": "./src/app.js",
   "dependencies": {
-    "co": "^4.5.4",
     "lodash": "^3.10.0",
     "request": "^2.60.0",
-    "rx": "^2.5.3"
+    "rx": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^2.3.0",
