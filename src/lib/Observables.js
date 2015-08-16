@@ -1,6 +1,7 @@
 'use strict';
 var request = require('request'),
     Rx = require('Rx'),
+    _ = require('lodash'),
     fs = require('fs');
 
 var requestBody = function (url, headers) {
@@ -11,14 +12,7 @@ var requestBody = function (url, headers) {
                 .on('error', x => observer.onError(x));
         });
     },
-    requestHead = function (url) {
-        var method = 'HEAD';
-        return Rx.Observable.fromNodeCallback(function (url, method, callback) {
-            request.head(url, function (err, res) {
-                callback(err, res);
-            });
-        })(url, method);
-    },
+    requestHead = Rx.Observable.fromNodeCallback(request.head, null, _.identity),
     fsOpen = Rx.Observable.fromNodeCallback(fs.open),
     fsWrite = Rx.Observable.fromNodeCallback(fs.write),
     fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate),
