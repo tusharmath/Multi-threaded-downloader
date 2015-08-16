@@ -2,8 +2,7 @@
  * Created by tusharmathur on 5/15/15.
  */
 'use strict';
-var fs = require('fs'),
-    _ = require('lodash'),
+var _ = require('lodash'),
     utils = require('./lib/Utility'),
     Rx = require('Rx'),
     ob = require('./lib/Observables'),
