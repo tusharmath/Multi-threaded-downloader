@@ -1,16 +1,24 @@
 "use strict";
 var express = require('express'),
     app = express(),
+    http = require('http'),
+    https = require('https'),
+    fs = require('fs'),
+    options = {
+        key: fs.readFileSync('./src/perf/key.pem'),
+        cert: fs.readFileSync('./src/perf/key-cert.pem')
+    },
+    httpServer = http.createServer(app),
+    httpsServer = https.createServer(options, app),
     port = 3000;
 
-var defer = Promise.defer(),
-    getChar = function* () {
-        var char = 0;
-        while (true) {
-            yield char;
-            char = char === 9 ? 0 : char + 1;
-        }
-    };
+var getChar = function* () {
+    var char = 0;
+    while (true) {
+        yield char;
+        char = char === 9 ? 0 : char + 1;
+    }
+};
 app
     .use('/files', express.static(__dirname + '/files'))
     .get('/chunk/:size.txt', function (req, res) {
@@ -22,7 +30,8 @@ app
             count++;
         }
         res.send();
-    }).get('/range/:size.txt', function (req, res) {
+    })
+    .get('/range/:size.txt', function (req, res) {
         var count = 0,
             str = '',
             size = parseInt(req.params.size),
@@ -34,4 +43,5 @@ app
         res.send(str);
     });
 
-app.listen(port);
+httpServer.listen(port);
+httpsServer.listen(port + 1);
