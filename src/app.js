@@ -5,9 +5,8 @@
 var fs = require('fs'),
     _ = require('lodash'),
     utils = require('./lib/Utility'),
-    rx = require('rx'),
+    Rx = require('Rx'),
     ob = require('./lib/Observables'),
-    co = require('co'),
     MAX_BUFFER = 512;
 
 var defaultOptions = {
@@ -51,7 +50,7 @@ function * download(options) {
             return ob.fsWrite(fd, buffer, 0, buffer.length, position);
         };
 
-    yield rx.Observable.from(utils.sliceRange(threadCount, size))
+    yield Rx.Observable.from(utils.sliceRange(threadCount, size))
         .selectMany(_httpRequestThread)
         .select(_attachPacketPosition)
         .selectMany(packet => _fsWrite(fd, packet.buffer, packet.position), _.identity)
@@ -72,7 +71,7 @@ class Download {
     }
 
     start() {
-        return co.wrap(download)(this.options);
+        return Rx.Observable.spawn(download.bind(null, this.options)).toPromise();
     }
 }
 module.exports = Download;
