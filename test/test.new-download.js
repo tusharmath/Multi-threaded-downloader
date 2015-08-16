@@ -4,10 +4,8 @@ var Download = require('../src/app'),
     Rx = require('Rx'),
     chai = require('chai'),
     crypto = require('crypto'),
-    fs = require('fs'),
-    md5HashBuilder = crypto.createHash('md5'),
-    server = require('../src/perf/TestServer')
-    ;
+    fs = require('fs');
+require('../src/perf/TestServer');
 chai.should();
 
 function * createDownload(url, path) {
