@@ -1,6 +1,6 @@
 'use strict';
 var request = require('request'),
-    Rx = require('Rx'),
+    Rx = require('rx'),
     _ = require('lodash'),
     fs = require('fs');
 

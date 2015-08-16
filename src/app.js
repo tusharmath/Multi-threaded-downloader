@@ -4,7 +4,7 @@
 'use strict';
 var _ = require('lodash'),
     utils = require('./lib/Utility'),
-    Rx = require('Rx'),
+    Rx = require('rx'),
     ob = require('./lib/Observables'),
     MAX_BUFFER = 512;
 

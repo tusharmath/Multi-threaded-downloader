@@ -1,7 +1,7 @@
 "use strict";
 
 var Download = require('../src/app'),
-    Rx = require('Rx'),
+    Rx = require('rx'),
     chai = require('chai'),
     crypto = require('crypto'),
     fs = require('fs');
