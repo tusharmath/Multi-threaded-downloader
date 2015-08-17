@@ -29,8 +29,7 @@ function * download(options) {
         fd = yield ob.fsOpen(path, 'w+'),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
         _httpRequestThread = function (range, thread) {
-            var headers = rangeHeader(range);
-            return ob.requestBody({url, strictSSL, headers})
+            return ob.requestBody({url, strictSSL, headers: rangeHeader(range)})
                 .map(packet => _.merge(packet, {thread}));
         },
         _attachPacketPosition = function (packet) {
