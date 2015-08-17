@@ -27,11 +27,11 @@ function * download(options) {
         strictSSL = options.strictSSL,
         size = getContentLength(yield ob.requestHead({url, strictSSL})),
         fd = yield ob.fsOpen(path, 'w+'),
-        _httpRequest = _.partial(ob.requestBody, url, strictSSL),
-        _httpRequestRange = _.flowRight(_httpRequest, rangeHeader),
         _meta = metaCreate(url, path, utils.sliceRange(threadCount, size)),
         _httpRequestThread = function (range, thread) {
-            return _httpRequestRange(range).map(packet => _.merge(packet, {thread}));
+            var headers = rangeHeader(range);
+            return ob.requestBody({url, strictSSL, headers})
+                .map(packet => _.merge(packet, {thread}));
         },
         _attachPacketPosition = function (packet) {
             packet.position = _meta.nextByte[packet.thread];

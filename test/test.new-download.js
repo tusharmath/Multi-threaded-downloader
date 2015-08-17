@@ -5,7 +5,6 @@ var Download = require('../src/app'),
     chai = require('chai'),
     crypto = require('crypto'),
     fs = require('fs');
-require('../src/perf/TestServer');
 chai.should();
 
 function * createDownload(url, path) {
