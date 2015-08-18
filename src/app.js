@@ -69,5 +69,9 @@ class Download {
     start() {
         return Rx.Observable.spawn(download.bind(null, this.options)).toPromise();
     }
+
+    stop() {
+
+    }
 }
 module.exports = Download;
