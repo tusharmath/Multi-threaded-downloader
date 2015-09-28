@@ -4,11 +4,11 @@ var _ = require('lodash')
 var fs = require('fs')
 
 var requestBody = function (params) {
-  var responseHeaders
+  var response
   return Rx.Observable.create(function (observer) {
     request(params)
-      .on('data', buffer => observer.onNext({buffer, headers: responseHeaders}))
-      .on('response', x => responseHeaders = x.headers)
+      .on('data', buffer => observer.onNext({buffer, response}))
+      .on('response', _response => response = _response)
       .on('complete', x => observer.onCompleted(x))
       .on('error', x => observer.onError(x))
   })
