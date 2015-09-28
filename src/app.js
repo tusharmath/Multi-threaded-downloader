@@ -2,22 +2,22 @@
  * Created by tusharmathur on 5/15/15.
  */
 'use strict'
-var _ = require('lodash')
-var utils = require('./lib/Utility')
-var ob = require('./lib/Observables')
+const _ = require('lodash')
+const utils = require('./lib/Utility')
+const ob = require('./lib/Observables')
 const {fromJS} = require('immutable')
 const {map, times, identity} = _
 const MAX_BUFFER = 512
 
-var defaultOptions = {
+const defaultOptions = {
   headers: {},
   threadCount: 3,
   strictSSL: true
 }
 
-var getContentLength = (res) => parseInt(res.headers['content-length'], 10)
-var rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`})
-var toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER)
+const getContentLength = (res) => parseInt(res.headers['content-length'], 10)
+const rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`})
+const toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER)
 function download (options) {
   const opt = fromJS(options)
   var writePositions = fromJS(times(opt.get('threadCount'), 0))
