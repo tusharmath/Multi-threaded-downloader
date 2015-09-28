@@ -1,30 +1,30 @@
-'use strict';
+'use strict'
 var request = require('request'),
-    Rx = require('rx'),
-    _ = require('lodash'),
-    fs = require('fs');
+  Rx = require('rx'),
+  _ = require('lodash'),
+  fs = require('fs')
 
 var requestBody = function (params) {
-        var responseHeaders;
-        return Rx.Observable.create(function (observer) {
-            request(params)
-                .on('data', buffer => observer.onNext({buffer, headers: responseHeaders}))
-                .on('response', x => responseHeaders = x.headers)
-                .on('complete', x => observer.onCompleted(x))
-                .on('error', x => observer.onError(x));
-        });
-    },
-    requestHead = Rx.Observable.fromNodeCallback(request.head, null, _.identity),
-    fsOpen = Rx.Observable.fromNodeCallback(fs.open),
-    fsWrite = Rx.Observable.fromNodeCallback(fs.write),
-    fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate),
-    fsRename = Rx.Observable.fromNodeCallback(fs.rename);
+    var responseHeaders
+    return Rx.Observable.create(function (observer) {
+      request(params)
+        .on('data', buffer => observer.onNext({buffer, headers: responseHeaders}))
+        .on('response', x => responseHeaders = x.headers)
+        .on('complete', x => observer.onCompleted(x))
+        .on('error', x => observer.onError(x))
+    })
+  },
+  requestHead = Rx.Observable.fromNodeCallback(request.head, null, _.identity),
+  fsOpen = Rx.Observable.fromNodeCallback(fs.open),
+  fsWrite = Rx.Observable.fromNodeCallback(fs.write),
+  fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate),
+  fsRename = Rx.Observable.fromNodeCallback(fs.rename)
 
 module.exports = {
-    requestBody,
-    requestHead,
-    fsOpen,
-    fsWrite,
-    fsTruncate,
-    fsRename
-};
+  requestBody,
+  requestHead,
+  fsOpen,
+  fsWrite,
+  fsTruncate,
+  fsRename
+}
