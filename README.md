@@ -1,4 +1,4 @@
-#mt-downloader [![Build Status](https://travis-ci.org/tusharmath/Multi-threaded-downloader.png?branch=master)](https://travis-ci.org/tusharmath/Multi-threaded-downloader)
+#mt-downloader [![Build Status](https://travis-ci.org/tusharmath/Multi-threaded-downloader.png?branch=master)](https://travis-ci.org/tusharmath/Multi-threaded-downloader) [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 This is a nodejs based application which help you in performing downloads via Http. Checkout [tusharm.com](http://tusharm.com/articles/mt-downloader/) to know more about this library.
 
