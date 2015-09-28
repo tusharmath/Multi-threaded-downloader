@@ -3,6 +3,7 @@
  */
 var _ = require('lodash')
 var utility = {}
+var {Set} = require('Immutable')
 
 utility.toBuffer = function (obj, size) {
   var buffer = new Buffer(size)
@@ -19,5 +20,7 @@ utility.sliceRange = function (count, total) {
     return {start, end}
   })
 }
+
+utility.keyIn = _.curry((keys, v, k) => Set(keys).has(k))
 
 module.exports = utility

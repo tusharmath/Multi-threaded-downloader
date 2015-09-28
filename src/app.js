@@ -4,60 +4,43 @@
 'use strict'
 var _ = require('lodash')
 var utils = require('./lib/Utility')
-var Rx = require('rx')
 var ob = require('./lib/Observables')
-var MAX_BUFFER = 512
+const {fromJS} = require('immutable')
+const {map, times, identity} = _
+const MAX_BUFFER = 512
 
 var defaultOptions = {
   headers: {},
   threadCount: 3,
   strictSSL: true
 }
+
 var getContentLength = (res) => parseInt(res.headers['content-length'], 10)
 var rangeHeader = (thread) => ({'range': `bytes=${thread.start}-${thread.end}`})
 var toBuffer = _.partialRight(utils.toBuffer, MAX_BUFFER)
-var metaCreate = function (url, path, _ranges) {
-  var positions = _.pluck(_ranges, 'start')
-  return {url, path: path, nextByte: _.clone(positions), positions}
-}
-function * download (options) {
-  var url = options.url
-  var threadCount = options.threadCount
-  var path = options.path
-  var strictSSL = options.strictSSL
-  var size = getContentLength(yield ob.requestHead({url, strictSSL}))
-  var fd = yield ob.fsOpen(path, 'w+')
-  var _meta = metaCreate(url, path, utils.sliceRange(threadCount, size))
-  var _httpRequestThread = function (range, thread) {
-    return ob.requestBody({url, strictSSL, headers: rangeHeader(range)})
-      .map(packet => _.merge(packet, {thread}))
-  }
-  var _attachPacketPosition = function (packet) {
-    packet.position = _meta.nextByte[packet.thread]
-    _updateNextByte(packet)
-    return packet
-  }
-  var _updateNextByte = function (packet) {
-    _meta.nextByte[packet.thread] += packet.buffer.length
-  }
-  var _updatePosition = function (packet) {
-    _meta.positions[packet.thread] += packet.buffer.length
-  }
-  var _fsWrite = function (fd, buffer, position) {
-    return ob.fsWrite(fd, buffer, 0, buffer.length, position)
+function download (options) {
+  const opt = fromJS(options)
+  var writePositions = fromJS(times(opt.get('threadCount'), 0))
+  const writableFile = ob.fsOpen(opt.get('path'), 'w+')
+  const downloadSize = ob.requestHead(opt.filter(utils.keyIn(['url', 'strictSSL'])).toJS()).map(getContentLength).filter(_.isFinite)
+  const updateWritePositions = x => {
+    var i = x.get('threadIndex')
+    return writePositions.set(i, writePositions.get(i) + x.get('buffer').length)
   }
 
-  yield Rx.Observable.from(utils.sliceRange(threadCount, size))
-    .selectMany(_httpRequestThread)
-    .select(_attachPacketPosition)
-    .selectMany(packet => _fsWrite(fd, packet.buffer, packet.position), _.identity)
-    .select(_updatePosition)
-    .selectMany(() => _fsWrite(fd, toBuffer(_meta), size))
+  return downloadSize.combineLatest(writableFile, (size, fd) => opt.set('size', size).set('fd', fd))
+    .map(x => x.set('threads', fromJS(utils.sliceRange(x.get('threadCount'), x.get('size')))))
+    .flatMap(x => map(x.get('threads').toJS(), (thread, i) => x.set('headers', fromJS(rangeHeader(thread))).set('threadIndex', i).set('start', thread.start)))
+    .tap(x => writePositions = writePositions.set(x.get('threadIndex'), x.get('start')))
+    .flatMap(x => ob.requestBody(x.filter(utils.keyIn(['url', 'strictSSL', 'headers'])).toJS()), (x, data) => x.set('buffer', data.buffer))
+    .tap(x => writePositions = updateWritePositions(x))
+    .map(x => x.set('writtenPositions', writePositions))
+    .flatMap(x => ob.fsWrite(x.get('fd'), x.get('buffer'), 0, x.get('buffer').length, x.get('writtenPositions').get(x.get('threadIndex')) - x.get('buffer').length), identity)
+    .map(x => x.set('metaBuffer', toBuffer(x.filter(utils.keyIn(['fd', 'url', 'writtenPositions', 'path', 'size', 'threads'])).toJS())))
+    .flatMap(x => ob.fsWrite(x.get('fd'), x.get('metaBuffer'), 0, x.get('metaBuffer').length, x.get('size')), identity)
     .last()
-    .selectMany(() => ob.fsTruncate(fd, size))
-    .selectMany(() => ob.fsRename(path, path.replace('.mtd', '')))
-
-  return _meta
+    .flatMap(x => ob.fsTruncate(x.get('fd'), x.get('size')), identity)
+    .flatMap(x => ob.fsRename(x.get('path'), x.get('path').replace('.mtd', '')), identity)
 }
 
 class Download {
@@ -67,11 +50,10 @@ class Download {
   }
 
   start () {
-    return Rx.Observable.spawn(download.bind(null, this.options)).toPromise()
+    return download(this.options).toPromise()
   }
 
   stop () {
-
   }
 }
 module.exports = Download

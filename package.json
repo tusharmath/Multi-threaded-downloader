@@ -15,6 +15,7 @@
   },
   "main": "./src/app.js",
   "dependencies": {
+    "immutable": "^3.7.5",
     "lodash": "^3.10.0",
     "request": "^2.60.0",
     "rx": "^3.0.1"
