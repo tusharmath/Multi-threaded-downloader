@@ -3,7 +3,7 @@
  */
 var _ = require('lodash')
 var utility = {}
-var {Set} = require('Immutable')
+var {Set} = require('immutable')
 
 utility.toBuffer = function (obj, size) {
   var buffer = new Buffer(size)
