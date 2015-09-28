@@ -1,7 +1,7 @@
 language: node_js
 node_js:
-  - 'iojs'
+  - 'node'
 before_script:
   - npm install -g mocha
 script:
-  - node --harmony_arrow_functions --harmony ./node_modules/mocha/bin/_mocha --full-trace --ui bdd test/test.*
+  - node   --harmony_destructuring ./node_modules/mocha/bin/_mocha --full-trace --ui bdd test/test.*

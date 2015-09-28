@@ -23,17 +23,15 @@ function download (options) {
   var writePositions = fromJS(times(opt.get('threadCount'), 0))
   const writableFile = ob.fsOpen(opt.get('path'), 'w+')
   const downloadSize = ob.requestHead(opt.filter(utils.keyIn(['url', 'strictSSL'])).toJS()).map(getContentLength).filter(_.isFinite)
-  const updateWritePositions = x => {
-    var i = x.get('threadIndex')
-    return writePositions.set(i, writePositions.get(i) + x.get('buffer').length)
-  }
-
   return downloadSize.combineLatest(writableFile, (size, fd) => opt.set('size', size).set('fd', fd))
     .map(x => x.set('threads', fromJS(utils.sliceRange(x.get('threadCount'), x.get('size')))))
     .flatMap(x => map(x.get('threads').toJS(), (thread, i) => x.set('headers', fromJS(rangeHeader(thread))).set('threadIndex', i).set('start', thread.start)))
     .tap(x => writePositions = writePositions.set(x.get('threadIndex'), x.get('start')))
     .flatMap(x => ob.requestBody(x.filter(utils.keyIn(['url', 'strictSSL', 'headers'])).toJS()), (x, data) => x.set('buffer', data.buffer))
-    .tap(x => writePositions = updateWritePositions(x))
+    .tap(x => {
+      var i = x.get('threadIndex')
+      writePositions = writePositions.set(i, writePositions.get(i) + x.get('buffer').length)
+    })
     .map(x => x.set('writtenPositions', writePositions))
     .flatMap(x => ob.fsWrite(x.get('fd'), x.get('buffer'), 0, x.get('buffer').length, x.get('writtenPositions').get(x.get('threadIndex')) - x.get('buffer').length), identity)
     .map(x => x.set('metaBuffer', toBuffer(x.filter(utils.keyIn(['fd', 'url', 'writtenPositions', 'path', 'size', 'threads'])).toJS())))
