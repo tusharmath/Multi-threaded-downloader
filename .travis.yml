@@ -5,3 +5,4 @@ before_script:
   - npm install -g mocha
 script:
   - node   --harmony_destructuring ./node_modules/mocha/bin/_mocha --full-trace --ui bdd test/test.*
+sudo: false
