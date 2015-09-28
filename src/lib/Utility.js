@@ -1,8 +1,8 @@
 /**
  * Created by tusharmathur on 7/14/15.
  */
-var _ = require('lodash'),
-  utility = {}
+var _ = require('lodash')
+var utility = {}
 
 utility.toBuffer = function (obj, size) {
   var buffer = new Buffer(size)
