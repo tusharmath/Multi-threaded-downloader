@@ -8,11 +8,14 @@ const ob = require('./lib/Observables')
 const {fromJS} = require('immutable')
 const {map, times, identity} = _
 const MAX_BUFFER = 512
+const {Observable} = require('rx')
 
 const defaultOptions = {
   headers: {},
   threadCount: 3,
-  strictSSL: true
+  strictSSL: true,
+  truncate: true,
+  rename: true
 }
 
 const getContentLength = (res) => parseInt(res.headers['content-length'], 10)
@@ -23,7 +26,7 @@ function download (options) {
   var writePositions = fromJS(times(opt.get('threadCount'), 0))
   const writableFile = ob.fsOpen(opt.get('path'), 'w+')
   const downloadSize = ob.requestHead(opt.filter(utils.keyIn(['url', 'strictSSL'])).toJS()).map(getContentLength).filter(_.isFinite)
-  return downloadSize.combineLatest(writableFile, (size, fd) => opt.set('size', size).set('fd', fd))
+  const downloadedFileWithMeta = downloadSize.combineLatest(writableFile, (size, fd) => opt.set('size', size).set('fd', fd))
     .map(x => x.set('threads', fromJS(utils.sliceRange(x.get('threadCount'), x.get('size')))))
     .flatMap(x => map(x.get('threads').toJS(), (thread, i) => x.set('headers', fromJS(rangeHeader(thread))).set('threadIndex', i).set('start', thread.start)))
     .tap(x => writePositions = writePositions.set(x.get('threadIndex'), x.get('start')))
@@ -34,10 +37,15 @@ function download (options) {
       writePositions = writePositions.set(i, writePositions.get(i) + x.get('buffer').length)
     })
     .flatMap(x => ob.fsWrite(x.get('fd'), x.get('buffer'), 0, x.get('buffer').length, x.get('writePositions').get(x.get('threadIndex'))), identity)
-    .map(x => x.set('metaBuffer', toBuffer(x.filter(utils.keyIn(['fd', 'url', 'writePositions', 'path', 'size', 'threads'])).toJS())))
+    .map(x => x.set('metaBuffer', toBuffer(x.filter(utils.keyIn(['url', 'writePositions', 'path', 'size', 'threads'])).toJS())))
     .flatMap(x => ob.fsWrite(x.get('fd'), x.get('metaBuffer'), 0, x.get('metaBuffer').length, x.get('size')), identity)
     .last()
-    .flatMap(x => ob.fsTruncate(x.get('fd'), x.get('size')), identity)
+
+  return Observable.if(
+    () => opt.get('truncate'),
+    downloadedFileWithMeta.flatMap(x => ob.fsTruncate(x.get('fd'), x.get('size')), identity),
+    downloadedFileWithMeta
+  )
     .flatMap(x => ob.fsRename(x.get('path'), x.get('path').replace('.mtd', '')), identity)
 }
 
