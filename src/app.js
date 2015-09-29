@@ -30,7 +30,7 @@ function download (options) {
     .map(x => x.set('threads', fromJS(utils.sliceRange(x.get('threadCount'), x.get('size')))))
     .flatMap(x => map(x.get('threads').toJS(), (thread, i) => x.set('headers', fromJS(rangeHeader(thread))).set('threadIndex', i).set('start', thread.start)))
     .tap(x => writePositions = writePositions.set(x.get('threadIndex'), x.get('start')))
-    .flatMap(x => ob.requestBody(x.filter(utils.keyIn(['url', 'strictSSL', 'headers'])).toJS()), (x, data) => x.set('buffer', data.buffer))
+    .flatMap(x => ob.requestBody(x.filter(utils.keyIn(['url', 'strictSSL', 'headers'])).toJS()).data, (x, data) => x.set('buffer', data.buffer))
     .map(x => x.set('writePositions', writePositions))
     .tap(x => {
       var i = x.get('threadIndex')

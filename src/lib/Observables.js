@@ -4,14 +4,18 @@ var _ = require('lodash')
 var fs = require('fs')
 
 var requestBody = function (params) {
-  var response
-  return Rx.Observable.create(function (observer) {
-    request(params)
-      .on('data', buffer => observer.onNext({buffer, response}))
-      .on('response', _response => response = _response)
-      .on('complete', x => observer.onCompleted(x))
-      .on('error', x => observer.onError(x))
-  })
+  var response = new Rx.Subject()
+  var data = new Rx.Subject()
+
+  request(params)
+    .on('data', buffer => data.onNext({buffer}))
+    .on('response', x => response.onNext(x))
+    .on('complete', x => data.onCompleted(x))
+    .on('complete', x => response.onCompleted(x))
+    .on('error', x => data.onError(x))
+    .on('error', x => response.onError(x))
+
+  return {data, response}
 }
 var requestHead = Rx.Observable.fromNodeCallback(request.head, null, _.identity)
 var fsOpen = Rx.Observable.fromNodeCallback(fs.open)
