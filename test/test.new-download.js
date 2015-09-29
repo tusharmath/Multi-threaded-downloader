@@ -5,7 +5,9 @@ var Download = require('../src/app'),
   fs = require('fs')
 chai.should()
 
-function * createDownload (url, path) {
+function * createDownload (parameters) {
+  var url = parameters.url
+  var path = parameters.path
   var mtd = new Download({path, url, strictSSL: false})
   yield mtd.start()
   var defer = Promise.defer()
@@ -25,7 +27,7 @@ describe('NewDownload', function () {
     })
 
     it("download dynamically created 1024 bytes file", function * () {
-      var digest = yield createDownload('http://localhost:3000/range/1024.txt', './.temp/1024.txt')
+      var digest = yield createDownload({url: 'http://localhost:3000/range/1024.txt', path: './.temp/1024.txt'})
       digest.should.equal('41BE89713FA15BC83D093DD67E558BADA8546388'.toLowerCase())
     })
   })
@@ -35,12 +37,12 @@ describe('NewDownload', function () {
     })
 
     it("download static pug image", function * () {
-      var digest = yield createDownload('http://localhost:3000/files/pug.jpg', './.temp/pug.jpg')
+      var digest = yield createDownload({url: 'http://localhost:3000/files/pug.jpg', path: './.temp/pug.jpg'})
       digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase())
     })
 
     it("download static pug image over SSL", function * () {
-      var digest = yield createDownload('https://localhost:3001/files/pug.jpg', './.temp/pug.jpg')
+      var digest = yield createDownload({url: 'https://localhost:3001/files/pug.jpg', path: './.temp/pug.jpg'})
       digest.should.equal('25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase())
     })
   })
