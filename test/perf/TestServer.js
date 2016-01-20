@@ -4,8 +4,8 @@ var express = require('express'),
   https = require('https'),
   fs = require('fs'),
   options = {
-    key: fs.readFileSync('./src/perf/key.pem'),
-    cert: fs.readFileSync('./src/perf/key-cert.pem')
+    key: fs.readFileSync('./test/perf/key.pem'),
+    cert: fs.readFileSync('./test/perf/key-cert.pem')
   },
   httpServer = http.createServer(app),
   httpsServer = https.createServer(options, app),
