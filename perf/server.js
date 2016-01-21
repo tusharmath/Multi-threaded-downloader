@@ -1,17 +1,14 @@
-var express = require('express'),
-  app = express(),
-  http = require('http'),
-  https = require('https'),
-  fs = require('fs'),
-  options = {
-    key: fs.readFileSync(__dirname + '/key.pem'),
-    cert: fs.readFileSync(__dirname + '/key-cert.pem')
-  },
-  httpServer = http.createServer(app),
-  httpsServer = https.createServer(options, app),
-  HTTP_PORT = 3100,
-  HTTPS_PORT = HTTP_PORT + 1
-
+var express = require('express')
+var app = express()
+var http = require('http')
+var https = require('https')
+var fs = require('fs')
+var options = {
+  key: fs.readFileSync(__dirname + '/key.pem'),
+  cert: fs.readFileSync(__dirname + '/key-cert.pem')
+}
+var httpServer = http.createServer(app)
+var httpsServer = https.createServer(options, app)
 var getChar = function* () {
   var char = 0
   while (true) {
