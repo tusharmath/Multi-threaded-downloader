@@ -6,11 +6,12 @@ cache:
 notifications:
   email: false
 node_js:
-  - '5'
+  - 'stable'
 before_install:
   - npm i -g npm@^2.0.0
 before_script:
   - npm prune
+  - npm run test-server
 after_success:
   - npm run semantic-release
 branches:
