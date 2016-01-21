@@ -3,9 +3,21 @@
  */
 
 'use strict'
-
+import {http, https} from '../perf/server'
 import test from 'ava'
 import Observables from '../src/observables'
+
+var closeHttp
+var closeHttps
+test.before(async function () {
+  closeHttp = await http(3100)
+  closeHttps = await https(3101)
+})
+
+test.after(async function () {
+  await closeHttp()
+  await closeHttps()
+})
 
 test('HEAD request to jpg file', async function (t) {
   const response = await Observables
@@ -14,6 +26,7 @@ test('HEAD request to jpg file', async function (t) {
     .toPromise()
   t.same(response.headers['content-length'], '317235')
 })
+
 test('HEAD request to jpg file', async function (t) {
   const response = await Observables
     .requestBody({url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false})

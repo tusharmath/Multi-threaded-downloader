@@ -43,5 +43,11 @@ app
     res.send(str)
   })
 
-httpServer.listen(HTTP_PORT, () => console.log('Started HTTP server on port:', HTTP_PORT))
-httpsServer.listen(HTTPS_PORT, () => console.log('Started HTTPS server on port', HTTPS_PORT))
+const startServer = (app, port) => new Promise(i => {
+  const onClose = () => new Promise(i => server.close(i))
+  const onStart = () => i(onClose)
+  const server = app.listen(port, onStart)
+})
+
+exports.http = (port) => startServer(httpServer, port)
+exports.https = (port) => startServer(httpsServer, port)
