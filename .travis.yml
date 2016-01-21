@@ -1,8 +1,18 @@
-language: node_js
-node_js:
-  - 'node'
-before_script:
-  - npm install -g mocha
-script:
-  - node   --harmony_destructuring ./node_modules/mocha/bin/_mocha --full-trace --ui bdd test/test.*
 sudo: false
+language: node_js
+cache:
+  directories:
+    - node_modules
+notifications:
+  email: false
+node_js:
+  - '5'
+before_install:
+  - npm i -g npm@^2.0.0
+before_script:
+  - npm prune
+after_success:
+  - npm run semantic-release
+branches:
+  except:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"

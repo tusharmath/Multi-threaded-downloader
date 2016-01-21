@@ -1,3 +1,0 @@
---require=chai
---require=co-mocha
---require=./test/perf/TestServer

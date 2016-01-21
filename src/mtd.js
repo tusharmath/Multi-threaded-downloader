@@ -5,6 +5,7 @@
 const _ = require('lodash')
 const ob = require('./observables')
 const download = require('./download').download
+const Rx = require('rx')
 
 const defaultOptions = {
   headers: {},
@@ -22,7 +23,7 @@ class Download {
   }
 
   start () {
-    return download(ob, this.options).toPromise()
+    return new Promise(resolve => download(ob, this.options).subscribe(resolve))
   }
 
   stop () {

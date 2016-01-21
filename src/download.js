@@ -27,24 +27,21 @@ const selectAs = function () {
 }
 
 exports.download = function (ob, options) {
-  const writeAt = createStore(0)
+  var writeAt = 0
+  const path = options.mtdPath
+  const fileDescriptor = ob.fsOpen(path, 'w+')
   const writtenAt = createStore(0)
   const requestStream = ob.requestBody(options)
-  const path = options.mtdPath
-  const fileDescriptor = requestStream
-    .filter(x => x.event === 'response')
-    .flatMap(() => ob.fsOpenWritable(path))
-
+  const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')
   const contentLength = requestStream
     .filter(x => x.event === 'response')
     .pluck('message', 'headers', 'content-length')
     .map(x => parseInt(x, 10))
-  const writeParams = selectAs('buffer', 'fd', 'offset')
-  return requestStream
-    .filter(x => x.event === 'data')
-    .pluck('message')
-    .withLatestFrom(fileDescriptor, writeAt.getStream(), writeParams)
-    .tap(x => writeAt.set(o => o + x.buffer.length))
+
+  return fileDescriptor
+    .combineLatest(bufferStream, selectAs('fd', 'buffer'))
+    .map(buffer => _.assign({}, buffer, {offset: writeAt}))
+    .tap(x => writeAt += x.buffer.length)
     .flatMap(ob.fsWriteBuffer).map(x => x[0])
     .tap(x => writtenAt.set(o => o + x))
     .tapOnCompleted(() => writtenAt.end())
@@ -53,7 +50,7 @@ exports.download = function (ob, options) {
     .withLatestFrom(contentLength, selectAs('bytesSaved', 'totalBytes'))
     .map(x => _.assign({}, x, options))
     .map(x => toBuffer(x, options.maxBuffer))
-    .withLatestFrom(fileDescriptor, contentLength, writeParams)
+    .withLatestFrom(fileDescriptor, contentLength, selectAs('buffer', 'fd', 'offset'))
     .flatMap(ob.fsWriteBuffer)
     .last().withLatestFrom(contentLength, (a, b) => b)
     .flatMap(len => ob.fsTruncate(path, len))

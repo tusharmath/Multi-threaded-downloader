@@ -4,12 +4,13 @@ var express = require('express'),
   https = require('https'),
   fs = require('fs'),
   options = {
-    key: fs.readFileSync('./test/perf/key.pem'),
-    cert: fs.readFileSync('./test/perf/key-cert.pem')
+    key: fs.readFileSync(__dirname + '/key.pem'),
+    cert: fs.readFileSync(__dirname + '/key-cert.pem')
   },
   httpServer = http.createServer(app),
   httpsServer = https.createServer(options, app),
-  port = 3000
+  HTTP_PORT = 3100,
+  HTTPS_PORT = HTTP_PORT + 1
 
 var getChar = function* () {
   var char = 0
@@ -42,5 +43,5 @@ app
     res.send(str)
   })
 
-httpServer.listen(port)
-httpsServer.listen(port + 1)
+httpServer.listen(HTTP_PORT, () => console.log('Started HTTP server on port:', HTTP_PORT))
+httpsServer.listen(HTTPS_PORT, () => console.log('Started HTTPS server on port', HTTPS_PORT))
