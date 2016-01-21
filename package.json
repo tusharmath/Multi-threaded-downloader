@@ -10,7 +10,7 @@
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
   },
   "scripts": {
-    "test": "./node_modules/ava/cli",
+    "test": "./node_modules/ava/cli.js",
     "test-server": "node ./perf/server",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
