@@ -15,5 +15,5 @@ test.after(async function () {
 
 test(async function (t) {
   var digest = await createDownload({url: 'http://localhost:3100/files/in.txt', path})
-  t.same(digest, 'A9070D71168B5135910A04F0650A91541B72762E'.toLowerCase())
+  t.same(digest, 'A9070D71168B5135910A04F0650A91541B72762E')
 })

@@ -14,7 +14,7 @@ const createFileDigest = exports.createFileDigest = path => {
   return new Promise(resolve => fs
     .createReadStream(path)
     .on('data', x => hash.update(x))
-    .on('end', () => resolve(hash.digest('hex')))
+    .on('end', () => resolve(hash.digest('hex').toUpperCase()))
   )
 }
 exports.createDownload = function (parameters) {

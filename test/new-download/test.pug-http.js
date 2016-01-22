@@ -13,5 +13,5 @@ test.after(async function () {
 })
 test(async function (t) {
   var digest = await createDownload({url: 'http://localhost:3100/files/pug.jpg', path})
-  t.same(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1'.toLowerCase())
+  t.same(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1')
 })
