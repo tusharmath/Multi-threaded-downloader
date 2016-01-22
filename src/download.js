@@ -30,7 +30,7 @@ exports.download = function (ob, options) {
     .distinctUntilChanged()
     .withLatestFrom(contentLength, u.selectAs('bytesSaved', 'totalBytes'))
     .map(x => _.assign({}, x, options))
-    .map(x => u.toBuffer(x, options.maxBuffer))
+    .map(u.toBuffer)
     .withLatestFrom(fileDescriptor, contentLength, u.selectAs('buffer', 'fd', 'offset'))
     .flatMap(ob.fsWriteBuffer)
     .last().withLatestFrom(contentLength, (a, b) => b)
