@@ -3,10 +3,11 @@
  */
 
 'use strict'
+import Path from 'path'
 import test from 'ava'
 import {createDownload, removeFile} from './../../perf/utils'
 
-const path = '../.temp/pug'
+const path = Path.normalize(Path.join(__dirname, '../../.temp/pug'))
 test.after(async function () {
   await removeFile(path)
 })

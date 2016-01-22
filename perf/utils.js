@@ -4,13 +4,11 @@
 
 'use strict'
 const Download = require('../index').Download
-const Path = require('path')
 const crypto = require('crypto')
 const fs = require('fs')
 const Rx = require('rx')
 
-const getPath = x => Path.normalize(Path.join(__dirname, x))
-exports.removeFile = (x) => Rx.Observable.fromCallback(fs.unlink)(getPath(x)).toPromise()
+exports.removeFile = (x) => Rx.Observable.fromCallback(fs.unlink)(x).toPromise()
 const createFileDigest = exports.createFileDigest = path => {
   const hash = crypto.createHash('sha1')
   return new Promise(resolve => fs
@@ -21,7 +19,7 @@ const createFileDigest = exports.createFileDigest = path => {
 }
 exports.createDownload = function (parameters) {
   var url = parameters.url
-  var path = getPath(parameters.path)
+  var path = parameters.path
   var mtd = new Download({path, url, strictSSL: false})
   return mtd.start().then(() => createFileDigest(path))
 }
