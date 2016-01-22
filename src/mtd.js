@@ -23,7 +23,7 @@ class Download {
   }
 
   start () {
-    return new Promise(resolve => download(ob, this.options).subscribe(resolve))
+    return download(ob, this.options).toPromise()
   }
 
   stop () {
