@@ -7,7 +7,7 @@
 const _ = require('lodash')
 
 exports.toBuffer = function (obj, size) {
-  var buffer = new Buffer(size)
+  var buffer = new Buffer(size || 512)
   _.fill(buffer, null)
   buffer.write(JSON.stringify(obj))
   return buffer
@@ -23,6 +23,6 @@ exports.selectAs = function () {
 }
 
 exports.log = function () {
-  console.log.apply(console, _.toArray(arguments))
+  return console.log.apply(console, _.toArray(arguments))
 }
 
