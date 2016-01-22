@@ -6,7 +6,7 @@
 
 import Path from 'path'
 import {create} from '../src/create'
-import {createDownload, createFileDigest, fsStat, removeFile} from '../perf/utils'
+import {createFileDigest, fsStat, removeFile} from '../perf/utils'
 import ob from '../src/observables'
 import test from 'ava'
 

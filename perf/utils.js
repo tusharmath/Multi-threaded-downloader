@@ -19,11 +19,4 @@ const createFileDigest = exports.createFileDigest = path => {
   )
 }
 
-exports.createDownload = function (parameters) {
-  var url = parameters.url
-  var path = parameters.path
-  var mtd = new Download({path, url, strictSSL: false})
-  return mtd.start().then(() => createFileDigest(path))
-}
-
 exports.fsStat = (x) => Rx.Observable.fromCallback(fs.stat)(x).toPromise()
