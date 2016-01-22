@@ -16,10 +16,6 @@ var fsRename = Rx.Observable.fromNodeCallback(fs.rename)
 module.exports = {
   requestBody,
   fsOpen,
-  fsOpenWritable: path => {
-    console.log('YO', typeof path)
-    return fsOpen(path, 'w+')
-  },
   fsWrite,
   fsWriteBuffer: x => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset),
   fsTruncate,
