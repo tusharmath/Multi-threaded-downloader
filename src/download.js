@@ -5,26 +5,7 @@
 'use strict'
 const _ = require('lodash')
 const createStore = require('reactive-storage').create
-
-const log = function () {
-  console.log.apply(console, _.toArray(arguments))
-}
-
-const toBuffer = function (obj, size) {
-  var buffer = new Buffer(size)
-  _.fill(buffer, null)
-  buffer.write(JSON.stringify(obj))
-  return buffer
-}
-
-const selectAs = function () {
-  const keys = _.toArray(arguments)
-  return function () {
-    const values = _.toArray(arguments)
-    const merge = (m, k, i) => m[k] = values[i]
-    return _.transform(keys, merge, {})
-  }
-}
+const u = require('./utils')
 
 exports.download = function (ob, options) {
   var writeAt = 0
@@ -39,7 +20,7 @@ exports.download = function (ob, options) {
     .map(x => parseInt(x, 10))
 
   return fileDescriptor
-    .combineLatest(bufferStream, selectAs('fd', 'buffer'))
+    .combineLatest(bufferStream, u.selectAs('fd', 'buffer'))
     .map(buffer => _.assign({}, buffer, {offset: writeAt}))
     .tap(x => writeAt += x.buffer.length)
     .flatMap(ob.fsWriteBuffer).map(x => x[0])
@@ -47,10 +28,10 @@ exports.download = function (ob, options) {
     .tapOnCompleted(() => writtenAt.end())
     .combineLatest(writtenAt.getStream(), (a, b) => b)
     .distinctUntilChanged()
-    .withLatestFrom(contentLength, selectAs('bytesSaved', 'totalBytes'))
+    .withLatestFrom(contentLength, u.selectAs('bytesSaved', 'totalBytes'))
     .map(x => _.assign({}, x, options))
-    .map(x => toBuffer(x, options.maxBuffer))
-    .withLatestFrom(fileDescriptor, contentLength, selectAs('buffer', 'fd', 'offset'))
+    .map(x => u.toBuffer(x, options.maxBuffer))
+    .withLatestFrom(fileDescriptor, contentLength, u.selectAs('buffer', 'fd', 'offset'))
     .flatMap(ob.fsWriteBuffer)
     .last().withLatestFrom(contentLength, (a, b) => b)
     .flatMap(len => ob.fsTruncate(path, len))
