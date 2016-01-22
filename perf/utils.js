@@ -9,6 +9,7 @@ const fs = require('fs')
 const Rx = require('rx')
 
 exports.removeFile = (x) => Rx.Observable.fromCallback(fs.unlink)(x).toPromise()
+
 const createFileDigest = exports.createFileDigest = path => {
   const hash = crypto.createHash('sha1')
   return new Promise(resolve => fs
@@ -17,9 +18,12 @@ const createFileDigest = exports.createFileDigest = path => {
     .on('end', () => resolve(hash.digest('hex').toUpperCase()))
   )
 }
+
 exports.createDownload = function (parameters) {
   var url = parameters.url
   var path = parameters.path
   var mtd = new Download({path, url, strictSSL: false})
   return mtd.start().then(() => createFileDigest(path))
 }
+
+exports.fsStat = (x) => Rx.Observable.fromCallback(fs.stat)(x).toPromise()
