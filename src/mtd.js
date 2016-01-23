@@ -12,7 +12,9 @@ class Download {
   }
 
   start () {
-    return download(this.options).toPromise()
+    return create(this.options)
+      .toPromise()
+      .then(() => download(this.options).toPromise())
   }
 
   stop () {

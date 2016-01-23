@@ -11,7 +11,7 @@ const ob = require('./observables')
 exports.download = function (options) {
   var writeAt = 0
   const path = options.mtdPath
-  const fileDescriptor = ob.fsOpen(path, 'w+')
+  const fileDescriptor = ob.fsOpen(path, 'r+')
   const writtenAt = createStore(0)
   const requestStream = ob.requestBody(options)
   const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')

@@ -10,7 +10,7 @@ const u = require('./utils')
 const ob = require('./observables')
 
 exports.create = (options) => {
-  const path = options.path
+  const path = options.mtdPath
   const fileDescriptor = ob.fsOpen(path, 'w')
   const response = ob.requestBody(_.assign({}, options, {method: 'HEAD'}))
   const offset = response.pluck('message', 'headers', 'content-length').map(x => parseInt(x, 10))
