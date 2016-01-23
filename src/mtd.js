@@ -14,8 +14,8 @@ class Download {
 
   start () {
     return create(ob, this.options)
+      .flatMap(() => download(ob, this.options))
       .toPromise()
-      .then(() => download(ob, this.options).toPromise())
   }
 
   stop () {
