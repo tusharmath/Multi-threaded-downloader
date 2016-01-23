@@ -9,9 +9,15 @@ import {removeFile, createFileDigest} from './../perf/utils'
 import {download} from '../src/download'
 import ob from '../src/observables'
 
-const path1 = Path.normalize(Path.join(__dirname, '../.temp/download-file1'))
-const path2 = Path.normalize(Path.join(__dirname, '../.temp/download-file2'))
-const path3 = Path.normalize(Path.join(__dirname, '../.temp/download-file3'))
+const pathFactory = () => {
+  var i = 0
+  return () => Path.normalize(Path.join(__dirname, '../.temp/download-file' + i++))
+}
+
+const createPath = pathFactory()
+const path1 = createPath()
+const path2 = createPath()
+const path3 = createPath()
 
 const paths = [
   path1,
