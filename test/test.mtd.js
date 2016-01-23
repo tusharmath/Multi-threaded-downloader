@@ -8,6 +8,7 @@ import test from 'ava'
 import {removeFile, createFileDigest} from './../perf/utils'
 import Download from '../src/mtd'
 import ob from '../src/observables'
+import {server} from '../perf/server'
 
 const pathFactory = () => {
   var i = 0
@@ -25,13 +26,22 @@ const paths = [
   path3
 ]
 
+var closeHttp
+test.before(async function () {
+  closeHttp = await server(3200)
+})
+
+test.after(async function () {
+  await closeHttp()
+})
+
 test.after(async function () {
   await paths.map(removeFile)
 })
 
 test('http', async function (t) {
   const d = new Download({
-    url: 'http://localhost:3100/files/pug.jpg',
+    url: 'http://localhost:3200/files/pug.jpg',
     path: path1
   })
   await d.start()
@@ -41,7 +51,7 @@ test('http', async function (t) {
 
 test('https', async function (t) {
   const d = new Download({
-    url: 'https://localhost:3101/files/pug.jpg',
+    url: 'https://localhost:3201/files/pug.jpg',
     path: path2,
     strictSSL: false
   })
@@ -52,7 +62,7 @@ test('https', async function (t) {
 
 test('http(2)', async function (t) {
   const d = new Download({
-    url: 'http://localhost:3100/files/in.txt',
+    url: 'http://localhost:3200/files/in.txt',
     path: path3
   })
   await d.start()
