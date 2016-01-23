@@ -14,10 +14,10 @@ exports.download = function (ob, options) {
   const writtenAt = createStore(0)
   const requestStream = ob.requestBody(options)
   const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')
-  const contentLength = requestStream
-    .filter(x => x.event === 'response')
-    .pluck('message', 'headers', 'content-length')
-    .map(x => parseInt(x, 10))
+  const contentLength = fileDescriptor
+    .flatMap(x => ob.fsStat(x))
+    .pluck('size')
+    .map(x => x - 512)
 
   return fileDescriptor
     .combineLatest(bufferStream, u.selectAs('fd', 'buffer'))

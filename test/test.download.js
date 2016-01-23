@@ -31,7 +31,8 @@ test('fsOpen:r+', async function (t) {
     requestBody: () => requestBodyStream,
     fsWriteBuffer: () => [{}],
     fsTruncate: () => [{}],
-    fsRename: () => [{}]
+    fsRename: () => [{}],
+    fsStat: () => [{size: 1000}]
   }
 
   const d = download(ob, {mtdPath: 'honey-singh'}).toPromise()

@@ -13,11 +13,13 @@ var fsOpen = Rx.Observable.fromNodeCallback(fs.open)
 var fsWrite = Rx.Observable.fromNodeCallback(fs.write)
 var fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate)
 var fsRename = Rx.Observable.fromNodeCallback(fs.rename)
+var fsStat = Rx.Observable.fromNodeCallback(fs.fstat)
 module.exports = {
   requestBody,
   fsOpen,
   fsWrite,
   fsWriteBuffer: x => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset),
   fsTruncate,
-  fsRename
+  fsRename,
+  fsStat
 }
