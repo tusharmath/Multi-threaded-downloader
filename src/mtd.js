@@ -4,6 +4,7 @@
 'use strict'
 const download = require('./download').download
 const create = require('./create').create
+const ob = require('./observables')
 
 class Download {
   constructor (options) {
@@ -12,9 +13,9 @@ class Download {
   }
 
   start () {
-    return create(this.options)
+    return create(ob, this.options)
       .toPromise()
-      .then(() => download(this.options).toPromise())
+      .then(() => download(ob, this.options).toPromise())
   }
 
   stop () {

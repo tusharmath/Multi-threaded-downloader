@@ -7,9 +7,8 @@
 const Rx = require('rx')
 const _ = require('lodash')
 const u = require('./utils')
-const ob = require('./observables')
 
-exports.create = (options) => {
+exports.create = (ob, options) => {
   const path = options.mtdPath
   const fileDescriptor = ob.fsOpen(path, 'w')
   const response = ob.requestBody(_.assign({}, options, {method: 'HEAD'}))
