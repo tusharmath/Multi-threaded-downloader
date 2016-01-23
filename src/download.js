@@ -6,8 +6,9 @@
 const _ = require('lodash')
 const createStore = require('reactive-storage').create
 const u = require('./utils')
+const ob = require('./observables')
 
-exports.download = function (ob, options) {
+exports.download = function (options) {
   var writeAt = 0
   const path = options.mtdPath
   const fileDescriptor = ob.fsOpen(path, 'w+')

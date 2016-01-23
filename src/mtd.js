@@ -2,28 +2,17 @@
  * Created by tusharmathur on 5/15/15.
  */
 'use strict'
-const _ = require('lodash')
-const ob = require('./observables')
 const download = require('./download').download
-const Rx = require('rx')
-
-const defaultOptions = {
-  headers: {},
-  threadCount: 3,
-  strictSSL: true,
-  truncate: true,
-  rename: true,
-  maxBuffer: 512
-}
+const create = require('./create').create
 
 class Download {
   constructor (options) {
-    this.options = _.defaults(options, defaultOptions)
+    this.options = options
     this.options.mtdPath = this.options.path + '.mtd'
   }
 
   start () {
-    return download(ob, this.options).toPromise()
+    return download(this.options).toPromise()
   }
 
   stop () {
