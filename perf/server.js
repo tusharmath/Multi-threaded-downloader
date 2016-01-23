@@ -18,5 +18,8 @@ const startServer = (app, port) => new Promise(i => {
   const server = app.listen(port, onStart)
 })
 
-exports.http = (port) => startServer(httpServer, port)
-exports.https = (port) => startServer(httpsServer, port)
+exports.server = port => Promise.all([
+  startServer(httpServer, port),
+  startServer(httpsServer, port + 1)
+]).then(x => () => Promise.all(x.map(x => x())))
+

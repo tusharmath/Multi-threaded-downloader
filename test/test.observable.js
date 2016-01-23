@@ -3,20 +3,17 @@
  */
 
 'use strict'
-import {http, https} from '../perf/server'
+import {server} from '../perf/server'
 import test from 'ava'
 import Observables from '../src/observables'
 
 var closeHttp
-var closeHttps
 test.before(async function () {
-  closeHttp = await http(3100)
-  closeHttps = await https(3101)
+  closeHttp = await server(3100)
 })
 
 test.after(async function () {
   await closeHttp()
-  await closeHttps()
 })
 
 test(async function (t) {
