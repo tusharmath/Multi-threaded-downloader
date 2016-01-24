@@ -16,7 +16,7 @@ class Download {
     const path = this.options.mtdPath
 
     return create(ob, this.options)
-      .flatMap(() => download(ob, this.options))
+      .flatMap(() => download(ob, this.options.mtdPath))
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
       .flatMap(() => ob.fsRename(path, this.options.path))

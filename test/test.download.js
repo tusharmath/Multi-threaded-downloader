@@ -36,7 +36,7 @@ test('fsOpen:r+', async function (t) {
     fsStat: () => [{size: 1000}]
   }
 
-  const d = download(ob, {mtdPath: 'honey-singh'}).toPromise()
+  const d = download(ob, 'honey-singh').toPromise()
   scheduler.start()
   await d
   t.same(ob.fsOpen.args[0], ['honey-singh', 'r+'])
