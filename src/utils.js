@@ -6,14 +6,14 @@
 
 const _ = require('lodash')
 
-exports.toBuffer = function (obj, size) {
-  var buffer = new Buffer(size || 512)
-  _.fill(buffer, null)
+const e = exports
+e.toBuffer = function (obj, size) {
+  var buffer = e.createEmptyBuffer(size)
   buffer.write(JSON.stringify(obj))
   return buffer
 }
 
-exports.selectAs = function () {
+e.selectAs = function () {
   const keys = _.toArray(arguments)
   return function () {
     const values = _.toArray(arguments)
@@ -22,7 +22,12 @@ exports.selectAs = function () {
   }
 }
 
-exports.log = function () {
+e.log = function () {
   return console.log.apply(console, _.toArray(arguments))
 }
 
+e.createEmptyBuffer = function (size) {
+  var buffer = new Buffer(size || 512)
+  _.fill(buffer, null)
+  return buffer
+}
