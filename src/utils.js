@@ -28,6 +28,6 @@ e.log = function () {
 
 e.createEmptyBuffer = function (size) {
   var buffer = new Buffer(size || 512)
-  _.fill(buffer, null)
+  buffer.fill(' ')
   return buffer
 }

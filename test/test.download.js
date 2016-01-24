@@ -32,6 +32,7 @@ test('fsOpen:r+', async function (t) {
     fsWriteBuffer: () => [{}],
     fsTruncate: () => [{}],
     fsRename: () => [{}],
+    fsReadBuffer: () => [[0, {toString: () => JSON.stringify({a: 1})}]],
     fsStat: () => [{size: 1000}]
   }
 
@@ -40,4 +41,3 @@ test('fsOpen:r+', async function (t) {
   await d
   t.same(ob.fsOpen.args[0], ['honey-singh', 'r+'])
 })
-

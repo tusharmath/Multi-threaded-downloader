@@ -6,18 +6,21 @@
 const _ = require('lodash')
 const createStore = require('reactive-storage').create
 const u = require('./utils')
+const Rx = require('rx')
 
 exports.download = function (ob, options) {
   var writeAt = 0
   const path = options.mtdPath
   const fileDescriptor = ob.fsOpen(path, 'r+')
+  const contentLength = fileDescriptor.flatMap(x => ob.fsStat(x)).pluck('size').map(x => x - 512)
+  const metaBuffer = Rx.Observable.just(u.createEmptyBuffer(512))
   const writtenAt = createStore(0)
-  const requestStream = ob.requestBody(options)
+  const meta = Rx.Observable.combineLatest(contentLength, fileDescriptor, metaBuffer, u.selectAs('offset', 'fd', 'buffer'))
+    .flatMap(ob.fsReadBuffer)
+    .map(x => JSON.parse(x[1].toString()))
+
+  const requestStream = meta.flatMap(ob.requestBody)
   const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')
-  const contentLength = fileDescriptor
-    .flatMap(x => ob.fsStat(x))
-    .pluck('size')
-    .map(x => x - 512)
 
   return fileDescriptor
     .combineLatest(bufferStream, u.selectAs('fd', 'buffer'))
