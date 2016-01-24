@@ -15,7 +15,7 @@ exports.create = (ob, options) => {
   const response = ob.requestBody(_.assign({}, options, {method: 'HEAD'}))
   const offset = response.pluck('message', 'headers', 'content-length').map(x => parseInt(x, 10))
   const meta = offset.map(x => _.assign({}, options, {totalBytes: x}))
-  const buffer = meta.map(x => u.toBuffer(x, options.maxBuffer))
+  const buffer = meta.map(x => u.toBuffer(x))
 
   return Rx.Observable.zip(
     fileDescriptor,
