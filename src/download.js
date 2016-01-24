@@ -36,8 +36,5 @@ exports.download = function (ob, options) {
     .map(u.toBuffer)
     .withLatestFrom(fileDescriptor, contentLength, u.selectAs('buffer', 'fd', 'offset'))
     .flatMap(ob.fsWriteBuffer)
-    .last().withLatestFrom(contentLength, (a, b) => b)
-    .flatMap(len => ob.fsTruncate(path, len))
-    .flatMap(() => ob.fsRename(path, options.path))
-    .map(options)
+    .withLatestFrom(meta, (a, b) => b)
 }

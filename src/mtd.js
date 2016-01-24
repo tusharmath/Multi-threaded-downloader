@@ -13,8 +13,13 @@ class Download {
   }
 
   start () {
+    const path = this.options.mtdPath
+
     return create(ob, this.options)
       .flatMap(() => download(ob, this.options))
+      .last()
+      .flatMap(x => ob.fsTruncate(path, x.totalBytes))
+      .flatMap(() => ob.fsRename(path, this.options.path))
       .toPromise()
   }
 
