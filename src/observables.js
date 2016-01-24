@@ -1,6 +1,7 @@
 var request = require('request')
 var Rx = require('rx')
 var fs = require('fs')
+var _ = require('lodash')
 
 var requestBody = params => Rx.Observable.create(observer => request(params)
   .on('data', message => observer.onNext({event: 'data', message}))
@@ -17,6 +18,9 @@ var fsStat = Rx.Observable.fromNodeCallback(fs.fstat)
 var fsRead = Rx.Observable.fromNodeCallback(fs.read)
 module.exports = {
   requestBody,
+  requestContentLength: x => requestBody(_.assign({}, x, {method: 'HEAD'}))
+    .pluck('message', 'headers', 'content-length')
+    .map(x => parseInt(x, 10)),
   fsOpen,
   fsWrite,
   fsWriteBuffer: x => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset),
