@@ -17,8 +17,7 @@ class Download {
   start () {
     const options = this.options
     const ob = this.ob
-    return initMTD(ob, this.fd['w'], options)
-      .flatMap(() => this.download())
+    return initMTD(ob, this.fd['w'], options).flatMap(() => this.download())
   }
 
   download () {
