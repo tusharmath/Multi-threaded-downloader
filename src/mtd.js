@@ -26,7 +26,10 @@ class Download {
     const fd = this.fd['r+']
     const options = this.options
     const ob = this.ob
-    return downloadMTD(ob, fd, options)
+    return downloadMTD(ob, fd)
+      .last()
+      .flatMap(x => ob.fsTruncate(options.mtdPath, x.totalBytes))
+      .flatMap(() => ob.fsRename(options.mtdPath, options.path))
   }
 
   stop () {
