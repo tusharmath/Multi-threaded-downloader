@@ -3,7 +3,7 @@
  */
 'use strict'
 const _ = require('lodash')
-const download = require('./download')
+const download = require('./bufferSave')
 const metaSave = require('./metaSave')
 const createFileDescriptors = require('./createFD')
 const metaLoad = require('./metaLoad')
