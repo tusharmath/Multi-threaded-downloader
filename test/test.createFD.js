@@ -25,6 +25,7 @@ test.only(t => {
   }
   const ob = {fsOpen}
   createFileDescriptors(ob, 'sample-path')
+    .fd
     .subscribe(x => out.push(x))
   scheduler.start()
   t.same(out, [

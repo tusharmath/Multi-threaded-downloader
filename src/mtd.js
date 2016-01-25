@@ -3,9 +3,9 @@
  */
 'use strict'
 const _ = require('lodash')
-const download = require('./bufferSave')
+const bufferSave = require('./bufferSave')
 const metaSave = require('./metaSave')
-const createFileDescriptors = require('./createFD')
+const createFD = require('./createFD')
 const metaLoad = require('./metaLoad')
 
 class Download {
@@ -19,16 +19,15 @@ class Download {
     const options = this.options
     const path = options.mtdPath
     const ob = this.ob
-    const fd = createFileDescriptors(ob, path)
-    const fdW = fd.filter(x => x.flag === 'w').pluck('fd')
-    const fdRP = fd.filter(x => x.flag === 'r+').pluck('fd')
+    const fd = createFD(ob, path)
     const contentLength = ob.requestContentLength(options)
     const initialMeta = contentLength.map(x => _.assign({}, options, {totalBytes: x}))
-    const initialMTDFile = metaSave(ob, fdW, initialMeta)
+    const initialMTDFile = metaSave(ob, fd['w'], initialMeta)
+    const bufferData = initialMTDFile
+      .flatMap(() => metaLoad(fd['r+']))
+      .flatMap(meta => bufferSave(ob, meta, fd['r+']))
 
-    return initialMTDFile
-      .flatMap(() => metaLoad(fdRP))
-      .flatMap(meta => download(ob, meta, fdRP))
+    return metaSave(ob, fd['r+'], bufferData)
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
       .flatMap(() => ob.fsRename(path, options.path))
