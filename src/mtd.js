@@ -23,11 +23,10 @@ class Download {
     const contentLength = ob.requestContentLength(options)
     const initialMeta = contentLength.map(x => _.assign({}, options, {totalBytes: x}))
     const initialMTDFile = metaSave(ob, fd['w'], initialMeta)
-    const bufferData = initialMTDFile
-      .flatMap(() => metaLoad(fd['r+']))
-      .flatMap(meta => bufferSave(ob, meta, fd['r+']))
+    const initialMETA = initialMTDFile.flatMap(() => metaLoad(fd['r+']))
+    const currentMETA = bufferSave(ob, initialMETA, fd['r+'])
 
-    return metaSave(ob, fd['r+'], bufferData)
+    return metaSave(ob, fd['r+'], currentMETA)
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
       .flatMap(() => ob.fsRename(path, options.path))
