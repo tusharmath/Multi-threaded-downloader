@@ -4,14 +4,10 @@
 
 'use strict'
 const _ = require('lodash')
-const loadContent = require('./loadContent')
-const bufferOffset = require('./bufferOffset')
-const metaUpdate = require('./metaUpdate')
 
-module.exports = function (ob, createMETA, fileDescriptor) {
-  const writeBuffer = loadContent(ob, createMETA)
+module.exports = function (ob, fileDescriptor, content) {
+  return content
     .combineLatest(fileDescriptor, (content, fd) => _.assign(content, {fd}))
-    .flatMap(ob.fsWriteBuffer).map(x => x[1])
-
-  return metaUpdate(createMETA, bufferOffset(writeBuffer).pluck('offset'))
+    .flatMap(ob.fsWriteBuffer)
+    .map(x => x[1])
 }
