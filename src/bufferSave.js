@@ -7,19 +7,18 @@ const _ = require('lodash')
 const createStore = require('reactive-storage').create
 const u = require('./utils')
 const Rx = require('rx')
+const loadContent = require('./loadContent')
 
 module.exports = function (ob, meta, fileDescriptor) {
-  var writeAt = 0
   const writtenAt = createStore(0)
   const createMETA = Rx.Observable.just(meta)
   const contentLength = createMETA.pluck('totalBytes')
-  const requestStream = createMETA.flatMap(ob.requestBody)
-  const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')
-  const downloadMETA = fileDescriptor
-    .combineLatest(bufferStream, u.selectAs('fd', 'buffer'))
-    .map(buffer => _.assign({}, buffer, {offset: writeAt}))
-    .tap(x => writeAt += x.buffer.length)
-    .flatMap(ob.fsWriteBuffer).map(x => x[0])
+  const content = loadContent(ob, meta)
+    .combineLatest(fileDescriptor, (content, fd) => _.assign({}, content, {fd}))
+
+  const downloadMETA = content
+    .flatMap(ob.fsWriteBuffer)
+    .map(x => x[0])
     .tap(x => writtenAt.set(o => o + x))
     .tapOnCompleted(() => writtenAt.end())
     .combineLatest(writtenAt.getStream(), (a, b) => b)
