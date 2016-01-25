@@ -8,7 +8,7 @@ const create = require('./create').create
 const ob = require('./observables')
 
 class Download {
-  constructor (options) {
+  constructor (ob, options) {
     this.options = options
     this.options.mtdPath = this.options.path + '.mtd'
     this.fileDescriptorW = ob.fsOpen(this.options.mtdPath, 'w')

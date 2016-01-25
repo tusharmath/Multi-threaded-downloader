@@ -4,4 +4,7 @@
 
 'use strict'
 
-exports.Download = require('./src/mtd')
+const ob = require('./src/observables')
+const Mtd = require('./src/mtd')
+
+exports.createDownload = (options) => new Mtd(ob, options)

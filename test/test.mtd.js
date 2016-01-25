@@ -40,7 +40,7 @@ test.after(async function () {
 })
 
 test('http', async function (t) {
-  const d = new Download({
+  const d = new Download(ob, {
     url: 'http://localhost:3200/files/pug.jpg',
     path: path1
   })
@@ -50,7 +50,7 @@ test('http', async function (t) {
 })
 
 test('https', async function (t) {
-  const d = new Download({
+  const d = new Download(ob, {
     url: 'https://localhost:3201/files/pug.jpg',
     path: path2,
     strictSSL: false
@@ -61,7 +61,7 @@ test('https', async function (t) {
 })
 
 test('http(2)', async function (t) {
-  const d = new Download({
+  const d = new Download(ob, {
     url: 'http://localhost:3200/files/in.txt',
     path: path3
   })
