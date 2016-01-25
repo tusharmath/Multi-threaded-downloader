@@ -11,20 +11,22 @@ class Download {
   constructor (ob, options) {
     this.options = options
     this.options.mtdPath = this.options.path + '.mtd'
-    this.fileDescriptorW = ob.fsOpen(this.options.mtdPath, 'w')
-    this.fileDescriptorRP = ob.fsOpen(this.options.mtdPath, 'r+')
-    this.contentLength = ob.requestContentLength(this.options)
-    this.initialMeta = this.contentLength.map(x => _.assign({}, this.options, {totalBytes: x}))
-    this.initialMTDFile = create(ob, this.fileDescriptorW, this.initialMeta)
   }
 
   start () {
-    const path = this.options.mtdPath
-    return this.initialMTDFile
-      .flatMap(() => download(ob, this.fileDescriptorRP))
+    const options = this.options
+    const path = options.mtdPath
+    const fileDescriptorW = ob.fsOpen(path, 'w')
+    const fileDescriptorRP = ob.fsOpen(path, 'r+')
+    const contentLength = ob.requestContentLength(options)
+    const initialMeta = contentLength.map(x => _.assign({}, options, {totalBytes: x}))
+    const initialMTDFile = create(ob, fileDescriptorW, initialMeta)
+
+    return initialMTDFile
+      .flatMap(() => download(ob, fileDescriptorRP))
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
-      .flatMap(() => ob.fsRename(path, this.options.path))
+      .flatMap(() => ob.fsRename(path, options.path))
       .toPromise()
   }
 
