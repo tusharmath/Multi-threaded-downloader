@@ -7,7 +7,6 @@
 import createFileDescriptors from '../src/createFD'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {spy} from 'sinon'
 
 const {onNext, onCompleted} = ReactiveTest
 

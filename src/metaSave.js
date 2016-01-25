@@ -14,7 +14,6 @@ const u = require('./utils')
  * @param {Observable} metaJSON
  * @returns {Observable}
  */
-// TODO: Add unit tests
 module.exports = (ob, fileDescriptor, metaJSON) => {
   const offset = metaJSON.pluck('totalBytes')
   return metaJSON.withLatestFrom(fileDescriptor, offset, u.selectAs('json', 'fd', 'offset'))
