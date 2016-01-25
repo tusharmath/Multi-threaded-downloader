@@ -5,6 +5,8 @@
 'use strict'
 
 const _ = require('lodash')
+const bufferOffset = require('./bufferOffset')
 
 module.exports = (baseMeta, bytesSaved) => baseMeta
-  .combineLatest(bytesSaved, (a, b) => _.assign(a, {bytesSaved: b}))
+  .combineLatest(bufferOffset(bytesSaved)
+    .pluck('offset'), (a, b) => _.assign(a, {bytesSaved: b}))
