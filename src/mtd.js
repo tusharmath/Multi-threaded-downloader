@@ -15,13 +15,13 @@ class Download {
     this.fileDescriptorRP = ob.fsOpen(this.options.mtdPath, 'r+')
     this.contentLength = ob.requestContentLength(this.options)
     this.initialMeta = this.contentLength.map(x => _.assign({}, this.options, {totalBytes: x}))
-    this.mtdFile = create(ob, this.fileDescriptorW, this.initialMeta)
+    this.initialMTDFile = create(ob, this.fileDescriptorW, this.initialMeta)
   }
 
   start () {
     const path = this.options.mtdPath
-    return this.mtdFile
-      .flatMap(() => download(ob, this.options.mtdPath))
+    return this.initialMTDFile
+      .flatMap(() => download(ob, this.fileDescriptorRP))
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
       .flatMap(() => ob.fsRename(path, this.options.path))

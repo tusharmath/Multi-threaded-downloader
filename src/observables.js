@@ -2,6 +2,7 @@ var request = require('request')
 var Rx = require('rx')
 var fs = require('fs')
 var _ = require('lodash')
+var u = require('./utils')
 
 var requestBody = params => Rx.Observable.create(observer => request(params)
   .on('data', message => observer.onNext({event: 'data', message}))
@@ -24,6 +25,10 @@ module.exports = {
   fsOpen,
   fsWrite,
   fsWriteBuffer: x => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset),
+  fsWriteJSON: x => {
+    const buffer = u.toBuffer(x.json)
+    return fsWrite(x.fd, buffer, 0, buffer.length, x.offset)
+  },
   fsReadBuffer: x => fsRead(x.fd, x.buffer, 0, x.buffer.length, x.offset),
   fsTruncate,
   fsRename,
