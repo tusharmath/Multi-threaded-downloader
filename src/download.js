@@ -8,14 +8,11 @@ const createStore = require('reactive-storage').create
 const u = require('./utils')
 const Rx = require('rx')
 
-exports.download = function (ob, fileDescriptor) {
+module.exports = function (ob, meta, fileDescriptor) {
   var writeAt = 0
   const writtenAt = createStore(0)
-  const contentLength = fileDescriptor.flatMap(x => ob.fsStat(x)).pluck('size').map(x => x - 512)
-  const metaBuffer = Rx.Observable.just(u.createEmptyBuffer(512))
-  const createMETA = Rx.Observable.combineLatest(contentLength, fileDescriptor, metaBuffer, u.selectAs('offset', 'fd', 'buffer'))
-    .flatMap(ob.fsReadBuffer)
-    .map(x => JSON.parse(x[1].toString()))
+  const createMETA = Rx.Observable.just(meta)
+  const contentLength = createMETA.pluck('totalBytes')
   const requestStream = createMETA.flatMap(ob.requestBody)
   const bufferStream = requestStream.filter(x => x.event === 'data').pluck('message')
   const downloadMETA = fileDescriptor

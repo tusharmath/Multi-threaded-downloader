@@ -20,6 +20,8 @@ const fsRead = Rx.Observable.fromNodeCallback(fs.read)
 const fsReadBuffer = x => fsRead(x.fd, x.buffer, 0, x.buffer.length, x.offset)
 const fsWriteBuffer = x => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset)
 const fsWriteJSON = x => fsWriteBuffer(_.assign({}, x, {buffer: u.toBuffer(x.json)}))
+const fsReadJSON = x => fsReadBuffer(x).map(x => JSON.parse(x[1].toString()))
+const buffer = (size) => Rx.Observable.just(u.createEmptyBuffer(size))
 module.exports = {
   requestBody,
   requestContentLength: x => requestBody(_.assign({}, x, {method: 'HEAD'}))
@@ -29,8 +31,10 @@ module.exports = {
   fsWrite,
   fsWriteBuffer,
   fsWriteJSON,
+  fsReadJSON,
   fsReadBuffer,
   fsTruncate,
   fsRename,
-  fsStat
+  fsStat,
+  buffer
 }

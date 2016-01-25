@@ -3,10 +3,10 @@
  */
 'use strict'
 const _ = require('lodash')
-const download = require('./download').download
-const create = require('./create').create
+const download = require('./download')
+const metaSave = require('./metaSave')
 const createFileDescriptors = require('./createFD')
-const ob = require('./observables')
+const metaLoad = require('./metaLoad')
 
 class Download {
   constructor (ob, options) {
@@ -24,10 +24,11 @@ class Download {
     const fdRP = fd.filter(x => x.flag === 'r+').pluck('fd')
     const contentLength = ob.requestContentLength(options)
     const initialMeta = contentLength.map(x => _.assign({}, options, {totalBytes: x}))
-    const initialMTDFile = create(ob, fdW, initialMeta)
+    const initialMTDFile = metaSave(ob, fdW, initialMeta)
 
     return initialMTDFile
-      .flatMap(() => download(ob, fdRP))
+      .flatMap(() => metaLoad(fdRP))
+      .flatMap(meta => download(ob, meta, fdRP))
       .last()
       .flatMap(x => ob.fsTruncate(path, x.totalBytes))
       .flatMap(() => ob.fsRename(path, options.path))

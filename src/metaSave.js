@@ -11,15 +11,15 @@ const u = require('./utils')
  * Creates the initial .mtd file.
  * @param {Object} ob
  * @param {Observable} fileDescriptor
- * @param {Observable} createJSON
+ * @param {Observable} metaJSON
  * @returns {Observable}
  */
 // TODO: Add unit tests
-exports.create = (ob, fileDescriptor, createJSON) => {
-  const offset = createJSON.pluck('totalBytes')
+module.exports = (ob, fileDescriptor, metaJSON) => {
+  const offset = metaJSON.pluck('totalBytes')
   return Rx.Observable.zip(
     fileDescriptor,
-    createJSON,
+    metaJSON,
     offset,
     u.selectAs('fd', 'json', 'offset')
   ).flatMap(ob.fsWriteJSON)
