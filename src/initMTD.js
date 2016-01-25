@@ -6,9 +6,13 @@
 
 const _ = require('lodash')
 const metaSave = require('./metaSave')
+const splitRange = require('./splitRange')
 
 module.exports = (ob, fd, options) => {
-  const contentLength = ob.requestContentLength(options)
-  const initialMETA = contentLength.map(x => _.assign({}, options, {totalBytes: x}))
+  const totalBytes = ob.requestContentLength(options)
+  const initialMETA = totalBytes.map(x => {
+    const threads = splitRange(x, options.range)
+    return _.assign({}, options, {totalBytes: x, threads})
+  })
   return metaSave(ob, fd, initialMETA)
 }

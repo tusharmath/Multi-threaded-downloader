@@ -5,10 +5,12 @@
 const createFD = require('./createFD')
 const initMTD = require('./initMTD')
 const downloadMTD = require('./downloadMTD')
+const _ = require('lodash')
 
+const defaultOptions = {range: 3}
 class Download {
   constructor (ob, options) {
-    this.options = options
+    this.options = _.defaults(options, defaultOptions)
     this.options.mtdPath = this.options.path + '.mtd'
     this.ob = ob
     this.fd = createFD(ob, options.mtdPath)
