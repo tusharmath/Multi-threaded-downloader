@@ -4,7 +4,7 @@
 
 'use strict'
 
-const Rx = require('rx')
+const _ = require('lodash')
 const u = require('./utils')
 
 /**
@@ -14,9 +14,9 @@ const u = require('./utils')
  * @param {Observable} metaJSON
  * @returns {Observable}
  */
-module.exports = (ob, fileDescriptor, metaJSON) => {
-  const offset = metaJSON.pluck('totalBytes')
-  return metaJSON.withLatestFrom(fileDescriptor, offset, u.selectAs('json', 'fd', 'offset'))
-    .flatMap(ob.fsWriteJSON)
-    .map(x => JSON.parse(x[1].toString()))
-}
+module.exports = (ob, fileDescriptor, metaJSON) => metaJSON
+  .combineLatest(fileDescriptor, u.selectAs('json', 'fd'))
+  .map(x => _.assign(x, {offset: x.json.totalBytes}))
+  .flatMap(ob.fsWriteJSON)
+  .map(x => JSON.parse(x[1].toString()))
+

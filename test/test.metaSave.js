@@ -32,3 +32,19 @@ test(t => {
     {a: 2, totalBytes: 100}
   ])
 })
+
+test('delayed:fd', t => {
+  const scheduler = new TestScheduler()
+  const out = []
+  const fsWriteJSON = x => [[null, JSON.stringify(x.json)]]
+  const fd = scheduler.createHotObservable(onNext(250, 20), onCompleted())
+  const json = scheduler.createHotObservable(
+    onNext(220, {a: 0, totalBytes: 100}),
+    onCompleted()
+  )
+
+  const ob = {fsWriteJSON}
+  metaSave(ob, fd, json).subscribe(x => out.push(x))
+  scheduler.start()
+  t.same(out, [{a: 0, totalBytes: 100}])
+})
