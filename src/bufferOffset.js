@@ -4,8 +4,10 @@
 
 'use strict'
 
-module.exports = buffer => {
-  var offset = 0
+module.exports = (buffer, offset) => {
+  if (typeof offset !== 'number') {
+    offset = 0
+  }
   return buffer
     .map(buffer => ({buffer, offset}))
     .tap(x => offset += x.buffer.length)
