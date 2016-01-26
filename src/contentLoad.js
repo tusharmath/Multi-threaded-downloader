@@ -4,9 +4,20 @@
 
 'use strict'
 const bufferOffset = require('./bufferOffset')
+const rangeHeader = require('./rangeHeader')
+const _ = require('lodash')
 
-module.exports = (ob, meta) => bufferOffset(meta
-  .flatMap(ob.requestBody)
-  .filter(x => x.event === 'data')
-  .pluck('message')
-)
+module.exports = (ob, metaStream) => {
+  return metaStream
+    .flatMap(meta => meta.threads.map(range => ({range, meta})))
+    .map(x => {
+      const range = rangeHeader(x.range)
+      const params = _.omit(x.meta, 'threads')
+      params.headers = _.assign({}, params.headers, range)
+      return {params, range: x.range}
+    })
+    .flatMap(x => bufferOffset(ob.requestBody(x.params)
+      .filter(x => x.event === 'data')
+      .pluck('message'), x.range[0])
+    )
+}
