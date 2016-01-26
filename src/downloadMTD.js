@@ -12,9 +12,9 @@ const metaUpdate = require('./metaUpdate')
 
 module.exports = (ob, fd) => {
   const loadedMETA = metaLoad(fd)
-  const loadedBuffer = contentLoad(ob, loadedMETA)
-  const savedBuffer = bufferSave(ob, fd, loadedBuffer)
-  const currentMETA = metaUpdate(loadedMETA, savedBuffer)
+  const loadedContent = contentLoad(ob, loadedMETA)
+  const savedContent = bufferSave(ob, fd, loadedContent)
+  const currentMETA = metaUpdate(loadedMETA, savedContent)
 
   return metaSave(ob, fd, currentMETA)
 }
