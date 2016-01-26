@@ -62,9 +62,9 @@ test('response', t => {
   contentLoad(ob, meta).subscribe(x => responses.push(x))
   scheduler.start()
   t.same(responses, [
-    {buffer: '0000', offset: 0},
-    {buffer: '111', offset: 11},
-    {buffer: '00000000', offset: 4},
-    {buffer: '111111', offset: 14}
+    {buffer: '0000', offset: 0, range: [0, 10]},
+    {buffer: '111', offset: 11, range: [11, 20]},
+    {buffer: '00000000', offset: 4, range: [0, 10]},
+    {buffer: '111111', offset: 14, range: [11, 20]}
   ])
 })
