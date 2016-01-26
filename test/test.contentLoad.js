@@ -27,7 +27,8 @@ test('request', t => {
     [11, 20],
     [21, 30]
   ]
-  const meta = scheduler.createHotObservable(onNext(210, {threads, url: 'sample-url'}), onCompleted(220))
+  const offsets = [0, 11, 21]
+  const meta = scheduler.createHotObservable(onNext(210, {offsets, threads, url: 'sample-url'}), onCompleted(220))
   contentLoad(ob, meta).subscribe(noop)
   scheduler.start()
   t.same(requests, [
@@ -58,7 +59,8 @@ test('response', t => {
     [0, 10],
     [11, 20]
   ]
-  const meta = scheduler.createHotObservable(onNext(200, {threads, url: 'sample-url'}), onCompleted(250))
+  const offsets = [0, 11]
+  const meta = scheduler.createHotObservable(onNext(200, {offsets, threads, url: 'sample-url'}), onCompleted(250))
   contentLoad(ob, meta).subscribe(x => responses.push(x))
   scheduler.start()
   t.same(responses, [

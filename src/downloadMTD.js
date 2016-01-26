@@ -9,12 +9,16 @@ const metaSave = require('./metaSave')
 const metaLoad = require('./metaLoad')
 const contentLoad = require('./contentLoad')
 const metaUpdate = require('./metaUpdate')
+const create = require('reactive-storage').create
+const Immutable = require('immutable')
 
 module.exports = (ob, fd) => {
+  const offsets = create(Immutable.List([]))
   const loadedMETA = metaLoad(fd)
+    .tap(x => offsets.set(i => i.merge(x.offsets)))
   const loadedContent = contentLoad(ob, loadedMETA)
   const savedContent = bufferSave(ob, fd, loadedContent)
-  const currentMETA = metaUpdate(loadedMETA, savedContent)
-
+    .tap(x => offsets.set(i => i.set(x.index, x.offset)))
+  const currentMETA = metaUpdate(loadedMETA, savedContent, offsets.getStream())
   return metaSave(ob, fd, currentMETA)
 }

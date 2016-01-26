@@ -10,8 +10,8 @@ const _ = require('lodash')
 module.exports = (ob, metaStream) => metaStream
   .flatMap(meta => meta.threads.map((range, index) => ({range, meta, index})))
   .map(x => {
-    const range = rangeHeader(x.range)
-    const params = _.omit(x.meta, 'threads')
+    const range = rangeHeader([x.meta.offsets[x.index], x.range[1]])
+    const params = _.omit(x.meta, 'threads', 'offsets')
     params.headers = _.assign({}, params.headers, range)
     return {params, range: x.range, index: x.index}
   })
