@@ -1,0 +1,34 @@
+/**
+ * Created by tushar.mathur on 26/01/16.
+ */
+
+'use strict'
+
+import test from 'ava'
+import {TestScheduler, ReactiveTest} from 'rx'
+import bufferSave from '../src/bufferSave'
+const {onNext, onCompleted} = ReactiveTest
+
+test(t => {
+  const out = []
+  const sh = new TestScheduler()
+  const ob = {
+    fsWriteBuffer: () => sh.createHotObservable(onNext(300, 'hello'), onCompleted(310))
+  }
+  const fd = sh.createHotObservable(onNext(210, 1000), onCompleted(220))
+  const content = sh.createHotObservable(
+    onNext(210, {offset: 100, index: 1}),
+    onNext(220, {offset: 101, index: 2}),
+    onNext(230, {offset: 102, index: 1}),
+    onNext(240, {offset: 103, index: 1}),
+    onCompleted(250)
+  )
+  bufferSave(ob, fd, content).subscribe(x => out.push(x))
+  sh.start()
+  t.same(out, [
+    {offset: 100, fd: 1000, index: 1},
+    {offset: 101, fd: 1000, index: 2},
+    {offset: 102, fd: 1000, index: 1},
+    {offset: 103, fd: 1000, index: 1}
+  ])
+})

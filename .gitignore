@@ -1,6 +1,11 @@
-test/core.downloaded.png
 coverage
 __*
 *.diff
 node_modules/
 *.sublime-*
+.idea
+.example.js
+*.mtd
+.temp/*.*
+
+.temp
