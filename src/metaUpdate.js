@@ -6,7 +6,7 @@
 
 const _ = require('lodash')
 const u = require('./utils')
-module.exports = (baseMeta, bytesSaved, offsets) => baseMeta
-  .combineLatest(bytesSaved, offsets, u.selectAs('meta', 'content', 'offsets'))
+module.exports = (baseMeta, bytesSaved, offsets) => bytesSaved
+  .withLatestFrom(baseMeta, offsets, u.selectAs('content', 'meta', 'offsets'))
   .map(x => _.assign({}, x.meta, {offsets: x.offsets.toJS()}))
   .distinctUntilChanged()
