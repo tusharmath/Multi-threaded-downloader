@@ -22,8 +22,7 @@
     "lodash": "^4.0.0",
     "reactive-storage": "^0.8.0",
     "request": "^2.60.0",
-    "rx": "^4.0.7",
-    "seamless-immutable": "^5.0.1"
+    "rx": "^4.0.7"
   },
   "license": "MIT",
   "devDependencies": {
