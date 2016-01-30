@@ -14,7 +14,7 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "engines": {
-    "iojs": ">= 2.0.0"
+    "node": ">= 5.0.0"
   },
   "main": "index.js",
   "dependencies": {
