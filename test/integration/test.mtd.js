@@ -5,14 +5,14 @@
 'use strict'
 import Path from 'path'
 import test from 'ava'
-import {removeFile, createFileDigest} from './../perf/utils'
-import Download from '../src/mtd'
-import ob from '../src/observables'
-import {server} from '../perf/server'
+import {removeFile, createFileDigest} from '../../perf/utils'
+import Download from '../../src/mtd'
+import ob from '../../src/observables'
+import {server} from '../../perf/server'
 
 const pathFactory = () => {
   var i = 0
-  return () => Path.normalize(Path.join(__dirname, '../.temp/download-file' + i++))
+  return () => Path.normalize(Path.join(__dirname, '../../.temp/download-file' + i++))
 }
 
 const createPath = pathFactory()
