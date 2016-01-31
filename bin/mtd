@@ -1,26 +1,7 @@
 #!/usr/bin/env node
-const createDownload = require('../').createDownload
 const meow = require('meow')
-const _ = require('lodash')
-const URL = require('url')
-const PATH = require('path')
-const Rx = require('rx')
-const VALID_URL = require('valid-url')
-const fileNameGenerator = x => _.last(URL.parse(x).pathname.split('/')) || Date.now()
-const normalizePath = path => PATH.resolve(__dirname, path)
-const pathGenerator = x => normalizePath(fileNameGenerator(x))
-const params = Rx.Observable.just(meow())
+const cli = require('./cli')
+const createDownload = require('../index').createDownload
 
-params.pluck('flags')
-  .filter(x => VALID_URL.isUri(x.url))
-  .tap(x => console.log('NEW DOWNLOAD'))
-  .map(x => x.path ? x : _.defaults(x, {path: pathGenerator(x.url)}))
-  .flatMap(x => createDownload(x).start())
-  .subscribe(x => console.log('Download Completed!'))
-
-params.pluck('flags')
-  .skipWhile(x => x.url)
-  .tap(x => console.log('RESUME DOWNLOAD'))
-  .map(x => _.assign({}, x, { mtdPath: normalizePath(x.file), path: normalizePath(x.file.replace('.mtd', ''))}))
-  .flatMap(x => createDownload(x).download())
+cli(createDownload, meow())
   .subscribe(x => console.log('Download Completed!'))
