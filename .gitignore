@@ -7,5 +7,5 @@ node_modules/
 .example.js
 *.mtd
 .temp/*.*
-
 .temp
+bin/*.dmg
