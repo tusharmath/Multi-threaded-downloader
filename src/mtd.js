@@ -4,26 +4,28 @@
 'use strict'
 const createFD = require('./createFD')
 const initMTD = require('./initMTD')
+const initParams = require('./initParams')
 const downloadMTD = require('./downloadMTD')
-const _ = require('lodash')
 
-const defaultOptions = {range: 3}
 class Download {
   constructor (ob, options) {
-    this.options = _.defaults(options, defaultOptions)
-    this.options.mtdPath = this.options.path + '.mtd'
+    this.options = initParams(options)
     this.ob = ob
-    this.fd = createFD(ob, options.mtdPath)
+    this.fd = createFD(ob, this.options.mtdPath)
   }
 
   start () {
-    const options = this.options
-    const ob = this.ob
-    return initMTD(ob, this.fd['w'], options).flatMap(() => this.download())
+    return this
+      .init()
+      .flatMap(() => this.download())
+  }
+
+  init () {
+    return initMTD(this.ob, this.fd('w'), this.options)
   }
 
   download () {
-    const fd = this.fd['r+']
+    const fd = this.fd('r+')
     const options = this.options
     const ob = this.ob
     return downloadMTD(ob, fd)

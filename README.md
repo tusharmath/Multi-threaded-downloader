@@ -1,4 +1,9 @@
-# mt-downloader [![Build Status](https://travis-ci.org/tusharmath/Multi-threaded-downloader.svg?branch=master)](https://travis-ci.org/tusharmath/Multi-threaded-downloader) [![npm](https://img.shields.io/npm/v/mt-downloader.svg)]() [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+# mt-downloader
+[![Build Status](https://travis-ci.org/tusharmath/Multi-threaded-downloader.svg?branch=master)](https://travis-ci.org/tusharmath/Multi-threaded-downloader)
+[![npm](https://img.shields.io/npm/v/mt-downloader.svg)]()
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 This is a nodejs based application which help you in performing downloads via Http.
 
@@ -8,9 +13,7 @@ This is a nodejs based application which help you in performing downloads via Ht
 
 0. **Stop and start from the last downloaded byte:**. You don't have to worry about internet getting disconnected or your computer shutting down while downloading. You can quite easily start from the last byte that was downloaded.
 
-0. **Console application:** [mt-console](https://github.com/tusharmath/mtd-console)
-
-	**NOTE:** the current console application depends on an older version of mt-downloader.
+0. **Console application:** If installed globally, `mtd` command would be available.
 
 ## Installation
 
@@ -19,7 +22,7 @@ The conventional npm installation process needs to be followed.
 ```bash
 npm install mt-downloader --save-dev
 ```
-
+̨
 ## .mtd file
 Once the download starts the library will create a file with a **.mtd** extension. This file contains some meta information related to the download and is a little bigger *(around 512 bytes)* than the original download size. The **.mtd** file can be used later to restart downloads from where the last byte that was downloaded. After the download is completed the downloader will truncate the file to remove that meta data.
 

@@ -3,9 +3,9 @@
  */
 
 'use strict'
-import {server} from '../perf/server'
+import {server} from '../../perf/server'
 import test from 'ava'
-import Observables from '../src/observables'
+import Observables from '../../src/observables'
 
 var closeHttp
 test.before(async function () {
