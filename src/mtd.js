@@ -21,11 +21,11 @@ class Download {
   }
 
   init () {
-    return initMTD(this.ob, this.fd['w'], this.options)
+    return initMTD(this.ob, this.fd('w'), this.options)
   }
 
   download () {
-    const fd = this.fd['r+']
+    const fd = this.fd('r+')
     const options = this.options
     const ob = this.ob
     return downloadMTD(ob, fd)

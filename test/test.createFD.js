@@ -4,34 +4,25 @@
 
 'use strict'
 
-import createFileDescriptors from '../src/createFD'
+import createFD from '../src/createFD'
 import test from 'ava'
-import {TestScheduler, ReactiveTest} from 'rx'
-
+import { TestScheduler, ReactiveTest } from 'rx'
 const {onNext, onCompleted} = ReactiveTest
 
-test.only(t => {
-  t.pass()
+test(t => {
   const out = []
-  const scheduler = new TestScheduler()
-  const fd = {
-    'w': scheduler.createColdObservable(onNext(220, 'fd:w'), onCompleted()),
-    'r+': scheduler.createColdObservable(onNext(210, 'fd:r+'), onCompleted())
-  }
-
+  const sh = new TestScheduler()
   const fsOpen = (path, flag) => {
     out.push({path, flag})
-    return fd[flag]
+    return sh.createHotObservable(onNext(300, 9000), onCompleted())
   }
   const ob = {fsOpen}
-  createFileDescriptors(ob, 'sample-path')
-    .fd
-    .subscribe(x => out.push(x))
-  scheduler.start()
+  const fd = createFD(ob, 'sample-path')
+  t.same(out, [])
+  fd('w').subscribe(x => out.push(x))
+  sh.start()
   t.same(out, [
     {path: 'sample-path', flag: 'w'},
-    {fd: 'fd:w', flag: 'w'},
-    {path: 'sample-path', flag: 'r+'},
-    {fd: 'fd:r+', flag: 'r+'}
+    9000
   ])
 })
