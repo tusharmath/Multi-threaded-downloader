@@ -7,10 +7,10 @@
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import bufferSave from '../src/bufferSave'
+import {createTestObserver} from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 
 test(t => {
-  const out = []
   const sh = new TestScheduler()
   const ob = {
     fsWriteBuffer: () => sh.createHotObservable(onNext(300, 'hello'), onCompleted(310))
@@ -23,7 +23,7 @@ test(t => {
     onNext(240, {offset: 103, index: 1}),
     onCompleted(250)
   )
-  bufferSave(ob, fd, content).subscribe(x => out.push(x))
+  const out = createTestObserver(bufferSave(ob, fd, content))
   sh.start()
   t.same(out, [
     {offset: 100, fd: 1000, index: 1},

@@ -20,3 +20,9 @@ const createFileDigest = exports.createFileDigest = path => {
 }
 
 exports.fsStat = (x) => Rx.Observable.fromCallback(fs.stat)(x).toPromise()
+
+exports.createTestObserver = stream => {
+  const out = []
+  stream.subscribe(x => out.push(x))
+  return out
+}

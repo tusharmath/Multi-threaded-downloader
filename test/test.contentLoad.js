@@ -8,6 +8,7 @@ import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 const {onNext, onCompleted} = ReactiveTest
 import contentLoad from '../src/contentLoad'
+import {createTestObserver} from '../perf/utils'
 
 const noop = function () {
 }
@@ -39,7 +40,6 @@ test('request', t => {
 })
 
 test('response', t => {
-  const responses = []
   const scheduler = new TestScheduler()
   const responseBody = {
     'bytes=0-10': scheduler.createHotObservable(
@@ -61,7 +61,7 @@ test('response', t => {
   ]
   const offsets = [0, 11]
   const meta = scheduler.createHotObservable(onNext(200, {offsets, threads, url: 'sample-url'}), onCompleted(250))
-  contentLoad(ob, meta).subscribe(x => responses.push(x))
+  const responses = createTestObserver(contentLoad(ob, meta))
   scheduler.start()
   t.same(responses, [
     {buffer: '0000', offset: 0, range: [0, 10], index: 0},

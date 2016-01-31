@@ -7,13 +7,12 @@
 import metaSave from '../src/metaSave'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {spy} from 'sinon'
+import {createTestObserver} from '../perf/utils'
 
 const {onNext, onCompleted} = ReactiveTest
 
 test(t => {
   const scheduler = new TestScheduler()
-  const out = []
   const fsWriteJSON = x => [[null, JSON.stringify(x.json)]]
   const fd = scheduler.createHotObservable(onNext(210, 20), onCompleted())
   const json = scheduler.createHotObservable(
@@ -24,7 +23,7 @@ test(t => {
   )
 
   const ob = {fsWriteJSON}
-  metaSave(ob, fd, json).subscribe(x => out.push(x))
+  const out = createTestObserver(metaSave(ob, fd, json))
   scheduler.start()
   t.same(out, [
     {a: 0, totalBytes: 100},
@@ -35,7 +34,6 @@ test(t => {
 
 test('delayed:fd', t => {
   const scheduler = new TestScheduler()
-  const out = []
   const fsWriteJSON = x => [[null, JSON.stringify(x.json)]]
   const fd = scheduler.createHotObservable(onNext(250, 20), onCompleted())
   const json = scheduler.createHotObservable(
@@ -44,7 +42,7 @@ test('delayed:fd', t => {
   )
 
   const ob = {fsWriteJSON}
-  metaSave(ob, fd, json).subscribe(x => out.push(x))
+  const out = createTestObserver(metaSave(ob, fd, json))
   scheduler.start()
   t.same(out, [{a: 0, totalBytes: 100}])
 })
