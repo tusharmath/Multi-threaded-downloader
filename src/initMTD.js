@@ -4,7 +4,6 @@
 
 'use strict'
 
-const _ = require('lodash')
 const metaSave = require('./metaSave')
 const initMeta = require('./initMeta')
 
