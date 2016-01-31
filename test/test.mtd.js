@@ -20,11 +20,7 @@ const path1 = createPath()
 const path2 = createPath()
 const path3 = createPath()
 
-const paths = [
-  path1,
-  path2,
-  path3
-]
+const paths = [path1, path2, path3]
 
 var closeHttp
 test.before(async function () {
