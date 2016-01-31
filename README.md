@@ -13,9 +13,7 @@ This is a nodejs based application which help you in performing downloads via Ht
 
 0. **Stop and start from the last downloaded byte:**. You don't have to worry about internet getting disconnected or your computer shutting down while downloading. You can quite easily start from the last byte that was downloaded.
 
-0. **Console application:** [mt-console](https://github.com/tusharmath/mtd-console)
-
-	**NOTE:** the current console application depends on an older version of mt-downloader.
+0. **Console application:** If installed globally, `mtd` command would be available.
 
 ## Installation
 
