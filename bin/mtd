@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+const createDownload = require('../').createDownload
+const meow = require('meow')
+const _ = require('lodash')
+const URL = require('url')
+const PATH = require('path')
+const Rx = require('rx')
+const fileNameGenerator = x => _.last(URL.parse(x).pathname.split('/')) || Date.now()
+const pathGenerator = x => PATH.resolve(__dirname, fileNameGenerator(x))
+
+const params = Rx.Observable.just(meow())
+_
+params
+  .pluck('flags')
+  .map(x => x.path ? x : _.defaults(x, {path: pathGenerator(x.url)}))
+  .flatMap(x => createDownload(x).start())
+  .subscribe(x => console.log('Download Completed!'))

@@ -5,6 +5,9 @@
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
   },
+  "bin" : {
+    "mtd" : "../bin/mtd.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
@@ -20,6 +23,7 @@
   "dependencies": {
     "immutable": "^3.7.5",
     "lodash": "^4.0.0",
+    "meow": "^3.7.0",
     "reactive-storage": "^0.8.0",
     "request": "^2.60.0",
     "rx": "^4.0.7"
