@@ -5,8 +5,8 @@
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
   },
-  "bin" : {
-    "mtd" : "../bin/mtd.js"
+  "bin": {
+    "mtd": "../bin/mtd.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,8 @@
     "meow": "^3.7.0",
     "reactive-storage": "^0.8.0",
     "request": "^2.60.0",
-    "rx": "^4.0.7"
+    "rx": "^4.0.7",
+    "valid-url": "^1.0.9"
   },
   "license": "MIT",
   "devDependencies": {
