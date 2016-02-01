@@ -1,6 +1,6 @@
 {
   "name": "mt-downloader",
-  "description": "The multi threaded downloader",
+  "description": "resumable multi-threaded download over http/https",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
