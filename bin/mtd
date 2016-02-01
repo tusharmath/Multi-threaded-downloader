@@ -7,7 +7,25 @@ const resumeDownload = require('../src/resumeDownload')
 const createDownload = require('../index').createDownload
 const ProgressBar = require('progress')
 
-const pFlags = Rx.Observable.just(meow().flags)
+const flags = meow(`
+Usage
+	  mtd
+
+	Options
+	  --url            The url of the file that needs to be downloaded
+	  --file           Path to the .mtd file for resuming failed downloads
+
+	Examples
+	  mtd --url http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4
+	  mtd --file big_buck_bunny_720p_1mb.mp4.mtd
+  `).flags
+
+if (! _.some([flags.url, flags.file], x => x)) {
+  return
+}
+
+const pFlags = Rx.Observable.just(flags)
+
 const downloads = Rx.Observable.merge(
   newDownload(createDownload, pFlags),
   resumeDownload(createDownload, pFlags)
