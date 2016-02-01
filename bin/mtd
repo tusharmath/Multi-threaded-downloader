@@ -48,4 +48,9 @@ downloads
   .withLatestFrom(progress, (bytes, progress) => ({bytes, progress}))
   .subscribe(x => x.progress.update(x.bytes))
 
-downloads.last().subscribe(x => console.log('Download Completed!'))
+downloads.last()
+  .withLatestFrom(progress, (a, b) => b)
+  .subscribe(x => {
+    x.update(x.total)
+    console.log('Download Completed!')
+  })
