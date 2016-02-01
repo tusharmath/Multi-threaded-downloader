@@ -1,7 +1,30 @@
 #!/usr/bin/env node
+const Rx = require('rx')
+const _ = require('lodash')
 const meow = require('meow')
-const cli = require('./cli')
+const newDownload = require('../src/newDownload')
+const resumeDownload = require('../src/resumeDownload')
 const createDownload = require('../index').createDownload
+const ProgressBar = require('progress')
 
-cli(createDownload, meow())
-  .subscribe(x => console.log('Download Completed!'))
+const pFlags = Rx.Observable.just(meow().flags)
+const downloads = Rx.Observable.merge(
+  newDownload(createDownload, pFlags),
+  resumeDownload(createDownload, pFlags)
+).filter(x => x.event)
+
+const progress = downloads
+  .pluck('message', 'totalBytes')
+  .filter(x => x > 0)
+  .first()
+  .map(total => new ProgressBar('[:bar] :percent', {total}))
+
+downloads
+  .filter(x => x.event === 'DATA')
+  .pluck('message')
+
+  .map(x => _.sum(_.map(x.offsets, (o, i) => o - x.threads[i][0])) / x.totalBytes)
+  .withLatestFrom(progress, (bytes, progress) => ({bytes, progress}))
+  .subscribe(x => x.progress.update(x.bytes))
+
+downloads.last().subscribe(x => console.log('Download Completed!'))

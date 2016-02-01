@@ -41,7 +41,7 @@ class Download {
       .tap(this.toStat('TRUNCATE'))
       .flatMap(() => ob.fsRename(options.mtdPath, options.path))
       .tap(this.toStat('RENAME'))
-      .tapOnCompleted(x => this.stats.onCompleted(x))
+      .tapOnCompleted(x => this.stats.onCompleted())
   }
 
   stop () {}
