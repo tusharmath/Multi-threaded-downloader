@@ -52,3 +52,26 @@ var file = '/Users/tusharmathur/Desktop/temp/Gadget_the_pug_expressive_eyes.jpg'
 var downloader = createDownload({file})
 downloader.download().toPromise()
 ```
+
+## Event Stream
+All the internal events are exposed as an observable via the `stats` property.
+
+```javascript
+const downloader = createDownload({file, url})
+downloader.stats.subscribe(x => console.log(x))
+downloader.start()
+
+/*
+OUTPUT {event: <event>, message: <message>}
+...
+...
+...
+*/
+```
+  Events include —
+
+  - `INIT`: Fired as soon as the download is created.
+  - `CREATE`: Fired when a .mtd file is created.
+  - `DATA`: Fired every time some packet of data is SAVED.
+  - `TRUNCATE`: Fired once the meta info is removed from the `.mtd` file.
+  - `RENAME`:Fired once the file is renamed from `.mtd` to the original name.
