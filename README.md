@@ -22,7 +22,7 @@ The conventional npm installation process needs to be followed.
 ```bash
 npm install mt-downloader --save-dev
 ```
-̨
+
 ## .mtd file
 Once the download starts the library will create a file with a **.mtd** extension. This file contains some meta information related to the download and is a little bigger *(around 512 bytes)* than the original download size. The **.mtd** file can be used later to restart downloads from where the last byte that was downloaded. After the download is completed the downloader will truncate the file to remove that meta data.
 
