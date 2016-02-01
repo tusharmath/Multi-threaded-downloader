@@ -26,10 +26,11 @@ if (!_.some([flags.url, flags.file], x => x)) {
 
 const pFlags = Rx.Observable.just(flags)
 
+// TODO: Add unit tests
 const downloads = Rx.Observable.merge(
   newDownload(createDownload, pFlags),
   resumeDownload(createDownload, pFlags)
-).filter(x => x)
+).share()
 
 const progress = downloads
   .pluck('message', 'totalBytes')
@@ -38,6 +39,7 @@ const progress = downloads
   .map(total => new ProgressBar('[:bar] :percent', {total}))
 
 downloads
+  .filter(x => x)
   .filter(x => x.event === 'DATA')
   .pluck('message')
 
