@@ -20,8 +20,8 @@ Usage
 	  mtd --file big_buck_bunny_720p_1mb.mp4.mtd
   `).flags
 
-if (! _.some([flags.url, flags.file], x => x)) {
-  return
+if (!_.some([flags.url, flags.file], x => x)) {
+  process.exit(0)
 }
 
 const pFlags = Rx.Observable.just(flags)
