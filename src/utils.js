@@ -5,6 +5,8 @@
 'use strict'
 
 const _ = require('lodash')
+const PATH = require('path')
+const URL = require('url')
 
 const e = exports
 e.toBuffer = function (obj, size) {
@@ -31,3 +33,6 @@ e.createEmptyBuffer = function (size) {
   buffer.fill(' ')
   return buffer
 }
+e.normalizePath = path => PATH.resolve(process.cwd(), path)
+e.fileNameGenerator = x => _.last(URL.parse(x).pathname.split('/')) || Date.now()
+e.pathGenerator = x => e.normalizePath(e.fileNameGenerator(x))

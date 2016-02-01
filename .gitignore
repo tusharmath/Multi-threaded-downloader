@@ -8,4 +8,4 @@ node_modules/
 *.mtd
 .temp/*.*
 .temp
-bin/*.dmg
+*.dmg

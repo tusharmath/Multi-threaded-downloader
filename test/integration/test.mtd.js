@@ -6,8 +6,7 @@
 import Path from 'path'
 import test from 'ava'
 import {removeFile, createFileDigest} from '../../perf/utils'
-import Download from '../../src/mtd'
-import ob from '../../src/observables'
+import {createDownload} from '../../index'
 import {server} from '../../perf/server'
 
 const pathFactory = () => {
@@ -36,7 +35,7 @@ test.after(async function () {
 })
 
 test('http', async function (t) {
-  const d = new Download(ob, {
+  const d = createDownload({
     url: 'http://localhost:3200/files/pug.jpg',
     path: path1
   })
@@ -46,7 +45,7 @@ test('http', async function (t) {
 })
 
 test('https', async function (t) {
-  const d = new Download(ob, {
+  const d = createDownload({
     url: 'https://localhost:3201/files/pug.jpg',
     path: path2,
     strictSSL: false
@@ -57,7 +56,7 @@ test('https', async function (t) {
 })
 
 test('http(2)', async function (t) {
-  const d = new Download(ob, {
+  const d = createDownload({
     url: 'http://localhost:3200/files/in.txt',
     path: path3
   })

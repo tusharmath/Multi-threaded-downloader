@@ -1,6 +1,6 @@
 {
   "name": "mt-downloader",
-  "description": "The multi threaded downloader",
+  "description": "resumable multi-threaded download over http/https",
   "author": {
     "name": "Tushar Mathur <tusharmath@gmail.com>",
     "url": "http://tusharm.com"
@@ -24,6 +24,7 @@
     "immutable": "^3.7.5",
     "lodash": "^4.0.0",
     "meow": "^3.7.0",
+    "progress": "^1.1.8",
     "reactive-storage": "^0.8.0",
     "request": "^2.60.0",
     "rx": "^4.0.7",
