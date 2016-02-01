@@ -29,7 +29,7 @@ const pFlags = Rx.Observable.just(flags)
 const downloads = Rx.Observable.merge(
   newDownload(createDownload, pFlags),
   resumeDownload(createDownload, pFlags)
-).filter(x => x.event)
+).filter(x => x)
 
 const progress = downloads
   .pluck('message', 'totalBytes')
