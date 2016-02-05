@@ -45,7 +45,7 @@
       "path": "./node_modules/cz-conventional-changelog"
     },
     "ghooks": {
-      "pre-receive": "validate-commit-msg"
+      "post-receive": "validate-commit-msg"
     },
     "validate-commit-msg": {
       "types": [
