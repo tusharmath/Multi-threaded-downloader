@@ -35,12 +35,31 @@
     "ava": "^0.11.0",
     "cz-conventional-changelog": "^1.1.5",
     "express": "^4.13.1",
+    "ghooks": "^1.0.3",
     "semantic-release": "^4.3.5",
-    "sinon": "^1.17.2"
+    "sinon": "^1.17.2",
+    "validate-commit-msg": "^2.0.0"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "commit-msg": "validate-commit-msg",
+      "pre-receive": "validate-commit-msg"
+    },
+    "validate-commit-msg": {
+      "types": [
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "chore",
+        "revert"
+      ]
     }
   }
 }
