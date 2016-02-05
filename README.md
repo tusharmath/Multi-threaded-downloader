@@ -31,8 +31,8 @@ Once the download starts the library will create a file with a **.mtd** extensio
 ```javascript
 var createDownload = require('mt-downloader').createDownload
 var url = 'https://upload.wikimedia.org/wikipedia/commons/4/47/Gadget_the_pug_expressive_eyes.jpg';
-var path = '/Users/tusharmathur/Desktop/temp/Gadget_the_pug_expressive_eyes.jpg';
-var downloader = createDownload({path, url});
+var file = '/Users/tusharmathur/Desktop/temp/Gadget_the_pug_expressive_eyes.jpg';
+var downloader = createDownload({file, url});
 downloader.start() // returns an observable
 ```
 
@@ -48,8 +48,8 @@ If you want to restart a download from where it left off. You just need to provi
 
 ```javascript
 //File should have NOT have .mtd extension
-var path = '/Users/tusharmathur/Desktop/temp/Gadget_the_pug_expressive_eyes.jpg'
-var downloader = createDownload({path})
+var file = '/Users/tusharmathur/Desktop/temp/Gadget_the_pug_expressive_eyes.jpg'
+var downloader = createDownload({file})
 downloader.download().toPromise()
 ```
 
@@ -57,7 +57,7 @@ downloader.download().toPromise()
 All the internal events are exposed as an observable via the `stats` property.
 
 ```javascript
-const downloader = createDownload({path, url})
+const downloader = createDownload({file, url})
 downloader.stats.subscribe(x => console.log(x))
 downloader.start()
 
