@@ -19,6 +19,6 @@ module.exports = (ob, fd) => {
   const loadedContent = contentLoad(ob, loadedMETA)
   const savedContent = bufferSave(ob, fd, loadedContent)
     .tap((x) => offsets.set((i) => i.set(x.index, x.offset)))
-  const currentMETA = metaUpdate(loadedMETA, savedContent, offsets.getStream())
+  const currentMETA = metaUpdate(loadedMETA, savedContent, offsets.stream)
   return metaSave(ob, fd, currentMETA)
 }
