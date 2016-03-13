@@ -60,5 +60,8 @@
         "revert"
       ]
     }
+  },
+  "publishConfig": {
+    "tag": "next"
   }
 }
