@@ -8,5 +8,5 @@ const _ = require('lodash')
 module.exports = function (ob, fileDescriptor, content) {
   return content
     .combineLatest(fileDescriptor, (content, fd) => _.assign(content, {fd}))
-    .flatMap(x => ob.fsWriteBuffer(x).map(x))
+    .flatMap((x) => ob.fsWriteBuffer(x).map(x))
 }

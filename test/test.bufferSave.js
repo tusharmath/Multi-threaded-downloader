@@ -10,7 +10,7 @@ import bufferSave from '../src/bufferSave'
 import {createTestObserver} from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 
-test(t => {
+test((t) => {
   const sh = new TestScheduler()
   const ob = {
     fsWriteBuffer: () => sh.createHotObservable(onNext(300, 'hello'), onCompleted(310))

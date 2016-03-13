@@ -11,7 +11,9 @@ before_install:
   - npm i -g npm@^2.0.0
 before_script:
   - npm prune
+  - npm run lint
 after_success:
+  - nyc npm test && nyc report --reporter=text-lcov | coveralls
   - npm run semantic-release
 branches:
   except:

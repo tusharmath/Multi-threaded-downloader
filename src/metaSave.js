@@ -16,7 +16,7 @@ const u = require('./utils')
  */
 module.exports = (ob, fileDescriptor, metaJSON) => metaJSON
   .combineLatest(fileDescriptor, u.selectAs('json', 'fd'))
-  .map(x => _.assign(x, {offset: x.json.totalBytes}))
+  .map((x) => _.assign(x, {offset: x.json.totalBytes}))
   .flatMap(ob.fsWriteJSON)
-  .map(x => JSON.parse(x[1].toString()))
+  .map((x) => JSON.parse(x[1].toString()))
 
