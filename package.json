@@ -68,5 +68,10 @@
   },
   "publishConfig": {
     "tag": "next"
+  },
+  "standard": {
+    "ignore": [
+      "test/integration/**"
+    ]
   }
 }
