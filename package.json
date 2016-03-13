@@ -14,6 +14,7 @@
   },
   "scripts": {
     "test": "./node_modules/ava/cli.js",
+    "lint": "standard --verbose | snazzy",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "engines": {
@@ -33,11 +34,15 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^0.13.0",
+    "coveralls": "^2.11.8",
     "cz-conventional-changelog": "^1.1.5",
     "express": "^4.13.1",
     "ghooks": "^1.0.3",
+    "nyc": "^6.0.0",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
+    "snazzy": "^3.0.0",
+    "standard": "^6.0.8",
     "validate-commit-msg": "^2.0.0"
   },
   "config": {
