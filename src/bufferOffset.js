@@ -9,6 +9,6 @@ module.exports = (buffer, offset) => {
     offset = 0
   }
   return buffer
-    .map(buffer => ({buffer, offset}))
-    .tap(x => offset += x.buffer.length)
+    .map((buffer) => ({buffer, offset}))
+    .tap((x) => (offset += x.buffer.length))
 }

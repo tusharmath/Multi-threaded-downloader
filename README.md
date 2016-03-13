@@ -59,7 +59,7 @@ All the internal events are exposed as an observable via the `stats` property.
 
 ```javascript
 const downloader = createDownload({path, url})
-downloader.stats.subscribe(x => console.log(x))
+downloader.stats.subscribe((x) => console.log(x))
 downloader.start()
 
 /*

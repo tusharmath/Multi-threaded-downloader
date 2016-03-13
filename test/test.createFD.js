@@ -9,7 +9,7 @@ import test from 'ava'
 import { TestScheduler, ReactiveTest } from 'rx'
 const {onNext, onCompleted} = ReactiveTest
 
-test(t => {
+test((t) => {
   const out = []
   const sh = new TestScheduler()
   const fsOpen = (path, flag) => {
@@ -19,7 +19,7 @@ test(t => {
   const ob = {fsOpen}
   const fd = createFD(ob, 'sample-path')
   t.same(out, [])
-  fd('w').subscribe(x => out.push(x))
+  fd('w').subscribe((x) => out.push(x))
   sh.start()
   t.same(out, [
     {path: 'sample-path', flag: 'w'},
