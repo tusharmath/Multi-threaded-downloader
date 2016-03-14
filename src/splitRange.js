@@ -5,11 +5,11 @@
 'use strict'
 const _ = require('lodash')
 
-module.exports = (range, count) => {
-  const delta = Math.round(range / count)
-  const start = _.times(count, (x) => x * delta)
-  const end = _.times(count, (x) => (x + 1) * delta - 1)
-  end[count - 1] = range
+module.exports = (totalBytes, range) => {
+  const delta = Math.round(totalBytes / range)
+  const start = _.times(range, (x) => x * delta)
+  const end = _.times(range, (x) => (x + 1) * delta - 1)
+  end[range - 1] = totalBytes
   return _.zip(start, end)
 }
 
