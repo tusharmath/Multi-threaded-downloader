@@ -15,10 +15,10 @@ const Immutable = require('immutable')
 module.exports = (ob, fd) => {
   const offsets = create(Immutable.List([]))
   const loadedMETA = metaLoad(fd)
-    .tap(x => offsets.set(i => i.merge(x.offsets)))
+    .tap((x) => offsets.set((i) => i.merge(x.offsets)))
   const loadedContent = contentLoad(ob, loadedMETA)
   const savedContent = bufferSave(ob, fd, loadedContent)
-    .tap(x => offsets.set(i => i.set(x.index, x.offset)))
-  const currentMETA = metaUpdate(loadedMETA, savedContent, offsets.getStream())
+    .tap((x) => offsets.set((i) => i.set(x.index, x.offset)))
+  const currentMETA = metaUpdate(loadedMETA, savedContent, offsets.stream)
   return metaSave(ob, fd, currentMETA)
 }

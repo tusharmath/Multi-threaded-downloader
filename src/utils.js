@@ -19,7 +19,7 @@ e.selectAs = function () {
   const keys = _.toArray(arguments)
   return function () {
     const values = _.toArray(arguments)
-    const merge = (m, k, i) => m[k] = values[i]
+    const merge = (m, k, i) => (m[k] = values[i])
     return _.transform(keys, merge, {})
   }
 }
@@ -33,6 +33,6 @@ e.createEmptyBuffer = function (size) {
   buffer.fill(' ')
   return buffer
 }
-e.normalizePath = path => PATH.resolve(process.cwd(), path)
-e.fileNameGenerator = x => _.last(URL.parse(x).pathname.split('/')) || Date.now()
-e.pathGenerator = x => e.normalizePath(e.fileNameGenerator(x))
+e.normalizePath = (path) => PATH.resolve(process.cwd(), path)
+e.fileNameGenerator = (x) => _.last(URL.parse(x).pathname.split('/')) || Date.now()
+e.pathGenerator = (x) => e.normalizePath(e.fileNameGenerator(x))

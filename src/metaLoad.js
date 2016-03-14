@@ -7,8 +7,8 @@ const Rx = require('rx')
 const ob = require('./observables')
 const u = require('./utils')
 
-module.exports = fileDescriptor => {
-  const contentLength = fileDescriptor.flatMap(x => ob.fsStat(x)).pluck('size').map(x => x - 512)
+module.exports = (fileDescriptor) => {
+  const contentLength = fileDescriptor.flatMap((x) => ob.fsStat(x)).pluck('size').map((x) => x - 512)
   return Rx.Observable.combineLatest(
     contentLength,
     fileDescriptor,

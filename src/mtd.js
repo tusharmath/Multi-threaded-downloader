@@ -37,11 +37,11 @@ class Download {
     return downloadMTD(ob, fd)
       .tap(this.toStat('DATA'))
       .last()
-      .flatMap(x => ob.fsTruncate(options.mtdPath, x.totalBytes))
+      .flatMap((x) => ob.fsTruncate(options.mtdPath, x.totalBytes))
       .tap(this.toStat('TRUNCATE'))
       .flatMap(() => ob.fsRename(options.mtdPath, options.path))
       .tap(this.toStat('RENAME'))
-      .tapOnCompleted(x => this.stats.onCompleted())
+      .tapOnCompleted((x) => this.stats.onCompleted())
   }
 
   stop () {}

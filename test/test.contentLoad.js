@@ -11,10 +11,10 @@ import contentLoad from '../src/contentLoad'
 import { createTestObserver } from '../perf/utils'
 
 const noop = function () {}
-test('request', t => {
+test('request', (t) => {
   const requests = []
   const scheduler = new TestScheduler()
-  const requestBody = x => {
+  const requestBody = (x) => {
     requests.push(x)
     return scheduler.createHotObservable(
       onNext(210, {event: 'data', message: '0-AAA'}),
@@ -38,7 +38,7 @@ test('request', t => {
   ])
 })
 
-test('response', t => {
+test('response', (t) => {
   const scheduler = new TestScheduler()
   const responseBody = {
     'bytes=0-10': scheduler.createHotObservable(
@@ -52,7 +52,7 @@ test('response', t => {
       onCompleted(245)
     )
   }
-  const requestBody = x => responseBody[x.headers.range]
+  const requestBody = (x) => responseBody[x.headers.range]
   const ob = {requestBody}
   const threads = [
     [0, 10],
@@ -70,9 +70,9 @@ test('response', t => {
   ])
 })
 
-test('offset', t => {
+test('offset', (t) => {
   const scheduler = new TestScheduler()
-  const requestBody = x => scheduler.createHotObservable(
+  const requestBody = (x) => scheduler.createHotObservable(
       onNext(210, {event: 'data', message: '0-AAA'}),
       onCompleted(230))
   const ob = {requestBody}

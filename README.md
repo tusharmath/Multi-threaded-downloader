@@ -4,6 +4,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+[![Coverage Status](https://coveralls.io/repos/github/tusharmath/Multi-threaded-downloader/badge.svg?branch=master)](https://coveralls.io/github/tusharmath/Multi-threaded-downloader?branch=master)
 
 This is a nodejs based module that helps you in performing **resumable**, **multi-threaded** downloads via Http. The module is highly inspired by Speedbit's — [Download Accelerator Plus](http://www.speedbit.com/dap/).
 
@@ -58,7 +59,7 @@ All the internal events are exposed as an observable via the `stats` property.
 
 ```javascript
 const downloader = createDownload({path, url})
-downloader.stats.subscribe(x => console.log(x))
+downloader.stats.subscribe((x) => console.log(x))
 downloader.start()
 
 /*

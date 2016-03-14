@@ -4,7 +4,7 @@ import { TestScheduler, ReactiveTest } from 'rx'
 import { createTestObserver } from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 
-test(t => {
+test((t) => {
   const options = {
     range: 2,
     url: 'sample-url',

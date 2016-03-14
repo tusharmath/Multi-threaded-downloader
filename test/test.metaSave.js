@@ -11,9 +11,9 @@ import {createTestObserver} from '../perf/utils'
 
 const {onNext, onCompleted} = ReactiveTest
 
-test(t => {
+test((t) => {
   const scheduler = new TestScheduler()
-  const fsWriteJSON = x => [[null, JSON.stringify(x.json)]]
+  const fsWriteJSON = (x) => [[null, JSON.stringify(x.json)]]
   const fd = scheduler.createHotObservable(onNext(210, 20), onCompleted())
   const json = scheduler.createHotObservable(
     onNext(220, {a: 0, totalBytes: 100}),
@@ -32,9 +32,9 @@ test(t => {
   ])
 })
 
-test('delayed:fd', t => {
+test('delayed:fd', (t) => {
   const scheduler = new TestScheduler()
-  const fsWriteJSON = x => [[null, JSON.stringify(x.json)]]
+  const fsWriteJSON = (x) => [[null, JSON.stringify(x.json)]]
   const fd = scheduler.createHotObservable(onNext(250, 20), onCompleted())
   const json = scheduler.createHotObservable(
     onNext(220, {a: 0, totalBytes: 100}),

@@ -3,8 +3,8 @@ const _ = require('lodash')
 const Rx = require('rx')
 
 module.exports = (createDownload, pFlags) => pFlags
-    .skipWhile(x => x.url)
-    .flatMap(x => {
+    .skipWhile((x) => x.url)
+    .flatMap((x) => {
       const defaultParams = {
         mtdPath: normalizePath(x.file),
         path: normalizePath(x.file.replace('.mtd', ''))
