@@ -11,7 +11,7 @@ test((t) => {
   t.same(splitRange(100, 3), [[0, 32], [33, 65], [66, 100]])
 })
 
-test.only('invalid values', (t) => {
+test('invalid values', (t) => {
   t.same(splitRange(100, 0), [[0, 100]])
   t.same(splitRange(100, null), [[0, 100]])
   t.same(splitRange(100, NaN), [[0, 100]])
