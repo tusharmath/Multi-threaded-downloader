@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "ava",
-    "coverage": "nyc ava --verbose && nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc ava --verbose --serial && nyc report --reporter=text-lcov | coveralls",
     "lint": "standard --verbose | snazzy",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
