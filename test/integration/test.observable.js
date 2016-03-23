@@ -32,4 +32,12 @@ test(async function (t) {
     .toPromise()
   t.same(response.headers['content-length'], '317235')
 })
+
+test(async function (t) {
+  const size = await Observables
+    .requestContentLength({url: 'https://localhost:3101/fixed-size', strictSSL: false})
+    .toPromise()
+  t.same(size, 41)
+})
+
 /*eslint-enable */
