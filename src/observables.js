@@ -11,6 +11,14 @@ const requestBody = (params) => Rx.Observable.create((observer) => request(param
   .on('error', (error) => observer.onError(error))
 )
 
+const requestContentLength = (params) => requestBody(params)
+  .filter((x) => x.event === 'response')
+  .first()
+  .pluck('message')
+  .tap((x) => x.destroy())
+  .pluck('headers', 'content-length')
+  .map((x) => parseInt(x, 10))
+
 const fsOpen = Rx.Observable.fromNodeCallback(fs.open)
 const fsWrite = Rx.Observable.fromNodeCallback(fs.write)
 const fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate)
@@ -24,9 +32,7 @@ const fsReadJSON = (x) => fsReadBuffer(x).map((x) => JSON.parse(x[1].toString())
 const buffer = (size) => Rx.Observable.just(u.createEmptyBuffer(size))
 module.exports = {
   requestBody,
-  requestContentLength: (x) => requestBody(_.assign({}, x, {method: 'HEAD'}))
-    .pluck('message', 'headers', 'content-length')
-    .map((x) => parseInt(x, 10)),
+  requestContentLength,
   fsOpen,
   fsWrite,
   fsWriteBuffer,
