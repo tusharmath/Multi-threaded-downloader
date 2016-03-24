@@ -17,7 +17,7 @@ test.after(async function () {
   await closeHttp()
 })
 
-test(async function (t) {
+test('requestBody', async function (t) {
   const response = await Observables
     .requestBody({url: 'http://localhost:3100/files/pug.jpg'})
     .filter((x) => x.event === 'response').pluck('message')
@@ -25,7 +25,7 @@ test(async function (t) {
   t.same(response.headers['content-length'], '317235')
 })
 
-test(async function (t) {
+test('requestBody:https', async function (t) {
   const response = await Observables
     .requestBody({url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false})
     .filter((x) => x.event === 'response').pluck('message')
@@ -33,7 +33,7 @@ test(async function (t) {
   t.same(response.headers['content-length'], '317235')
 })
 
-test(async function (t) {
+test('requestContentLength', async function (t) {
   const size = await Observables
     .requestContentLength({url: 'https://localhost:3101/fixed-size', strictSSL: false})
     .toPromise()
