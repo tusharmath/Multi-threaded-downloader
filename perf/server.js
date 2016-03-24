@@ -12,6 +12,7 @@ var options = {
 var httpServer = http.createServer(app)
 var httpsServer = https.createServer(options, app)
 app.use('/files', express.static(path.join(__dirname, '/files')))
+app.head('/fixed-size', (req, res) => res.status(403).send())
 app.get('/fixed-size', (req, res) => res.send('a quick brown fox jumps over the lazy dog'))
 
 const startServer = (app, port) => new Promise((i) => { // eslint-disable-line
