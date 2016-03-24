@@ -10,3 +10,4 @@ node_modules/
 .temp
 *.dmg
 .nyc_output/
+*.log
