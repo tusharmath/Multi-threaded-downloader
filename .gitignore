@@ -9,3 +9,5 @@ node_modules/
 .temp/*.*
 .temp
 *.dmg
+*.log
+.nyc*
