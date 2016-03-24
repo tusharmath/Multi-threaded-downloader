@@ -13,8 +13,8 @@
     "url": "https://github.com/tusharmath/Multi-threaded-downloader.git"
   },
   "scripts": {
-    "test": "nyc ava --verbose --serial",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "ava",
+    "coverage": "nyc ava test/unit && nyc ava test/integration && nyc report --reporter=text-lcov | coveralls",
     "lint": "standard --verbose | snazzy",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
