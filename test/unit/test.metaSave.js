@@ -4,10 +4,10 @@
 
 'use strict'
 
-import metaSave from '../src/metaSave'
+import metaSave from '../../src/metaSave'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {createTestObserver} from '../perf/utils'
+import {createTestObserver} from '../../perf/utils'
 
 const {onNext, onCompleted} = ReactiveTest
 
