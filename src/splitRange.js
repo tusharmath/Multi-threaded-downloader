@@ -6,10 +6,13 @@
 const _ = require('lodash')
 
 module.exports = (totalBytes, range) => {
-  const delta = Math.round(totalBytes / range)
-  const start = _.times(range, (x) => x * delta)
-  const end = _.times(range, (x) => (x + 1) * delta - 1)
-  end[range - 1] = totalBytes
-  return _.zip(start, end)
+  if (range > 0) {
+    const delta = Math.round(totalBytes / range)
+    const start = _.times(range, (x) => x * delta)
+    const end = _.times(range, (x) => (x + 1) * delta - 1)
+    end[range - 1] = totalBytes
+    return _.zip(start, end)
+  }
+  return [[0, totalBytes]]
 }
 
