@@ -38,7 +38,7 @@ const progress = downloads
   .pluck('message', 'totalBytes')
   .filter((x) => x > 0)
   .first()
-  .map(total => new ProgressBar(':bar :percent', {total, complete: '█', incomplete: '░'}))
+  .map((total) => new ProgressBar(':bar :percent', {total, complete: '█', incomplete: '░'}))
   .tap((x) => console.log(`SIZE: ${humanize.fileSize(x.total)}`)).share()
 
 downloads
