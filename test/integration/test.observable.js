@@ -42,7 +42,7 @@ test('requestContentLength', async function (t) {
 
 test('requestHead', async function (t) {
   const response = await Observables.requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
-  t.true(response.socket.destroyed)
+  t.is(response.socket.remoteAddress, undefined)
 })
 
 /*eslint-enable */
