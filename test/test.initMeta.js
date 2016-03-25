@@ -38,5 +38,10 @@ test('invalid size', (t) => {
     requestContentLength: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
   }
   createTestObserver(initMeta(ob, options))
-  t.throws(() => sh.start(), err.FILE_SIZE_UNKNOWN)
+  try {
+    sh.start()
+  } catch (e) {
+    t.is(e.message, err.FILE_SIZE_UNKNOWN)
+    t.true(e instanceof err.MTDError)
+  }
 })
