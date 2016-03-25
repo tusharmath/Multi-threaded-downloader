@@ -72,5 +72,6 @@
     "ignore": [
       "test/integration/**"
     ]
-  }
+  },
+  "keywords": []
 }
