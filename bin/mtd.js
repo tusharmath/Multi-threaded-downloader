@@ -2,6 +2,8 @@
 const Rx = require('rx')
 const _ = require('lodash')
 const meow = require('meow')
+const humanize = require('humanize-plus')
+
 const newDownload = require('../src/newDownload')
 const resumeDownload = require('../src/resumeDownload')
 const createDownload = require('../index').createDownload
@@ -36,8 +38,8 @@ const progress = downloads
   .pluck('message', 'totalBytes')
   .filter((x) => x > 0)
   .first()
-  .map(total => new ProgressBar(':bar :percent', {total, complete: '█', incomplete: '░'}))
-  .tap((x) => console.log(`SIZE: ${x.total} bytes`)).share()
+  .map((total) => new ProgressBar(':bar :percent', {total, complete: '█', incomplete: '░'}))
+  .tap((x) => console.log(`SIZE: ${humanize.fileSize(x.total)}`)).share()
 
 downloads
   .filter((x) => x)
