@@ -74,5 +74,15 @@
       "test/integration/**"
     ]
   },
-  "keywords": []
+  "keywords": [
+    "segmented",
+    "file",
+    "transfer",
+    "protocol",
+    "stop",
+    "resume",
+    "http",
+    "download",
+    "threads"
+  ]
 }
