@@ -41,7 +41,7 @@
     "ghooks": "^1.0.3",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
-    "snazzy": "^3.0.0",
+    "snazzy": "^4.0.0",
     "standard": "^7.0.1",
     "validate-commit-msg": "^2.0.0"
   },
