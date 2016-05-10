@@ -42,7 +42,11 @@ test('requestContentLength', async function (t) {
 
 test('requestHead', async function (t) {
   const response = await Observables.requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
-  t.true(response.socket.destroyed)
+  /**
+   *  To know if the socket is destroyed or not
+   *  https://nodejs.org/api/net.html#net_socket_remoteaddress
+   */
+  t.is(response.socket.remoteAddress, undefined)
 })
 
 /*eslint-enable */
