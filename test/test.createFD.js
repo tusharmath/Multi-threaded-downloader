@@ -18,10 +18,10 @@ test((t) => {
   }
   const ob = {fsOpen}
   const fd = createFD(ob, 'sample-path')
-  t.same(out, [])
+  t.deepEqual(out, [])
   fd('w').subscribe((x) => out.push(x))
   sh.start()
-  t.same(out, [
+  t.deepEqual(out, [
     {path: 'sample-path', flag: 'w'},
     9000
   ])

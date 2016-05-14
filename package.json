@@ -73,5 +73,19 @@
     "ignore": [
       "test/integration/**"
     ]
-  }
+  },
+  "keywords": [
+    "segmented",
+    "file",
+    "transfer",
+    "protocol",
+    "stop",
+    "resume",
+    "http",
+    "download",
+    "threads",
+    "downloader",
+    "multi-threaded",
+    "manager"
+  ]
 }

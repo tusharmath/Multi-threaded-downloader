@@ -18,7 +18,7 @@ test((t) => {
   }
   const out = createTestObserver(initMeta(ob, options))
   sh.start()
-  t.same(out, [
+  t.deepEqual(out, [
     {
       range: 2,
       url: 'sample-url',
