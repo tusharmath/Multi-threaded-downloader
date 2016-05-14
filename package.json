@@ -83,6 +83,9 @@
     "resume",
     "http",
     "download",
-    "threads"
+    "threads",
+    "downloader",
+    "multi-threaded",
+    "manager"
   ]
 }
