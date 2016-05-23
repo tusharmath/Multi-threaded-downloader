@@ -25,7 +25,7 @@ test((t) => {
   )
   const out = createTestObserver(bufferSave(ob, fd, content))
   sh.start()
-  t.same(out, [
+  t.deepEqual(out, [
     {offset: 100, fd: 1000, index: 1},
     {offset: 101, fd: 1000, index: 2},
     {offset: 102, fd: 1000, index: 1},

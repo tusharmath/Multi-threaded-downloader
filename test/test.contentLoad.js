@@ -31,7 +31,7 @@ test('request', (t) => {
   const meta = scheduler.createHotObservable(onNext(210, {offsets, threads, url: 'sample-url'}), onCompleted(220))
   contentLoad(ob, meta).subscribe(noop)
   scheduler.start()
-  t.same(requests, [
+  t.deepEqual(requests, [
     {headers: {range: 'bytes=0-10'}, url: 'sample-url'},
     {headers: {range: 'bytes=11-20'}, url: 'sample-url'},
     {headers: {range: 'bytes=21-30'}, url: 'sample-url'}
@@ -62,7 +62,7 @@ test('response', (t) => {
   const meta = scheduler.createHotObservable(onNext(200, {offsets, threads, url: 'sample-url'}), onCompleted(250))
   const responses = createTestObserver(contentLoad(ob, meta))
   scheduler.start()
-  t.same(responses, [
+  t.deepEqual(responses, [
     {buffer: '0000', offset: 0, range: [0, 10], index: 0},
     {buffer: '111', offset: 11, range: [11, 20], index: 1},
     {buffer: '00000000', offset: 4, range: [0, 10], index: 0},
@@ -85,7 +85,7 @@ test('offset', (t) => {
   const meta = scheduler.createHotObservable(onNext(210, {offsets, threads, url: 'sample-url'}), onCompleted(220))
   const out = createTestObserver(contentLoad(ob, meta))
   scheduler.start()
-  t.same(out, [
+  t.deepEqual(out, [
     { buffer: '0-AAA', offset: 2, range: [ 0, 10 ], index: 0 },
     { buffer: '0-AAA', offset: 13, range: [ 11, 20 ], index: 1 },
     { buffer: '0-AAA', offset: 23, range: [ 21, 30 ], index: 2 }

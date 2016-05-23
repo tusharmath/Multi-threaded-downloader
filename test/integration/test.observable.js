@@ -22,7 +22,7 @@ test('requestBody', async function (t) {
     .requestBody({url: 'http://localhost:3100/files/pug.jpg'})
     .filter((x) => x.event === 'response').pluck('message')
     .toPromise()
-  t.same(response.headers['content-length'], '317235')
+  t.deepEqual(response.headers['content-length'], '317235')
 })
 
 test('requestBody:https', async function (t) {
@@ -30,19 +30,23 @@ test('requestBody:https', async function (t) {
     .requestBody({url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false})
     .filter((x) => x.event === 'response').pluck('message')
     .toPromise()
-  t.same(response.headers['content-length'], '317235')
+  t.deepEqual(response.headers['content-length'], '317235')
 })
 
 test('requestContentLength', async function (t) {
   const size = await Observables
     .requestContentLength({url: 'https://localhost:3101/fixed-size', strictSSL: false})
     .toPromise()
-  t.same(size, 41)
+  t.deepEqual(size, 41)
 })
 
 test('requestHead', async function (t) {
   const response = await Observables.requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
-  t.true(response.socket.destroyed)
+  /**
+   *  To know if the socket is destroyed or not
+   *  https://nodejs.org/api/net.html#net_socket_remoteaddress
+   */
+  t.is(response.socket.remoteAddress, undefined)
 })
 
 /*eslint-enable */

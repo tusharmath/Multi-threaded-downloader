@@ -25,7 +25,7 @@ test((t) => {
   const ob = {fsWriteJSON}
   const out = createTestObserver(metaSave(ob, fd, json))
   scheduler.start()
-  t.same(out, [
+  t.deepEqual(out, [
     {a: 0, totalBytes: 100},
     {a: 1, totalBytes: 100},
     {a: 2, totalBytes: 100}
@@ -44,5 +44,5 @@ test('delayed:fd', (t) => {
   const ob = {fsWriteJSON}
   const out = createTestObserver(metaSave(ob, fd, json))
   scheduler.start()
-  t.same(out, [{a: 0, totalBytes: 100}])
+  t.deepEqual(out, [{a: 0, totalBytes: 100}])
 })
