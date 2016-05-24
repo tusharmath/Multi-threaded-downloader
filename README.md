@@ -23,6 +23,13 @@ The conventional npm installation process needs to be followed.
 npm install mt-downloader --save-dev
 ```
 
+## CLI Installation
+
+```bash
+$ npm install -g mt-downloader
+$ mtd --help
+```
+
 ## .mtd file
 Once the download starts the library will create a file with a **.mtd** extension. This file contains some meta information related to the download and is a little bigger *(around 512 bytes)* than the original download size. The **.mtd** file can be used later to restart downloads from where the last byte that was downloaded. After the download is completed the downloader will truncate the file to remove that meta data.
 
@@ -75,3 +82,16 @@ OUTPUT {event: <event>, message: <message>}
   - `DATA`: Fired every time some packet of data is SAVED.
   - `TRUNCATE`: Fired once the meta info is removed from the `.mtd` file.
   - `RENAME`:Fired once the file is renamed from `.mtd` to the original name.
+
+## Releases
+
+There are two release channels viz. — `latest` and `next`. The `next` is unstable and must be used with caution.
+
+**Latest** 
+```bash
+npm i mt-downloader
+```
+**Next** 
+```bash
+npm i mt-downloader@next
+```
