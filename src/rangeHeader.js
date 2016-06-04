@@ -4,4 +4,4 @@
 
 'use strict'
 
-module.exports = (range) => ({range: `bytes=${range[0]}-${range[1]}`})
+export default (range) => ({range: `bytes=${range[0]}-${range[1]}`})

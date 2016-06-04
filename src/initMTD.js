@@ -4,10 +4,10 @@
 
 'use strict'
 
-const metaSave = require('./metaSave')
-const initMeta = require('./initMeta')
+import metaSave from './metaSave'
+import initMeta from './initMeta'
 
-module.exports = (ob, fd, options) => {
+export default (ob, fd, options) => {
   const initialMETA = initMeta(ob, options)
   return metaSave(ob, fd, initialMETA)
 }

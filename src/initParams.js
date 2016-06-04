@@ -1,7 +1,7 @@
-const _ = require('lodash')
+import _ from 'lodash'
 const defaultOptions = {range: 3}
 
-module.exports = (options) => _.defaults(
+export default (options) => _.defaults(
     options,
     defaultOptions,
     {mtdPath: options.path + '.mtd'}

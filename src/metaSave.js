@@ -4,8 +4,8 @@
 
 'use strict'
 
-const _ = require('lodash')
-const u = require('./utils')
+import _ from 'lodash'
+import * as u from './utils'
 
 /**
  * Creates the initial .mtd file.
@@ -14,7 +14,7 @@ const u = require('./utils')
  * @param {Observable} metaJSON
  * @returns {Observable}
  */
-module.exports = (ob, fileDescriptor, metaJSON) => metaJSON
+export default (ob, fileDescriptor, metaJSON) => metaJSON
   .combineLatest(fileDescriptor, u.selectAs('json', 'fd'))
   .map((x) => _.assign(x, {offset: x.json.totalBytes}))
   .flatMap(ob.fsWriteJSON)

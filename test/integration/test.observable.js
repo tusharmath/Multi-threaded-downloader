@@ -5,7 +5,7 @@
 'use strict'
 import {server} from '../../perf/server'
 import test from 'ava'
-import Observables from '../../src/observables'
+import * as Observables from '../../src/observables'
 
 var closeHttp
 /*eslint-disable */

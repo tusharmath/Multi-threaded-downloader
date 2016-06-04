@@ -6,7 +6,7 @@
 import Path from 'path'
 import test from 'ava'
 import {removeFile, createFileDigest} from '../../perf/utils'
-import {createDownload} from '../../index'
+import {createDownload} from '../../src/index'
 import {server} from '../../perf/server'
 
 const pathFactory = () => {

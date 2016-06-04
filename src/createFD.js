@@ -3,6 +3,6 @@
  */
 
 'use strict'
-const _ = require('lodash')
+import _ from 'lodash'
 
-module.exports = _.curry((ob, path, flag) => ob.fsOpen(path, flag))
+export default _.curry((ob, path, flag) => ob.fsOpen(path, flag))
