@@ -7,7 +7,7 @@
 import test from 'ava'
 import { TestScheduler, ReactiveTest } from 'rx'
 const {onNext, onCompleted} = ReactiveTest
-import contentLoad from '../src/contentLoad'
+import {contentLoad} from '../src/Utils'
 import { createTestObserver } from '../perf/utils'
 
 const noop = function () {}

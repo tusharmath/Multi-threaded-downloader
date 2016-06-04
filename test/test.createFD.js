@@ -4,7 +4,7 @@
 
 'use strict'
 
-import createFD from '../src/createFD'
+import {createFD} from '../src/Utils'
 import test from 'ava'
 import { TestScheduler, ReactiveTest } from 'rx'
 const {onNext, onCompleted} = ReactiveTest

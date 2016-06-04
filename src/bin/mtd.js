@@ -4,9 +4,9 @@ const _ = require('lodash')
 const meow = require('meow')
 const humanize = require('humanize-plus')
 
-const newDownload = require('../src/newDownload')
-const resumeDownload = require('../src/resumeDownload')
-const createDownload = require('../src/index').createDownload
+const newDownload = require('../NewDownload')
+const resumeDownload = require('../ResumeDownload')
+const createDownload = require('../index').createDownload
 const ProgressBar = require('progress')
 
 const flags = meow(`

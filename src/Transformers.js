@@ -2,7 +2,7 @@ import request from 'request'
 import Rx from 'rx'
 import fs from 'graceful-fs'
 import _ from 'lodash'
-import * as u from './utils'
+import * as u from './Utils'
 
 export const requestBody = (params) => Rx.Observable.create((observer) => request(params)
   .on('data', (message) => observer.onNext({event: 'data', message}))

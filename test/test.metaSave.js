@@ -4,7 +4,7 @@
 
 'use strict'
 
-import {save} from '../src/Meta'
+import {save} from '../src/Utils'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import {createTestObserver} from '../perf/utils'

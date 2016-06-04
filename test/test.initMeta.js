@@ -1,5 +1,5 @@
-import {initialize} from '../src/Meta'
-import * as err from '../src/errors'
+import {initialize} from '../src/Utils'
+import * as err from '../src/Error'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import {createTestObserver} from '../perf/utils'
