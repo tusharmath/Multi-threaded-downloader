@@ -4,7 +4,7 @@
 
 'use strict'
 import Rx from 'rx'
-import * as ob from './observables'
+import * as ob from './Transformers'
 import * as u from './utils'
 
 export default (fileDescriptor) => {

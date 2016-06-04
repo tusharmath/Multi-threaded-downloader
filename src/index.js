@@ -4,7 +4,7 @@
 
 'use strict'
 
-import * as ob from './observables'
+import * as ob from './Transformers'
 import Mtd from './mtd'
 
 exports.createDownload = (options) => new Mtd(ob, options)
