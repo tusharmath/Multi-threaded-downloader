@@ -1,4 +1,4 @@
-import initParams from '../src/initParams'
+import {initParams} from '../src/Utils'
 import test from 'ava'
 
 test((t) => {

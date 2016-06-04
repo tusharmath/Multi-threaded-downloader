@@ -4,7 +4,7 @@
 
 'use strict'
 
-import metaSave from '../src/metaSave'
+import {save} from '../src/Utils'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import {createTestObserver} from '../perf/utils'
@@ -23,7 +23,7 @@ test((t) => {
   )
 
   const ob = {fsWriteJSON}
-  const out = createTestObserver(metaSave(ob, fd, json))
+  const out = createTestObserver(save(ob, fd, json))
   scheduler.start()
   t.deepEqual(out, [
     {a: 0, totalBytes: 100},
@@ -42,7 +42,7 @@ test('delayed:fd', (t) => {
   )
 
   const ob = {fsWriteJSON}
-  const out = createTestObserver(metaSave(ob, fd, json))
+  const out = createTestObserver(save(ob, fd, json))
   scheduler.start()
   t.deepEqual(out, [{a: 0, totalBytes: 100}])
 })

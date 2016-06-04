@@ -6,7 +6,7 @@
 
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import bufferSave from '../src/bufferSave'
+import {bufferSave} from '../src/Utils'
 import {createTestObserver} from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 

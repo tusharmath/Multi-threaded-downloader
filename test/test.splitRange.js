@@ -4,7 +4,7 @@
 
 'use strict'
 import test from 'ava'
-import splitRange from '../src/splitRange'
+import {splitRange} from '../src/Utils'
 
 test((t) => {
   t.deepEqual(splitRange(100, 2), [[0, 49], [50, 100]])
