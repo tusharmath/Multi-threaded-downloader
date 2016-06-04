@@ -1,8 +1,8 @@
-import initMeta from '../src/initMeta'
+import {initialize} from '../src/Meta'
 import * as err from '../src/errors'
 import test from 'ava'
-import { TestScheduler, ReactiveTest } from 'rx'
-import { createTestObserver } from '../perf/utils'
+import {TestScheduler, ReactiveTest} from 'rx'
+import {createTestObserver} from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 
 test((t) => {
@@ -16,7 +16,7 @@ test((t) => {
   const ob = {
     requestContentLength: () => sh.createHotObservable(onNext(220, 8000), onCompleted())
   }
-  const out = createTestObserver(initMeta(ob, options))
+  const out = createTestObserver(initialize(ob, options))
   sh.start()
   t.deepEqual(out, [
     {
@@ -37,7 +37,7 @@ test('invalid size', (t) => {
   const ob = {
     requestContentLength: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
   }
-  createTestObserver(initMeta(ob, options))
+  createTestObserver(initialize(ob, options))
   try {
     sh.start()
   } catch (e) {

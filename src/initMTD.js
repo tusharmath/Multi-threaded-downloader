@@ -4,10 +4,10 @@
 
 'use strict'
 
-import metaSave from './metaSave'
-import initMeta from './initMeta'
+import {save} from './Meta'
+import {initialize} from './Meta'
 
 export default (ob, fd, options) => {
-  const initialMETA = initMeta(ob, options)
-  return metaSave(ob, fd, initialMETA)
+  const initialMETA = initialize(ob, options)
+  return save(ob, fd, initialMETA)
 }
