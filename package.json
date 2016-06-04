@@ -36,6 +36,9 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^0.15.0",
+    "babel-cli": "^6.9.0",
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
     "cz-conventional-changelog": "^1.1.5",
     "express": "^4.13.1",
     "ghooks": "^1.0.3",
@@ -87,5 +90,13 @@
     "downloader",
     "multi-threaded",
     "manager"
-  ]
+  ],
+  "babel": {
+    "plugins": [
+      "transform-es2015-modules-commonjs"
+    ]
+  },
+  "ava": {
+    "require": "babel-register"
+  }
 }

@@ -3,11 +3,11 @@
  */
 
 'use strict'
-const bufferOffset = require('./bufferOffset')
-const rangeHeader = require('./rangeHeader')
-const _ = require('lodash')
+import bufferOffset from './bufferOffset'
+import rangeHeader from './rangeHeader'
+import _ from 'lodash'
 
-module.exports = (ob, metaStream) => metaStream
+export default (ob, metaStream) => metaStream
   .flatMap((meta) => meta.threads.map((range, index) => ({range, meta, index})))
   .map((x) => {
     const offset = x.meta.offsets[x.index]

@@ -3,11 +3,11 @@
  */
 
 'use strict'
-const Rx = require('rx')
-const ob = require('./observables')
-const u = require('./utils')
+import Rx from 'rx'
+import * as ob from './observables'
+import * as u from './utils'
 
-module.exports = (fileDescriptor) => {
+export default (fileDescriptor) => {
   const contentLength = fileDescriptor.flatMap((x) => ob.fsStat(x)).pluck('size').map((x) => x - 512)
   return Rx.Observable.combineLatest(
     contentLength,

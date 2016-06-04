@@ -4,7 +4,7 @@
 
 'use strict'
 
-module.exports = (buffer, offset) => {
+export default (buffer, offset) => {
   if (typeof offset !== 'number') {
     offset = 0
   }

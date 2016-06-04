@@ -2,12 +2,12 @@
  * Created by tusharmathur on 5/15/15.
  */
 'use strict'
-const Rx = require('rx')
-const _ = require('lodash')
-const createFD = require('./createFD')
-const initMTD = require('./initMTD')
-const initParams = require('./initParams')
-const downloadMTD = require('./downloadMTD')
+import Rx from 'rx'
+import _ from 'lodash'
+import createFD from './createFD'
+import initMTD from './initMTD'
+import initParams from './initParams'
+import downloadMTD from './downloadMTD'
 
 class Download {
   constructor (ob, options) {
@@ -46,4 +46,4 @@ class Download {
 
   stop () {}
 }
-module.exports = Download
+export default Download

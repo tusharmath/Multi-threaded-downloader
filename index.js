@@ -4,7 +4,7 @@
 
 'use strict'
 
-const ob = require('./src/observables')
-const Mtd = require('./src/mtd')
+import * as ob from './src/observables'
+import Mtd from './src/mtd'
 
 exports.createDownload = (options) => new Mtd(ob, options)

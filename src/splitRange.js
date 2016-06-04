@@ -3,9 +3,9 @@
  */
 
 'use strict'
-const _ = require('lodash')
+import _ from 'lodash'
 
-module.exports = (totalBytes, range) => {
+export default (totalBytes, range) => {
   const delta = Math.round(totalBytes / range)
   const start = _.times(range, (x) => x * delta)
   const end = _.times(range, (x) => (x + 1) * delta - 1)

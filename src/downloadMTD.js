@@ -4,15 +4,15 @@
 
 'use strict'
 
-const bufferSave = require('./bufferSave')
-const metaSave = require('./metaSave')
-const metaLoad = require('./metaLoad')
-const contentLoad = require('./contentLoad')
-const metaUpdate = require('./metaUpdate')
-const create = require('reactive-storage').create
-const Immutable = require('immutable')
+import bufferSave from './bufferSave'
+import metaSave from './metaSave'
+import metaLoad from './metaLoad'
+import contentLoad from './contentLoad'
+import metaUpdate from './metaUpdate'
+import {create} from 'reactive-storage'
+import Immutable from 'immutable'
 
-module.exports = (ob, fd) => {
+export default (ob, fd) => {
   const offsets = create(Immutable.List([]))
   const loadedMETA = metaLoad(fd)
     .tap((x) => offsets.set((i) => i.merge(x.offsets)))

@@ -4,18 +4,17 @@
 
 'use strict'
 
-const _ = require('lodash')
-const PATH = require('path')
-const URL = require('url')
+import _ from 'lodash'
+import PATH from 'path'
+import URL from 'url'
 
-const e = exports
-e.toBuffer = function (obj, size) {
-  var buffer = e.createEmptyBuffer(size)
+export const toBuffer = function (obj, size) {
+  var buffer = createEmptyBuffer(size)
   buffer.write(JSON.stringify(obj))
   return buffer
 }
 
-e.selectAs = function () {
+export const selectAs = function () {
   const keys = _.toArray(arguments)
   return function () {
     const values = _.toArray(arguments)
@@ -24,15 +23,15 @@ e.selectAs = function () {
   }
 }
 
-e.log = function () {
+export const log = function () {
   return console.log.apply(console, _.toArray(arguments))
 }
 
-e.createEmptyBuffer = function (size) {
+export const createEmptyBuffer = function (size) {
   var buffer = new Buffer(size || 512)
   buffer.fill(' ')
   return buffer
 }
-e.normalizePath = (path) => PATH.resolve(process.cwd(), path)
-e.fileNameGenerator = (x) => _.last(URL.parse(x).pathname.split('/')) || Date.now()
-e.pathGenerator = (x) => e.normalizePath(e.fileNameGenerator(x))
+export const normalizePath = (path) => PATH.resolve(process.cwd(), path)
+export const fileNameGenerator = (x) => _.last(URL.parse(x).pathname.split('/')) || Date.now()
+export const pathGenerator = (x) => normalizePath(fileNameGenerator(x))

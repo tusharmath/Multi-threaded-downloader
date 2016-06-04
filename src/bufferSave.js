@@ -3,9 +3,9 @@
  */
 
 'use strict'
-const _ = require('lodash')
+import _ from 'lodash'
 
-module.exports = function (ob, fileDescriptor, content) {
+export default function (ob, fileDescriptor, content) {
   return content
     .combineLatest(fileDescriptor, (content, fd) => _.assign(content, {fd}))
     .flatMap((x) => ob.fsWriteBuffer(x).map(x))

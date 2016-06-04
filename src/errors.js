@@ -4,8 +4,5 @@
 
 'use strict'
 
-class MTDError extends Error {}
-
-const e = module.exports = (err) => new MTDError(err)
-e.FILE_SIZE_UNKNOWN = 'File size could not be determined'
-e.MTDError = MTDError
+export class MTDError extends Error {}
+export const FILE_SIZE_UNKNOWN = 'File size could not be determined'
