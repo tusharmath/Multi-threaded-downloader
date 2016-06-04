@@ -6,7 +6,7 @@ const humanize = require('humanize-plus')
 
 const newDownload = require('../src/newDownload')
 const resumeDownload = require('../src/resumeDownload')
-const createDownload = require('../index').createDownload
+const createDownload = require('../src/index').createDownload
 const ProgressBar = require('progress')
 
 const flags = meow(`
