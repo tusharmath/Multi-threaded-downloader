@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-const Rx = require('rx')
-const _ = require('lodash')
-const meow = require('meow')
-const humanize = require('humanize-plus')
-
-const newDownload = require('../src/newDownload')
-const resumeDownload = require('../src/resumeDownload')
-const createDownload = require('../src/index').createDownload
-const ProgressBar = require('progress')
+import Rx from 'rx'
+import _ from 'lodash'
+import meow from 'meow'
+import humanize from 'humanize-plus'
+import newDownload from '../newDownload'
+import resumeDownload from '../resumeDownload'
+import {createDownload} from '../index'
+import ProgressBar from 'progress'
 
 const flags = meow(`
 Usage

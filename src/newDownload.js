@@ -1,7 +1,7 @@
 import Rx from 'rx'
 import VALID_URL from 'valid-url'
 import _ from 'lodash'
-import {pathGenerator} from '../src/utils'
+import {pathGenerator} from './utils'
 
 export default (createDownload, pFlags) => pFlags
   .filter((x) => VALID_URL.isUri(x.url))

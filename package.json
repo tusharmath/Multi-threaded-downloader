@@ -6,7 +6,7 @@
     "url": "http://tusharm.com"
   },
   "bin": {
-    "mtd": "bin/mtd.js"
+    "mtd": ".dist/bin/mtd.js"
   },
   "repository": {
     "type": "git",
