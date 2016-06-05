@@ -4,7 +4,6 @@
 
 'use strict'
 
-import _ from 'lodash'
 import PATH from 'path'
 import URL from 'url'
 import Rx from 'rx'
@@ -18,23 +17,23 @@ const PROPS = ['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']
 const BUFFER_SIZE = 512
 export const zipUnApply = R.compose(R.unapply, R.zipObj)
 export const normalizePath = (path) => PATH.resolve(process.cwd(), path)
-export const fileNameGenerator = (x) => _.last(URL.parse(x).pathname.split('/')) || Date.now()
+export const fileNameGenerator = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
 export const pathGenerator = (x) => normalizePath(fileNameGenerator(x))
 export const rangeHeader = (range) => ({range: `bytes=${range[0]}-${range[1]}`})
 export const splitRange = (totalBytes, range) => {
   const delta = Math.round(totalBytes / range)
-  const start = _.times(range, (x) => x * delta)
-  const end = _.times(range, (x) => (x + 1) * delta - 1)
+  const start = R.times((x) => x * delta, range)
+  const end = R.times((x) => (x + 1) * delta - 1, range)
   end[range - 1] = totalBytes
-  return _.zip(start, end)
+  return R.zip(start, end)
 }
 export const itojs = obj => obj.toJS()
 export const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets: itojs(offsets)}])
 export const accBuffOffsets = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
 export const requestParams = ({meta, index, range}) => {
   const offset = meta.offsets[index]
-  const requestParams = _.omit(meta, 'threads', 'offsets')
-  requestParams.headers = _.assign({}, requestParams.headers, rangeHeader([offset, range[1]]))
+  const requestParams = R.omit(['threads', 'offsets'], meta)
+  requestParams.headers = R.mergeAll([requestParams.headers, rangeHeader([offset, range[1]])])
   return requestParams
 }
 
@@ -64,7 +63,7 @@ export const LoadMeta = ({FILE, fd$}) => {
 }
 export const SaveMeta = ({FILE, fd$, meta$}) => O
   .combineLatest(meta$, fd$, zipUnApply(['json', 'fd']))
-  .map((x) => _.assign(x, {offset: x.json.totalBytes}))
+  .map((x) => R.mergeAll([x, {offset: x.json.totalBytes}]))
   .flatMap(FILE.fsWriteJSON)
   .map((x) => JSON.parse(x[1].toString()))
 export const UpdateMeta = ({meta$, bytesSaved$, offsets$}) => bytesSaved$
@@ -73,10 +72,10 @@ export const UpdateMeta = ({meta$, bytesSaved$, offsets$}) => bytesSaved$
   .distinctUntilChanged()
 export const BufferOffset = ({buffer$, offset}) => buffer$.scan(accBuffOffsets, {offset, buffer: {length: 0}})
 export const SaveBuffer = ({FILE, fd$, buffer$}) => buffer$
-  .combineLatest(fd$, (content, fd) => _.assign(content, {fd}))
+  .combineLatest(fd$, (content, fd) => R.mergeAll([content, {fd}]))
   .flatMap((x) => FILE.fsWriteBuffer(x).map(x))
 export const BufferThread = ({buffer$, offset, range, index}) => BufferOffset({buffer$, offset})
-  .map((i) => _.assign({}, i, {range, index}))
+  .map((i) => R.mergeAll([i, {range, index}]))
 export const ContentLoad = ({HTTP, meta$}) => {
   const Buffer$ = R.compose(HTTP.select('data'), HTTP.requestBody, requestParams)
   const sliceThreads = (meta) => meta.threads.map((range, index) => ({range, meta, index}))
@@ -90,11 +89,11 @@ export const ContentLoad = ({HTTP, meta$}) => {
 }
 
 export const defaultOptions = {range: 3}
-export const initParams = (options) => _.defaults(
-  options,
+export const initParams = (options) => R.mergeAll([
   defaultOptions,
-  {mtdPath: options.path + '.mtd'}
-)
+  {mtdPath: options.path + '.mtd'},
+  options
+])
 
 export const downloadMTD = (ob, fd$) => {
   const offsets = create(Immutable.List([]))
