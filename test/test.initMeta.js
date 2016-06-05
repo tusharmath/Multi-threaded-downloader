@@ -16,7 +16,7 @@ test((t) => {
   const ob = {
     requestContentLength: () => sh.createHotObservable(onNext(220, 8000), onCompleted())
   }
-  const out = createTestObserver(initialize(ob, options))
+  const out = createTestObserver(initialize({HTTP: ob, options}))
   sh.start()
   t.deepEqual(out, [
     {
@@ -37,7 +37,7 @@ test('invalid size', (t) => {
   const ob = {
     requestContentLength: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
   }
-  createTestObserver(initialize(ob, options))
+  createTestObserver(initialize({HTTP: ob, options}))
   try {
     sh.start()
   } catch (e) {

@@ -4,7 +4,7 @@
 
 'use strict'
 
-import {save} from '../src/Utils'
+import {SaveMeta} from '../src/Utils'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import {createTestObserver} from '../perf/utils'
@@ -14,8 +14,8 @@ const {onNext, onCompleted} = ReactiveTest
 test((t) => {
   const scheduler = new TestScheduler()
   const fsWriteJSON = (x) => [[null, JSON.stringify(x.json)]]
-  const fd = scheduler.createHotObservable(onNext(210, 20), onCompleted())
-  const json = scheduler.createHotObservable(
+  const fd$ = scheduler.createHotObservable(onNext(210, 20), onCompleted())
+  const meta$ = scheduler.createHotObservable(
     onNext(220, {a: 0, totalBytes: 100}),
     onNext(230, {a: 1, totalBytes: 100}),
     onNext(240, {a: 2, totalBytes: 100}),
@@ -23,7 +23,7 @@ test((t) => {
   )
 
   const ob = {fsWriteJSON}
-  const out = createTestObserver(save(ob, fd, json))
+  const out = createTestObserver(SaveMeta({FILE: ob, fd$, meta$}))
   scheduler.start()
   t.deepEqual(out, [
     {a: 0, totalBytes: 100},
@@ -35,14 +35,14 @@ test((t) => {
 test('delayed:fd', (t) => {
   const scheduler = new TestScheduler()
   const fsWriteJSON = (x) => [[null, JSON.stringify(x.json)]]
-  const fd = scheduler.createHotObservable(onNext(250, 20), onCompleted())
-  const json = scheduler.createHotObservable(
+  const fd$ = scheduler.createHotObservable(onNext(250, 20), onCompleted())
+  const meta$ = scheduler.createHotObservable(
     onNext(220, {a: 0, totalBytes: 100}),
     onCompleted()
   )
 
   const ob = {fsWriteJSON}
-  const out = createTestObserver(save(ob, fd, json))
+  const out = createTestObserver(SaveMeta({FILE: ob, fd$, meta$}))
   scheduler.start()
   t.deepEqual(out, [{a: 0, totalBytes: 100}])
 })

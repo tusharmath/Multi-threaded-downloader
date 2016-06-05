@@ -4,19 +4,19 @@
 'use strict'
 import Rx from 'rx'
 import _ from 'lodash'
-import {createFD, initParams, save, initialize, downloadMTD} from './Utils'
+import {initParams, SaveMeta, initialize, downloadMTD} from './Utils'
 import * as ob from './Transformers'
 
-const initMTD = (ob, fd, options) => {
-  const initialMETA = initialize(ob, options)
-  return save(ob, fd, initialMETA)
+const initMTD = (ob, fd$, options) => {
+  const meta$ = initialize({HTTP: ob, options})
+  return SaveMeta({FILE: ob, fd$, meta$})
 }
 
 export class Download {
   constructor (ob, options) {
     this.options = initParams(options)
     this.ob = ob
-    this.fd = createFD(ob, this.options.mtdPath)
+    this.fd = ob.fsOpenFP(this.options.mtdPath)
     this.stats = new Rx.BehaviorSubject()
     this.toStat = _.curry((event, message) => this.stats.onNext({event, message}))
     this.toStat('INIT', this.options)
