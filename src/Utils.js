@@ -105,3 +105,7 @@ export const downloadMTD = (ob, fd$) => {
   const nMeta$ = UpdateMeta({meta$, bytesSaved$, offsets$: offsets.stream})
   return SaveMeta({FILE: ob, fd$, meta$: nMeta$})
 }
+export const initMTD = (ob, fd$, options) => {
+  const meta$ = initialize({HTTP: ob, options})
+  return SaveMeta({FILE: ob, fd$, meta$})
+}
