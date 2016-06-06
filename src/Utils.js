@@ -42,13 +42,16 @@ export const InitialMeta = ({totalBytes, threads, options}) => {
   const others = {totalBytes, threads, offsets: threads.map(R.nth(0))}
   return R.pick(PROPS, R.mergeAll([{}, options, others]))
 }
-export const initialize = ({HTTP, options}) => HTTP
-  .requestContentLength(options)
-  .map((totalBytes) => {
-    if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
-    const threads = splitRange(totalBytes, options.range)
-    return InitialMeta({options, threads, totalBytes})
-  })
+export const RemoteFileSize = ({HTTP, options}) => HTTP.requestContentLength(options)
+export const CreateDownloadMeta = ({HTTP, options}) => {
+  const size$ = RemoteFileSize({HTTP, options})
+  return size$
+    .map((totalBytes) => {
+      if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
+      const threads = splitRange(totalBytes, options.range)
+      return InitialMeta({options, threads, totalBytes})
+    })
+}
 export const FileSize = ({FILE, fd$}) => {
   const stats = R.compose(FILE.fsStat, R.nthArg(0))
   return fd$.flatMap(stats).pluck('size')
@@ -109,6 +112,6 @@ export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
   return SaveMeta({FILE, fd$, meta$: nMeta$})
 }
 export const createMTDFile = ({FILE, HTTP, fd$, options}) => {
-  const meta$ = initialize({HTTP, options})
+  const meta$ = CreateDownloadMeta({HTTP, options})
   return SaveMeta({FILE, fd$, meta$})
 }
