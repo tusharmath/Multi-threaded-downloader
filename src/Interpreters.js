@@ -4,7 +4,7 @@
 
 'use strict'
 import R from 'ramda'
-import {demux} from 'muxer'
+import {demux, mux} from 'muxer'
 import {Observable as O} from 'rx'
 
 export const fromCB = O.fromNodeCallback
@@ -21,12 +21,19 @@ export const FILE = R.curry((fs, signal$) => {
   }
 })
 
-export const Request = R.curry((request, params) => O.create((observer) => request(params)
-  .on('data', (message) => observer.onNext(['data', message]))
-  .on('response', (message) => observer.onNext(['response', message]))
-  .on('complete', (message) => observer.onCompleted(['completed', message]))
-  .on('error', (error) => observer.onError(error))
-))
+export const Request = R.curry((request, params) => {
+  const response$ = O.create((observer) => request(params)
+    .on('data', (message) => observer.onNext(['data', message]))
+    .on('response', (message) => observer.onNext(['response', message]))
+    .on('complete', (message) => observer.onCompleted())
+    .on('error', (error) => observer.onError(error))
+  )
+  const select = event => R.compose(R.equals(event), R.nth(0))
+  return mux({
+    response$: response$.filter(select('response')).map(R.nth(1)),
+    data$: response$.filter(select('data')).map(R.nth(1))
+  })
+})
 
 export const HTTP = R.curry((request, signal$) => {
   const request$ = Request(request)
@@ -34,10 +41,6 @@ export const HTTP = R.curry((request, signal$) => {
   destroy$.subscribe(request => request.destroy())
 
   return {
-    request: signal$.flatMap(request$),
-    events: R.curry((signal$, event) => signal$
-      .filter(R.compose(R.equals(event), R.nth(0)))
-      .map(R.nth(1))
-    )
+    request: signal$.flatMap(request$)
   }
 })
