@@ -4,7 +4,7 @@
 'use strict'
 import Rx from 'rx'
 import R from 'ramda'
-import {initParams, downloadMTD, initMTD} from './Utils'
+import {initParams, resumeFromMTDFile, createMTDFile} from './Utils'
 import * as ob from './Transformers'
 
 export const createDownload = (_options) => {
@@ -19,11 +19,12 @@ export const createDownload = (_options) => {
   }
 
   const init = () => {
-    return initMTD(ob, fd('w'), options).tap(toStat('CREATE'))
+    const fd$ = fd('w')
+    return createMTDFile({FILE: ob, HTTP: ob, fd$, options}).tap(toStat('CREATE'))
   }
   const download = () => {
     const fd$ = fd('r+')
-    return downloadMTD(ob, fd$)
+    return resumeFromMTDFile({HTTP: ob, FILE: ob, fd$})
       .tap(toStat('DATA'))
       .last()
       .flatMap((x) => ob.fsTruncate(options.mtdPath, x.totalBytes))
@@ -33,6 +34,7 @@ export const createDownload = (_options) => {
       .tapOnCompleted((x) => stats.onCompleted())
   }
   return {
+
     start, download, init
   }
 }

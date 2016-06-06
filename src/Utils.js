@@ -95,17 +95,17 @@ export const initParams = (options) => R.mergeAll([
   options
 ])
 
-export const downloadMTD = (ob, fd$) => {
+export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
   const offsets = create(Immutable.List([]))
-  const meta$ = LoadMeta({FILE: ob, fd$})
+  const meta$ = LoadMeta({FILE, fd$})
     .tap((x) => offsets.set((i) => i.merge(x.offsets)))
-  const buffer$ = ContentLoad({HTTP: ob, meta$})
-  const bytesSaved$ = SaveBuffer({FILE: ob, fd$, buffer$})
+  const buffer$ = ContentLoad({HTTP, meta$})
+  const bytesSaved$ = SaveBuffer({FILE, fd$, buffer$})
     .tap((x) => offsets.set((i) => i.set(x.index, x.offset)))
   const nMeta$ = UpdateMeta({meta$, bytesSaved$, offsets$: offsets.stream})
-  return SaveMeta({FILE: ob, fd$, meta$: nMeta$})
+  return SaveMeta({FILE, fd$, meta$: nMeta$})
 }
-export const initMTD = (ob, fd$, options) => {
-  const meta$ = initialize({HTTP: ob, options})
-  return SaveMeta({FILE: ob, fd$, meta$})
+export const createMTDFile = ({FILE, HTTP, fd$, options}) => {
+  const meta$ = initialize({HTTP, options})
+  return SaveMeta({FILE, fd$, meta$})
 }
