@@ -88,20 +88,29 @@ export const ContentLoad = ({HTTP, meta$}) => {
     })
 }
 
-export const defaultOptions = {range: 3}
-export const initParams = (options) => R.mergeAll([
-  defaultOptions,
-  {mtdPath: options.path + '.mtd'},
+export const mergeDefaultOptions = (options) => R.mergeAll([
+  {mtdPath: options.path + '.mtd', range: 3},
   options
 ])
 
 export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
   const offsets = create(Immutable.List([]))
-  const meta$ = LoadMeta({FILE, fd$})
+  const loadedMeta$ = LoadMeta({FILE, fd$})
+  const loadedOffsets$ = loadedMeta$.pluck('offsets')
+  const meta$ = loadedMeta$
     .tap((x) => offsets.set((i) => i.merge(x.offsets)))
   const buffer$ = ContentLoad({HTTP, meta$})
-  const bytesSaved$ = SaveBuffer({FILE, fd$, buffer$})
+  const saveBuffer$ = SaveBuffer({FILE, fd$, buffer$})
+  const bytesSaved$ = saveBuffer$
     .tap((x) => offsets.set((i) => i.set(x.index, x.offset)))
+  const downloadedOffsets$ = saveBuffer$
+    .tap(({offset, index}) => console.log('HELLO', {offset, index}))
+    .scan((list, current) => {
+      return R.set(R.lensIndex(current.index), current.offset, list)
+    }, [0, 0, 0])
+
+  downloadedOffsets$.subscribe(x => console.log(x))
+
   const nMeta$ = UpdateMeta({meta$, bytesSaved$, offsets$: offsets.stream})
   return SaveMeta({FILE, fd$, meta$: nMeta$})
 }

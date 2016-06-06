@@ -4,11 +4,11 @@
 'use strict'
 import Rx from 'rx'
 import R from 'ramda'
-import {initParams, resumeFromMTDFile, createMTDFile} from './Utils'
+import {mergeDefaultOptions, resumeFromMTDFile, createMTDFile} from './Utils'
 import * as ob from './Transformers'
 
 export const createDownload = (_options) => {
-  const options = initParams(_options)
+  const options = mergeDefaultOptions(_options)
   const fd = ob.fsOpenFP(options.mtdPath)
   const stats = new Rx.BehaviorSubject()
   const toStat = R.curry((event, message) => stats.onNext({event, message}))
