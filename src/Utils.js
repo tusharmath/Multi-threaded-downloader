@@ -7,8 +7,6 @@
 import PATH from 'path'
 import URL from 'url'
 import Rx from 'rx'
-import {create} from 'reactive-storage'
-import Immutable from 'immutable'
 import R from 'ramda'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
@@ -27,8 +25,8 @@ export const splitRange = (totalBytes, range) => {
   end[range - 1] = totalBytes
   return R.zip(start, end)
 }
-export const itojs = obj => obj.toJS()
-export const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets: itojs(offsets)}])
+
+export const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets}])
 export const accBuffOffsets = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
 export const requestParams = ({meta, index, range}) => {
   const offset = meta.offsets[index]
@@ -66,8 +64,8 @@ export const SaveMeta = ({FILE, fd$, meta$}) => O
   .map((x) => R.mergeAll([x, {offset: x.json.totalBytes}]))
   .flatMap(FILE.fsWriteJSON)
   .map((x) => JSON.parse(x[1].toString()))
-export const UpdateMeta = ({meta$, bytesSaved$, offsets$}) => bytesSaved$
-  .withLatestFrom(meta$, offsets$, zipUnApply(['content', 'meta', 'offsets']))
+export const UpdateMeta = ({meta$, bytesSaved$}) => bytesSaved$
+  .withLatestFrom(meta$, zipUnApply(['offsets', 'meta']))
   .map(updateMetaOffsets)
   .distinctUntilChanged()
 export const BufferOffset = ({buffer$, offset}) => buffer$.scan(accBuffOffsets, {offset, buffer: {length: 0}})
@@ -94,24 +92,20 @@ export const mergeDefaultOptions = (options) => R.mergeAll([
 ])
 
 export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
-  const offsets = create(Immutable.List([]))
-  const loadedMeta$ = LoadMeta({FILE, fd$})
-  const loadedOffsets$ = loadedMeta$.pluck('offsets')
-  const meta$ = loadedMeta$
-    .tap((x) => offsets.set((i) => i.merge(x.offsets)))
+  const meta$ = LoadMeta({FILE, fd$})
+  const loadedOffsets$ = meta$.pluck('offsets')
   const buffer$ = ContentLoad({HTTP, meta$})
   const saveBuffer$ = SaveBuffer({FILE, fd$, buffer$})
-  const bytesSaved$ = saveBuffer$
-    .tap((x) => offsets.set((i) => i.set(x.index, x.offset)))
-  const downloadedOffsets$ = saveBuffer$
-    .tap(({offset, index}) => console.log('HELLO', {offset, index}))
-    .scan((list, current) => {
-      return R.set(R.lensIndex(current.index), current.offset, list)
-    }, [0, 0, 0])
+  const bytesSaved$ = saveBuffer$.map(R.pick(['offset', 'index']))
+    .withLatestFrom(loadedOffsets$)
+    .scan((previous, current) => {
+      const {index, offset} = R.nth(0, current)
+      const offsets = R.set(R.lensIndex(index), offset, R.nth(1, previous))
+      return [current, offsets]
+    })
+    .map(R.nth(1))
 
-  downloadedOffsets$.subscribe(x => console.log(x))
-
-  const nMeta$ = UpdateMeta({meta$, bytesSaved$, offsets$: offsets.stream})
+  const nMeta$ = UpdateMeta({meta$, bytesSaved$})
   return SaveMeta({FILE, fd$, meta$: nMeta$})
 }
 export const createMTDFile = ({FILE, HTTP, fd$, options}) => {
