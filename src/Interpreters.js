@@ -7,17 +7,17 @@ import R from 'ramda'
 import {demux, mux} from 'muxer'
 import {Observable as O} from 'rx'
 
-export const fromCB = O.fromNodeCallback
+export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 export const FILE = R.curry((fs, signal$) => {
   const [{write$, close$, truncate$, rename$}] = demux(signal$, 'write$', 'close$', 'truncate$', 'rename')
-  write$.subscribe(R.apply(fs.write))
-  close$.subscribe(R.apply(fs.close))
-  truncate$.subscribe(R.apply(fs.truncate))
-  rename$.subscribe(R.apply(fs.rename))
+  write$.subscribe(fromCB(fs.write))
+  close$.subscribe(fromCB(fs.close))
+  truncate$.subscribe(fromCB(fs.truncate))
+  rename$.subscribe(fromCB(fs.rename))
   return {
-    open: signal$ => signal$.flatMap(R.apply(fromCB(fs.open))),
-    stat: signal$ => signal$.flatMap(R.apply(fromCB(fs.stat))),
-    read: signal$ => signal$.flatMap(R.apply(fromCB(fs.read)))
+    open: signal$ => signal$.flatMap(fromCB(fs.open)),
+    stat: signal$ => signal$.flatMap(fromCB(fs.stat)),
+    read: signal$ => signal$.flatMap(fromCB(fs.read))
   }
 })
 
