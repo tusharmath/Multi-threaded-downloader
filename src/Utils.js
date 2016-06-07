@@ -94,7 +94,8 @@ export const mergeDefaultOptions = (options) => R.mergeAll([
   options
 ])
 
-export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
+export const resumeFromMTDFile = ({FILE, HTTP, options}) => {
+  const fd$ = FILE.fsOpen(options.mtdPath, 'r+')
   const meta$ = LoadMeta({FILE, fd$})
   const loadedOffsets$ = meta$.pluck('offsets')
   const buffer$ = ContentLoad({HTTP, meta$})
@@ -111,7 +112,8 @@ export const resumeFromMTDFile = ({FILE, HTTP, fd$}) => {
   const nMeta$ = UpdateMeta({meta$, bytesSaved$})
   return SaveMeta({FILE, fd$, meta$: nMeta$})
 }
-export const createMTDFile = ({FILE, HTTP, fd$, options}) => {
+export const createMTDFile = ({FILE, HTTP, options}) => {
+  const fd$ = FILE.fsOpen(options.mtdPath, 'w')
   const meta$ = CreateDownloadMeta({HTTP, options})
   return SaveMeta({FILE, fd$, meta$})
 }
