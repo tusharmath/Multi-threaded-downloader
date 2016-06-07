@@ -13,10 +13,10 @@ test((t) => {
     b: 2
   }
   const sh = new TestScheduler()
-  const ob = {
-    requestContentLength: () => sh.createHotObservable(onNext(220, 8000), onCompleted())
+  const HTTP = {
+    requestHead: () => sh.createHotObservable(onNext(220, {headers: {'content-length': 8000}}), onCompleted())
   }
-  const out = createTestObserver(CreateDownloadMeta({HTTP: ob, options}))
+  const out = createTestObserver(CreateDownloadMeta({HTTP, options}))
   sh.start()
   t.deepEqual(out, [
     {
@@ -34,10 +34,10 @@ test('invalid size', (t) => {
     range: 2, url: 'sample-url', a: 1, b: 2
   }
   const sh = new TestScheduler()
-  const ob = {
-    requestContentLength: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
+  const HTTP = {
+    requestHead: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
   }
-  createTestObserver(CreateDownloadMeta({HTTP: ob, options}))
+  createTestObserver(CreateDownloadMeta({HTTP, options}))
   try {
     sh.start()
   } catch (e) {

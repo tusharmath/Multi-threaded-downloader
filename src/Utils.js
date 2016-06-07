@@ -42,7 +42,10 @@ export const InitialMeta = ({totalBytes, threads, options}) => {
   const others = {totalBytes, threads, offsets: threads.map(R.nth(0))}
   return R.pick(PROPS, R.mergeAll([{}, options, others]))
 }
-export const RemoteFileSize = ({HTTP, options}) => HTTP.requestContentLength(options)
+export const RemoteFileSize = ({HTTP, options}) => HTTP.requestHead(options)
+  .pluck('headers', 'content-length')
+  .map((x) => parseInt(x, 10))
+
 export const CreateDownloadMeta = ({HTTP, options}) => {
   const size$ = RemoteFileSize({HTTP, options})
   return size$

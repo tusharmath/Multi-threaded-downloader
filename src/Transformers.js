@@ -6,20 +6,6 @@ import R from 'ramda'
 
 export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 
-export const Request = R.curry((request, params) => {
-  const response$ = O.create((observer) => request(params)
-    .on('data', (message) => observer.onNext(['data', message]))
-    .on('response', (message) => observer.onNext(['response', message]))
-    .on('complete', (message) => observer.onCompleted())
-    .on('error', (error) => observer.onError(error))
-  )
-  const select = event => R.compose(R.equals(event), R.nth(0))
-  return mux({
-    response$: response$.filter(select('response')).map(R.nth(1)),
-    data$: response$.filter(select('data')).map(R.nth(1))
-  })
-})
-
 export const FILE = R.curry((fs) => {
   const toBuffer = (obj, size) => {
     var buffer = createFilledBuffer(size)
@@ -80,9 +66,6 @@ export const HTTP = R.curry((request) => {
     .pluck('message')
     .tap((x) => x.destroy())
 
-  const requestContentLength = (params) => requestHead(params)
-    .pluck('headers', 'content-length')
-    .map((x) => parseInt(x, 10))
   const select = R.curry((event, request$) => request$.filter(x => x.event === event).pluck('message'))
   const executor = (signal$) => {
     const [{destroy$}] = demux(signal$, 'destroy$')
@@ -92,7 +75,6 @@ export const HTTP = R.curry((request) => {
     // TODO: DEPRECATE
     requestBody,
     requestHead,
-    requestContentLength,
     select,
     // UPDATED METHODS
     request: signal$ => signal$.flatMap(requestBody)
