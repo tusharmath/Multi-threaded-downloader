@@ -5,6 +5,21 @@ import {demux} from 'muxer'
 import R from 'ramda'
 
 export const fromCB = R.compose(R.apply, O.fromNodeCallback)
+
+export const Request = R.curry((request, params) => {
+  const response$ = O.create((observer) => request(params)
+    .on('data', (message) => observer.onNext(['data', message]))
+    .on('response', (message) => observer.onNext(['response', message]))
+    .on('complete', (message) => observer.onCompleted())
+    .on('error', (error) => observer.onError(error))
+  )
+  const select = event => R.compose(R.equals(event), R.nth(0))
+  return mux({
+    response$: response$.filter(select('response')).map(R.nth(1)),
+    data$: response$.filter(select('data')).map(R.nth(1))
+  })
+})
+
 export const FILE = R.curry((fs) => {
   const toBuffer = (obj, size) => {
     var buffer = createFilledBuffer(size)
@@ -28,14 +43,8 @@ export const FILE = R.curry((fs) => {
   const fsWriteJSON = (x) => fsWriteBuffer(R.mergeAll([x, {buffer: toBuffer(x.json)}]))
   const fsReadJSON = (x) => fsReadBuffer(x).map((x) => JSON.parse(x[1].toString()))
   const buffer = (size) => Rx.Observable.just(createFilledBuffer(size))
-  const executor = (signal$) => {
-    const [{write$, close$, truncate$, rename$}] = demux(signal$, 'write$', 'close$', 'truncate$', 'rename')
-    write$.subscribe(fromCB(fs.write))
-    close$.subscribe(fromCB(fs.close))
-    truncate$.subscribe(fromCB(fs.truncate))
-    rename$.subscribe(fromCB(fs.rename))
-  }
   return [{
+    // TODO: DEPRECATE
     fsOpen,
     fsWrite,
     fsTruncate,
@@ -46,8 +55,16 @@ export const FILE = R.curry((fs) => {
     fsWriteBuffer,
     fsWriteJSON,
     fsReadJSON,
-    buffer
-  }, executor]
+    buffer,
+    // New Methods
+    open: signal$ => signal$.flatMap(fromCB(fs.open)),
+    stat: signal$ => signal$.flatMap(fromCB(fs.stat)),
+    read: signal$ => signal$.flatMap(fromCB(fs.read)),
+    write: signal$ => signal$.flatMap(fromCB(fs.write)),
+    close: signal$ => signal$.flatMap(fromCB(fs.close)),
+    truncate: signal$ => signal$.flatMap(fromCB(fs.truncate)),
+    rename: signal$ => signal$.flatMap(fromCB(fs.rename))
+  }]
 })
 
 export const HTTP = R.curry((request) => {
@@ -71,5 +88,13 @@ export const HTTP = R.curry((request) => {
     const [{destroy$}] = demux(signal$, 'destroy$')
     destroy$.subscribe(request => request.destroy())
   }
-  return [{requestBody, requestHead, requestContentLength, select}, executor]
+  return [{
+    // TODO: DEPRECATE
+    requestBody,
+    requestHead,
+    requestContentLength,
+    select,
+    // UPDATED METHODS
+    request: signal$ => signal$.flatMap(requestBody)
+  }, executor]
 })
