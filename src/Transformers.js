@@ -16,7 +16,6 @@ export const FILE = R.curry((fs) => {
     return buffer
   }
   const fsOpen = Rx.Observable.fromNodeCallback(fs.open)
-  const fsOpenFP = R.curry((path, flag) => fsOpen(path, flag))
   const fsWrite = Rx.Observable.fromNodeCallback(fs.write)
   const fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate)
   const fsRename = Rx.Observable.fromNodeCallback(fs.rename)
@@ -28,9 +27,8 @@ export const FILE = R.curry((fs) => {
   const fsReadJSON = (x) => fsReadBuffer(x).map((x) => JSON.parse(x[1].toString()))
   const buffer = (size) => Rx.Observable.just(createFilledBuffer(size))
 
-  return {
+  return [{
     fsOpen,
-    fsOpenFP,
     fsWrite,
     fsTruncate,
     fsRename,
@@ -41,7 +39,7 @@ export const FILE = R.curry((fs) => {
     fsWriteJSON,
     fsReadJSON,
     buffer
-  }
+  }]
 })
 
 export const HTTP = R.curry((request) => {
@@ -61,5 +59,5 @@ export const HTTP = R.curry((request) => {
     .pluck('headers', 'content-length')
     .map((x) => parseInt(x, 10))
   const select = R.curry((event, request$) => request$.filter(x => x.event === event).pluck('message'))
-  return {requestBody, requestHead, requestContentLength, select}
+  return [{requestBody, requestHead, requestContentLength, select}]
 })

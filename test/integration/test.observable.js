@@ -8,6 +8,7 @@ import {server} from '../../perf/server'
 import test from 'ava'
 import {HTTP} from '../../src/Transformers'
 
+const http = HTTP(request)[0]
 let closeHttp
 /*eslint-disable */
 test.before(async function () {
@@ -19,7 +20,7 @@ test.after(async function () {
 })
 
 test('requestBody', async function (t) {
-  const response = await HTTP(request)
+  const response = await http
     .requestBody({url: 'http://localhost:3100/files/pug.jpg'})
     .filter((x) => x.event === 'response').pluck('message')
     .toPromise()
@@ -27,7 +28,7 @@ test('requestBody', async function (t) {
 })
 
 test('requestBody:https', async function (t) {
-  const response = await HTTP(request)
+  const response = await http
     .requestBody({url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false})
     .filter((x) => x.event === 'response').pluck('message')
     .toPromise()
@@ -35,14 +36,14 @@ test('requestBody:https', async function (t) {
 })
 
 test('requestContentLength', async function (t) {
-  const size = await HTTP(request)
+  const size = await http
     .requestContentLength({url: 'https://localhost:3101/fixed-size', strictSSL: false})
     .toPromise()
   t.deepEqual(size, 41)
 })
 
 test('requestHead', async function (t) {
-  const response = await HTTP(request).requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
+  const response = await http.requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
   /**
    *  To know if the socket is destroyed or not
    *  https://nodejs.org/api/net.html#net_socket_remoteaddress

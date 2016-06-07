@@ -10,8 +10,8 @@ import {mergeDefaultOptions, resumeFromMTDFile, createMTDFile} from './Utils'
 import * as ob from './Transformers'
 
 export const createDownload = (_options) => {
-  const HTTP = ob.HTTP(request)
-  const FILE = ob.FILE(fs)
+  const [HTTP] = ob.HTTP(request)
+  const [FILE] = ob.FILE(fs)
   const options = mergeDefaultOptions(_options)
   const stats = new Rx.BehaviorSubject({event: 'INIT', message: options})
   const toStat = R.curry((event, message) => stats.onNext({event, message}))
