@@ -1,8 +1,10 @@
 'use strict'
 
-import Rx from 'rx'
+import Rx, {Observable as O} from 'rx'
+import {demux} from 'muxer'
 import R from 'ramda'
 
+export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 export const FILE = R.curry((fs) => {
   const toBuffer = (obj, size) => {
     var buffer = createFilledBuffer(size)
@@ -26,7 +28,13 @@ export const FILE = R.curry((fs) => {
   const fsWriteJSON = (x) => fsWriteBuffer(R.mergeAll([x, {buffer: toBuffer(x.json)}]))
   const fsReadJSON = (x) => fsReadBuffer(x).map((x) => JSON.parse(x[1].toString()))
   const buffer = (size) => Rx.Observable.just(createFilledBuffer(size))
-
+  const executor = (signal$) => {
+    const [{write$, close$, truncate$, rename$}] = demux(signal$, 'write$', 'close$', 'truncate$', 'rename')
+    write$.subscribe(fromCB(fs.write))
+    close$.subscribe(fromCB(fs.close))
+    truncate$.subscribe(fromCB(fs.truncate))
+    rename$.subscribe(fromCB(fs.rename))
+  }
   return [{
     fsOpen,
     fsWrite,
@@ -39,7 +47,7 @@ export const FILE = R.curry((fs) => {
     fsWriteJSON,
     fsReadJSON,
     buffer
-  }]
+  }, executor]
 })
 
 export const HTTP = R.curry((request) => {
@@ -59,5 +67,9 @@ export const HTTP = R.curry((request) => {
     .pluck('headers', 'content-length')
     .map((x) => parseInt(x, 10))
   const select = R.curry((event, request$) => request$.filter(x => x.event === event).pluck('message'))
-  return [{requestBody, requestHead, requestContentLength, select}]
+  const executor = (signal$) => {
+    const [{destroy$}] = demux(signal$, 'destroy$')
+    destroy$.subscribe(request => request.destroy())
+  }
+  return [{requestBody, requestHead, requestContentLength, select}, executor]
 })
