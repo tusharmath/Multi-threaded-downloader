@@ -1,4 +1,4 @@
-import {CreateDownloadMeta} from '../src/Utils'
+import {CreateMeta} from '../src/Utils'
 import * as err from '../src/Error'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
@@ -13,10 +13,8 @@ test((t) => {
     b: 2
   }
   const sh = new TestScheduler()
-  const HTTP = {
-    requestHead: () => sh.createHotObservable(onNext(220, {headers: {'content-length': 8000}}), onCompleted())
-  }
-  const out = createTestObserver(CreateDownloadMeta({HTTP, options}))
+  const size$ = sh.createHotObservable(onNext(220, 8000), onCompleted())
+  const out = createTestObserver(CreateMeta({size$, options}))
   sh.start()
   t.deepEqual(out, [
     {
@@ -34,10 +32,8 @@ test('invalid size', (t) => {
     range: 2, url: 'sample-url', a: 1, b: 2
   }
   const sh = new TestScheduler()
-  const HTTP = {
-    requestHead: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
-  }
-  createTestObserver(CreateDownloadMeta({HTTP, options}))
+  const size$ = sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
+  createTestObserver(CreateMeta({size$, options}))
   try {
     sh.start()
   } catch (e) {

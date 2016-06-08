@@ -11,7 +11,6 @@ import R from 'ramda'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
 const O = Rx.Observable
-const PROPS = ['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']
 const BUFFER_SIZE = 512
 const first = R.nth(0)
 const second = R.nth(1)
@@ -43,26 +42,23 @@ export const CreateRequestParams = ({meta, index}) => {
 export const RemoteFileSize = ({HTTP, options}) => HTTP.requestHead(options)
   .pluck('headers', 'content-length')
   .map((x) => parseInt(x, 10))
-
-export const CreateDownloadMeta = ({HTTP, options}) => {
-  const size$ = RemoteFileSize({HTTP, options})
-  const InitialMeta = ({totalBytes, threads, options}) => {
-    const others = {totalBytes, threads, offsets: threads.map(first)}
-    return R.pick(PROPS, R.mergeAll([{}, options, others]))
-  }
-  return size$
-    .map((totalBytes) => {
-      if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
-      const threads = SplitRange(totalBytes, options.range)
-      return InitialMeta({options, threads, totalBytes})
-    })
-}
-export const FileSize = ({FILE, fd$}) => {
+export const LocalFileSize = ({FILE, fd$}) => {
   const stats = R.compose(FILE.fsStat, R.nthArg(0))
   return fd$.flatMap(stats).pluck('size')
 }
+export const CreateMeta = ({size$, options}) => {
+  const mergeDefault = R.compose(
+    R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']),
+    R.merge(options)
+  )
+  return size$.map((totalBytes) => {
+    if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
+    const threads = SplitRange(totalBytes, options.range)
+    return mergeDefault({totalBytes, threads, offsets: threads.map(first)})
+  })
+}
 export const LoadMeta = ({FILE, fd$}) => {
-  const size$ = FileSize({FILE, fd$})
+  const size$ = LocalFileSize({FILE, fd$})
   const offset$ = size$.map(R.add(-BUFFER_SIZE))
   return O.combineLatest(offset$, fd$, FILE.buffer(BUFFER_SIZE), zipUnApply(['offset', 'fd', 'buffer']))
     .flatMap(FILE.fsReadJSON)
@@ -126,6 +122,7 @@ export const resumeFromMTDFile = ({FILE, HTTP, options}) => {
 }
 export const createMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.fsOpen(options.mtdPath, 'w')
-  const meta$ = CreateDownloadMeta({HTTP, options})
+  const size$ = RemoteFileSize({HTTP, options})
+  const meta$ = CreateMeta({options, size$})
   return SaveMeta({FILE, fd$, meta$})
 }
