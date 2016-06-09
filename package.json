@@ -37,12 +37,12 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^2.11.1",
     "ava": "^0.15.0",
     "babel-cli": "^6.9.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
     "babel-register": "^6.9.0",
     "cz-conventional-changelog": "^1.1.5",
+    "eslint": "^2.11.1",
     "express": "^4.13.1",
     "ghooks": "^1.0.3",
     "semantic-release": "^4.3.5",

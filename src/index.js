@@ -6,13 +6,13 @@ import Rx from 'rx'
 import R from 'ramda'
 import request from 'request'
 import fs from 'graceful-fs'
-import {mergeDefaultOptions, resumeFromMTDFile, createMTDFile} from './Utils'
+import {MergeDefaultOptions, DownloadFromMTDFile, CreateMTDFile} from './Utils'
 import * as T from './Transformers'
 
 export const createDownload = (_options) => {
   const [HTTP] = T.HTTP(request)
   const [FILE] = T.FILE(fs)
-  const options = mergeDefaultOptions(_options)
+  const options = MergeDefaultOptions(_options)
   const stats = new Rx.BehaviorSubject({event: 'INIT', message: options})
   const toStat = R.curry((event, message) => stats.onNext({event, message}))
 
@@ -21,10 +21,10 @@ export const createDownload = (_options) => {
   }
 
   const init = () => {
-    return createMTDFile({FILE, HTTP, options}).tap(toStat('CREATE'))
+    return CreateMTDFile({FILE, HTTP, options}).tap(toStat('CREATE'))
   }
   const download = () => {
-    return resumeFromMTDFile({HTTP, FILE, options})
+    return DownloadFromMTDFile({HTTP, FILE, options})
       .tap(toStat('DATA'))
       .last()
       .flatMap((x) => FILE.fsTruncate(options.mtdPath, x.totalBytes))

@@ -6,7 +6,7 @@
 
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {ContentLoad} from '../src/Utils'
+import {DownloadFromMeta} from '../src/Utils'
 import {createTestObserver} from '../perf/utils'
 const {onNext, onCompleted} = ReactiveTest
 
@@ -31,7 +31,7 @@ test('request', (t) => {
   ]
   const offsets = [0, 11, 21]
   const meta$ = scheduler.createHotObservable(onNext(210, {offsets, threads, url: 'sample-url'}), onCompleted(220))
-  ContentLoad({HTTP, meta$}).subscribe(noop)
+  DownloadFromMeta({HTTP, meta$}).subscribe(noop)
   scheduler.start()
   t.deepEqual(requests, [
     {headers: {range: 'bytes=0-10'}, url: 'sample-url'},
@@ -62,7 +62,7 @@ test('response', (t) => {
   ]
   const offsets = [0, 11]
   const meta$ = scheduler.createHotObservable(onNext(200, {offsets, threads, url: 'sample-url'}), onCompleted(250))
-  const responses = createTestObserver(ContentLoad({HTTP, meta$}))
+  const responses = createTestObserver(DownloadFromMeta({HTTP, meta$}))
   scheduler.start()
   t.deepEqual(responses, [
     {buffer: '0000', offset: 0, range: [0, 10], index: 0},
@@ -85,7 +85,7 @@ test('offset', (t) => {
   ]
   const offsets = [2, 13, 23]
   const meta$ = scheduler.createHotObservable(onNext(210, {offsets, threads, url: 'sample-url'}), onCompleted(220))
-  const out = createTestObserver(ContentLoad({HTTP, meta$}))
+  const out = createTestObserver(DownloadFromMeta({HTTP, meta$}))
   scheduler.start()
   t.deepEqual(out, [
     {buffer: '0-AAA', offset: 2, range: [0, 10], index: 0},
