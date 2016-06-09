@@ -24,11 +24,8 @@ export const FILE = R.curry((fs) => {
   const fsRename = Rx.Observable.fromNodeCallback(fs.rename)
   const fsStat = Rx.Observable.fromNodeCallback(fs.fstat)
   const fsRead = Rx.Observable.fromNodeCallback(fs.read)
-  const fsReadBuffer = (x) => fsRead(x.fd, x.buffer, 0, x.buffer.length, x.offset)
   const fsWriteBuffer = (x) => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset)
   const fsWriteJSON = (x) => fsWriteBuffer(R.mergeAll([x, {buffer: toBuffer(x.json)}]))
-  const fsReadJSON = (x) => fsReadBuffer(x).map((x) => JSON.parse(x[1].toString()))
-  const buffer = (size) => Rx.Observable.just(createFilledBuffer(size))
   return [{
     // TODO: DEPRECATE
     fsOpen,
@@ -37,11 +34,8 @@ export const FILE = R.curry((fs) => {
     fsRename,
     fsStat,
     fsRead,
-    fsReadBuffer,
     fsWriteBuffer,
     fsWriteJSON,
-    fsReadJSON,
-    buffer,
     // New Methods
     open: signal$ => signal$.flatMap(fromCB(fs.open)),
     stat: signal$ => signal$.flatMap(fromCB(fs.stat)),
