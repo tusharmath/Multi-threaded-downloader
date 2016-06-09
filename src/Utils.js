@@ -80,11 +80,14 @@ export const ReadFileAt = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
   return FILE.read(readParams$.map(toParam))
 }
 export const MetaPosition = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
-export const WriteData = ({FILE, fd$, data$, size$, toBuffer$ = JSToBuffer$}) => {
-  const buffer$ = toBuffer$(data$)
+export const WriteBufferAt = ({fd$, buffer$, position$}) => {
   const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
-  const writeParams$ = O.combineLatest(buffer$, fd$, size$).map(toParam)
-  return FILE.write(writeParams$)
+  return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
+}
+export const WriteBuffer = ({fd$, buffer$, position$}) => {
+  const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
+  return O.combineLatest(fd$, O.zip(buffer$, position$))
+    .map(R.compose(toParams, R.unnest))
 }
 export const UpdateMeta = ({meta$, bytesSaved$}) => {
   const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets}])
@@ -96,12 +99,6 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
 export const BufferOffset = ({buffer$, offset}) => {
   const acc = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
   return buffer$.scan(acc, {offset, buffer: {length: 0}})
-}
-export const WriteBuffer = ({FILE, fd$, buffer$, position$}) => {
-  const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
-  const params$ = O.combineLatest(fd$, O.zip(buffer$, position$))
-    .map(R.compose(toParams, R.unnest))
-  return FILE.write(params$)
 }
 export const RequestThreadData = ({HTTP, meta, index}) => {
   return R.compose(HTTP.select('data'), HTTP.requestBody, CreateRequestParams)({meta, index})
@@ -130,7 +127,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const bufferOffsets$ = DownloadFromMeta({HTTP, meta$}).shareReplay(1)
   const buffer$ = bufferOffsets$.pluck('buffer')
   const position$ = bufferOffsets$.pluck('offset')
-  const saveBuffer$ = WriteBuffer({FILE, fd$, buffer$, position$})
+  const saveBuffer$ = FILE.write(WriteBuffer({FILE, fd$, buffer$, position$}))
   const bytesSaved$ = saveBuffer$
     .zip(bufferOffsets$, R.nthArg(1))
     .map(R.pick(['offset', 'index']))
@@ -142,12 +139,12 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
     })
     .map(second)
   const nMeta$ = UpdateMeta({meta$, bytesSaved$})
-  const bytes$ = WriteData({FILE, fd$, data$: nMeta$, size$})
+  const bytes$ = FILE.write(WriteBufferAt({fd$, buffer$: JSToBuffer$(nMeta$), position$: size$}))
   return mux({bytes$, size$, meta$: O.merge(nMeta$, meta$), fd$, metaPosition$})
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'w']))
   const size$ = RemoteFileSize({HTTP, options})
   const meta$ = CreateMeta({options, size$})
-  return WriteData({FILE, fd$, data$: meta$, size$})
+  return FILE.write(WriteBufferAt({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
 }

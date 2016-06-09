@@ -23,13 +23,15 @@ test((t) => {
     onNext(230, 'CCCC')
   )
   const position$ = sh.createHotObservable(
-    onNext(210, 10),
-    onNext(220, 20),
-    onNext(230, 30)
+    onNext(209, 10),
+    onNext(222, 20),
+    onNext(229, 30)
   )
-  sh.startScheduler(() => WriteBuffer({FILE, fd$, buffer$, position$}))
+  const {messages} = sh.startScheduler(() => WriteBuffer({FILE, fd$, buffer$, position$}))
   // fs.write(fd, buffer, offset, length[, position], callback)
-  t.deepEqual(fsWrite.getCall(0).args[0], [1000, 'AA', 0, 2, 10])
-  t.deepEqual(fsWrite.getCall(1).args[0], [1000, 'BBB', 0, 3, 20])
-  t.deepEqual(fsWrite.getCall(2).args[0], [1000, 'CCCC', 0, 4, 30])
+  t.deepEqual(messages, [
+    onNext(210, [1000, 'AA', 0, 2, 10]),
+    onNext(222, [1000, 'BBB', 0, 3, 20]),
+    onNext(230, [1000, 'CCCC', 0, 4, 30])
+  ])
 })
