@@ -50,9 +50,11 @@ export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
  * STREAM BASED
  */
 
-export const RemoteFileSize = ({HTTP, options}) => HTTP.requestHead(options)
+export const RemoteFileSize = ({HTTP, options}) => {
+  return HTTP.requestHead(options)
   .pluck('headers', 'content-length')
   .map((x) => parseInt(x, 10))
+}
 export const LocalFileSize = ({FILE, fd$}) => {
   const stats = R.compose(FILE.fsStat, R.nthArg(0))
   return fd$.flatMap(stats).pluck('size')
