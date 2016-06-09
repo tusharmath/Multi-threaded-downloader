@@ -10,7 +10,7 @@ import {spy} from 'sinon'
 import {TestScheduler, ReactiveTest} from 'rx'
 const {onNext, onCompleted} = ReactiveTest
 
-test.only(t => {
+test(t => {
   const sh = new TestScheduler()
   const fd$ = sh.createHotObservable(onNext(210, 10), onCompleted(220))
   const position$ = sh.createHotObservable(onNext(220, 1024), onCompleted(230))
