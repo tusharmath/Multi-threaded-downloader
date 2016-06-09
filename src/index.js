@@ -26,12 +26,10 @@ export const createDownload = (_options) => {
   }
   const download = () => {
     const [{metaPosition$}] = demux(DownloadFromMTDFile({HTTP, FILE, options}), 'metaPosition$')
-    return metaPosition$
-      .tap(toStat('DATA'))
-      .last()
-      .flatMap((totalBytes) => FILE.fsTruncate(options.mtdPath, totalBytes))
+    const totalBytes$ = metaPosition$.tap(toStat('DATA')).last()
+    const truncated$ = FILE.truncate(totalBytes$.map(bytes => [options.mtdPath, bytes]))
       .tap(toStat('TRUNCATE'))
-      .flatMap(() => FILE.fsRename(options.mtdPath, options.path))
+    return FILE.rename(truncated$.map([options.mtdPath, options.path]))
       .tap(toStat('RENAME'))
       .tapOnCompleted((x) => stats.onCompleted())
   }

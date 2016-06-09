@@ -7,38 +7,10 @@ import R from 'ramda'
 export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 
 export const FILE = R.curry((fs) => {
-  const toBuffer = (obj, size) => {
-    var buffer = createFilledBuffer(size)
-    buffer.write(JSON.stringify(obj))
-    return buffer
-  }
-
-  const createFilledBuffer = (size = 512, fill = ' ') => {
-    const buffer = new Buffer(size)
-    buffer.fill(fill)
-    return buffer
-  }
-  const fsOpen = Rx.Observable.fromNodeCallback(fs.open)
-  const fsWrite = Rx.Observable.fromNodeCallback(fs.write)
-  const fsTruncate = Rx.Observable.fromNodeCallback(fs.truncate)
-  const fsRename = Rx.Observable.fromNodeCallback(fs.rename)
-  const fsStat = Rx.Observable.fromNodeCallback(fs.fstat)
-  const fsRead = Rx.Observable.fromNodeCallback(fs.read)
-  const fsWriteBuffer = (x) => fsWrite(x.fd, x.buffer, 0, x.buffer.length, x.offset)
-  const fsWriteJSON = (x) => fsWriteBuffer(R.mergeAll([x, {buffer: toBuffer(x.json)}]))
   return [{
-    // TODO: DEPRECATE
-    fsOpen,
-    fsWrite,
-    fsTruncate,
-    fsRename,
-    fsStat,
-    fsRead,
-    fsWriteBuffer,
-    fsWriteJSON,
     // New Methods
     open: signal$ => signal$.flatMap(fromCB(fs.open)),
-    stat: signal$ => signal$.flatMap(fromCB(fs.stat)),
+    fstat: signal$ => signal$.flatMap(fromCB(fs.fstat)),
     read: signal$ => signal$.flatMap(fromCB(fs.read)),
     write: signal$ => signal$.flatMap(fromCB(fs.write)),
     close: signal$ => signal$.flatMap(fromCB(fs.close)),

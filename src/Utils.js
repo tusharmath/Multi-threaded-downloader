@@ -6,15 +6,14 @@
 
 import PATH from 'path'
 import URL from 'url'
-import Rx from 'rx'
+import {Observable as O} from 'rx'
 import R from 'ramda'
 import {mux} from 'muxer'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
-const O = Rx.Observable
-export const BUFFER_SIZE = 512
 const first = R.nth(0)
 const second = R.nth(1)
+export const BUFFER_SIZE = 512
 export const zipUnApply = R.compose(R.unapply, R.zipObj)
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
 export const GenerateFileName = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
@@ -62,10 +61,7 @@ export const RemoteFileSize = ({HTTP, options}) => {
     .pluck('headers', 'content-length')
     .map((x) => parseInt(x, 10))
 }
-export const LocalFileSize = ({FILE, fd$}) => {
-  const stats = R.compose(FILE.fsStat, R.nthArg(0))
-  return fd$.flatMap(stats).pluck('size')
-}
+export const LocalFileSize = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
 export const CreateMeta = ({size$, options}) => {
   const mergeDefault = R.compose(
     R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']),
@@ -101,9 +97,12 @@ export const BufferOffset = ({buffer$, offset}) => {
   const acc = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
   return buffer$.scan(acc, {offset, buffer: {length: 0}})
 }
-export const SaveBuffer = ({FILE, fd$, buffer$}) => buffer$
-  .combineLatest(fd$, (content, fd) => R.mergeAll([content, {fd}]))
-  .flatMap((x) => FILE.fsWriteBuffer(x).map(x))
+export const WriteBuffer = ({FILE, fd$, buffer$, position$}) => {
+  const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
+  const params$ = O.combineLatest(fd$, O.zip(buffer$, position$))
+    .map(R.compose(toParams, R.unnest))
+  return FILE.write(params$)
+}
 export const RequestThreadData = ({HTTP, meta, index}) => {
   return R.compose(HTTP.select('data'), HTTP.requestBody, CreateRequestParams)({meta, index})
 }
@@ -120,16 +119,21 @@ export const DownloadFromMeta = ({HTTP, meta$}) => {
     .flatMap(({meta, index}) => DownloadThread({meta, index, HTTP}))
 }
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
-  const fd$ = FILE.fsOpen(options.mtdPath, 'r+')
+  const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
   const size$ = LocalFileSize({FILE, fd$})
   const metaPosition$ = MetaPosition({size$})
   const metaBuffer$ = ReadFileAt({FILE, fd$, position$: metaPosition$}).map(second)
   const meta$ = BufferToJS$(metaBuffer$)
 
   const loadedOffsets$ = meta$.pluck('offsets')
-  const buffer$ = DownloadFromMeta({HTTP, meta$})
-  const saveBuffer$ = SaveBuffer({FILE, fd$, buffer$})
-  const bytesSaved$ = saveBuffer$.map(R.pick(['offset', 'index']))
+  // TODO: Add tests for shareReplay(1)
+  const bufferOffsets$ = DownloadFromMeta({HTTP, meta$}).shareReplay(1)
+  const buffer$ = bufferOffsets$.pluck('buffer')
+  const position$ = bufferOffsets$.pluck('offset')
+  const saveBuffer$ = WriteBuffer({FILE, fd$, buffer$, position$})
+  const bytesSaved$ = saveBuffer$
+    .zip(bufferOffsets$, R.nthArg(1))
+    .map(R.pick(['offset', 'index']))
     .withLatestFrom(loadedOffsets$)
     .scan((previous, current) => {
       const {index, offset} = first(current)
@@ -137,13 +141,12 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
       return [current, offsets]
     })
     .map(second)
-
   const nMeta$ = UpdateMeta({meta$, bytesSaved$})
   const bytes$ = WriteData({FILE, fd$, data$: nMeta$, size$})
   return mux({bytes$, size$, meta$: O.merge(nMeta$, meta$), fd$, metaPosition$})
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
-  const fd$ = FILE.fsOpen(options.mtdPath, 'w')
+  const fd$ = FILE.open(O.just([options.mtdPath, 'w']))
   const size$ = RemoteFileSize({HTTP, options})
   const meta$ = CreateMeta({options, size$})
   return WriteData({FILE, fd$, data$: meta$, size$})
