@@ -34,6 +34,17 @@ export const CreateRequestParams = ({meta, index}) => {
     R.omit(['threads', 'offsets'], meta)
   )
 }
+export const ToBuffer = (obj, size) => {
+  var buffer = CreateFilledBuffer(size)
+  buffer.write(JSON.stringify(obj))
+  return buffer
+}
+
+export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
+  const buffer = new Buffer(size)
+  buffer.fill(fill)
+  return buffer
+}
 
 /*
  * STREAM BASED
@@ -59,6 +70,12 @@ export const CreateMeta = ({size$, options}) => {
 }
 export const LoadMeta = ({FILE, fd$}) => {
   const size$ = LocalFileSize({FILE, fd$})
+export const ReadFileAt = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
+  const readParams$ = O.combineLatest(position$, fd$)
+  const buffer = CreateFilledBuffer(size)
+  const toParam = ([position, fd]) => [fd, buffer, 0, buffer.length, position]
+  return FILE.read(readParams$.map(toParam))
+}
   const offset$ = size$.map(R.add(-BUFFER_SIZE))
   return O.combineLatest(offset$, fd$, FILE.buffer(BUFFER_SIZE), zipUnApply(['offset', 'fd', 'buffer']))
     .flatMap(FILE.fsReadJSON)
