@@ -8,10 +8,11 @@ import PATH from 'path'
 import URL from 'url'
 import Rx from 'rx'
 import R from 'ramda'
+import {mux} from 'muxer'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
 const O = Rx.Observable
-const BUFFER_SIZE = 512
+export const BUFFER_SIZE = 512
 const first = R.nth(0)
 const second = R.nth(1)
 export const zipUnApply = R.compose(R.unapply, R.zipObj)
@@ -34,12 +35,11 @@ export const CreateRequestParams = ({meta, index}) => {
     R.omit(['threads', 'offsets'], meta)
   )
 }
-export const ToBuffer = (obj, size) => {
+export const ToBuffer = R.curry((size, str) => {
   var buffer = CreateFilledBuffer(size)
-  buffer.write(JSON.stringify(obj))
+  buffer.write(str)
   return buffer
-}
-
+})
 export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
   const buffer = new Buffer(size)
   buffer.fill(fill)
@@ -49,11 +49,14 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
   {mtdPath: options.path + '.mtd', range: 3},
   options
 ])
-
 /*
  * STREAM BASED
  */
 
+export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
+export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
+export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
+export const BufferToJS$ = buffer$ => buffer$.map(buffer => JSON.parse(buffer.toString()))
 export const RemoteFileSize = ({HTTP, options}) => {
   return HTTP.requestHead(options)
     .pluck('headers', 'content-length')
@@ -80,13 +83,13 @@ export const ReadFileAt = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
   const toParam = ([position, fd]) => [fd, buffer, 0, buffer.length, position]
   return FILE.read(readParams$.map(toParam))
 }
-export const BufferToJS = buffer$ => buffer$.map(buffer => JSON.parse(buffer.toString()))
 export const MetaPosition = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
-export const SaveMeta = ({FILE, fd$, meta$}) => O
-  .combineLatest(meta$, fd$, zipUnApply(['json', 'fd']))
-  .map((x) => R.mergeAll([x, {offset: x.json.totalBytes}]))
-  .flatMap(FILE.fsWriteJSON)
-  .map((x) => JSON.parse(x[1].toString()))
+export const WriteData = ({FILE, fd$, data$, size$, toBuffer$ = JSToBuffer$}) => {
+  const buffer$ = toBuffer$(data$)
+  const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
+  const writeParams$ = O.combineLatest(buffer$, fd$, size$).map(toParam)
+  return FILE.write(writeParams$)
+}
 export const UpdateMeta = ({meta$, bytesSaved$}) => {
   const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets}])
   return bytesSaved$
@@ -121,7 +124,8 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const size$ = LocalFileSize({FILE, fd$})
   const metaPosition$ = MetaPosition({size$})
   const metaBuffer$ = ReadFileAt({FILE, fd$, position$: metaPosition$}).map(second)
-  const meta$ = BufferToJS(metaBuffer$)
+  const meta$ = BufferToJS$(metaBuffer$)
+
   const loadedOffsets$ = meta$.pluck('offsets')
   const buffer$ = DownloadFromMeta({HTTP, meta$})
   const saveBuffer$ = SaveBuffer({FILE, fd$, buffer$})
@@ -135,11 +139,12 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
     .map(second)
 
   const nMeta$ = UpdateMeta({meta$, bytesSaved$})
-  return SaveMeta({FILE, fd$, meta$: nMeta$})
+  const bytes$ = WriteData({FILE, fd$, data$: nMeta$, size$})
+  return mux({bytes$, size$, meta$: O.merge(nMeta$, meta$), fd$, metaPosition$})
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.fsOpen(options.mtdPath, 'w')
   const size$ = RemoteFileSize({HTTP, options})
   const meta$ = CreateMeta({options, size$})
-  return SaveMeta({FILE, fd$, meta$})
+  return WriteData({FILE, fd$, data$: meta$, size$})
 }
