@@ -4,7 +4,7 @@
 
 'use strict'
 
-import {ReadFileAt, CreateFilledBuffer} from '../src/Utils'
+import {ReadFileAt$, CreateFilledBuffer} from '../src/Utils'
 import test from 'ava'
 import {spy} from 'sinon'
 import {TestScheduler, ReactiveTest} from 'rx'
@@ -16,6 +16,6 @@ test(t => {
   const position$ = sh.createHotObservable(onNext(220, 1024), onCompleted(230))
   const fsRead = spy()
   const FILE = {read: x => x.map(fsRead)}
-  sh.startScheduler(() => ReadFileAt({FILE, fd$, position$, size: 12}))
+  sh.startScheduler(() => ReadFileAt$({FILE, fd$, position$, size: 12}))
   t.true(fsRead.calledWith([10, CreateFilledBuffer(12), 0, 12, 1024]))
 })

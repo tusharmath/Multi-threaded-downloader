@@ -56,13 +56,13 @@ export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
 export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
 export const BufferToJS$ = buffer$ => buffer$.map(buffer => JSON.parse(buffer.toString()))
-export const RemoteFileSize = ({HTTP, options}) => {
+export const RemoteFileSize$ = ({HTTP, options}) => {
   return HTTP.requestHead(options)
     .pluck('headers', 'content-length')
     .map((x) => parseInt(x, 10))
 }
-export const LocalFileSize = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
-export const CreateMeta = ({size$, options}) => {
+export const LocalFileSize$ = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
+export const CreateMeta$ = ({size$, options}) => {
   const mergeDefault = R.compose(
     R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']),
     R.merge(options)
@@ -73,13 +73,13 @@ export const CreateMeta = ({size$, options}) => {
     return mergeDefault({totalBytes, threads, offsets: threads.map(first)})
   })
 }
-export const ReadFileAt = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
+export const ReadFileAt$ = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
   const readParams$ = O.combineLatest(position$, fd$)
   const buffer = CreateFilledBuffer(size)
   const toParam = ([position, fd]) => [fd, buffer, 0, buffer.length, position]
   return FILE.read(readParams$.map(toParam))
 }
-export const MetaPosition = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
+export const MetaPosition$ = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
 export const WriteBufferAt = ({fd$, buffer$, position$}) => {
   const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
   return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
@@ -96,18 +96,18 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .map(updateMetaOffsets)
     .distinctUntilChanged()
 }
-export const BufferOffset = ({buffer$, offset}) => {
+export const BufferOffset$ = ({buffer$, offset}) => {
   const acc = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
   return buffer$.scan(acc, {offset, buffer: {length: 0}})
 }
-export const RequestThreadData = ({HTTP, meta, index}) => {
+export const RequestThreadData$ = ({HTTP, meta, index}) => {
   return R.compose(HTTP.select('data'), HTTP.requestBody, CreateRequestParams)({meta, index})
 }
 export const DownloadThread = ({HTTP, meta, index}) => {
   const range = meta.threads[index]
   const offset = meta.offsets[index]
-  const buffer$ = RequestThreadData({HTTP, meta, index})
-  return BufferOffset({buffer$, offset}).map(R.merge({range, index}))
+  const buffer$ = RequestThreadData$({HTTP, meta, index})
+  return BufferOffset$({buffer$, offset}).map(R.merge({range, index}))
 }
 export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
@@ -117,9 +117,9 @@ export const DownloadFromMeta = ({HTTP, meta$}) => {
 }
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
-  const size$ = LocalFileSize({FILE, fd$})
-  const metaPosition$ = MetaPosition({size$})
-  const metaBuffer$ = ReadFileAt({FILE, fd$, position$: metaPosition$}).map(second)
+  const size$ = LocalFileSize$({FILE, fd$})
+  const metaPosition$ = MetaPosition$({size$})
+  const metaBuffer$ = ReadFileAt$({FILE, fd$, position$: metaPosition$}).map(second)
   const meta$ = BufferToJS$(metaBuffer$)
 
   const loadedOffsets$ = meta$.pluck('offsets')
@@ -144,7 +144,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'w']))
-  const size$ = RemoteFileSize({HTTP, options})
-  const meta$ = CreateMeta({options, size$})
+  const size$ = RemoteFileSize$({HTTP, options})
+  const meta$ = CreateMeta$({options, size$})
   return FILE.write(WriteBufferAt({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
 }

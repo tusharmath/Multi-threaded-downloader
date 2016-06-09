@@ -6,7 +6,7 @@
 
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {BufferOffset} from '../src/Utils'
+import {BufferOffset$} from '../src/Utils'
 const {onNext, onCompleted} = ReactiveTest
 
 const buffer = (length) => ({length})
@@ -19,7 +19,7 @@ test((t) => {
     onNext(240, buffer(1000)),
     onCompleted(250)
   )
-  const {messages} = sh.startScheduler(() => BufferOffset({buffer$, offset: 5}))
+  const {messages} = sh.startScheduler(() => BufferOffset$({buffer$, offset: 5}))
   t.deepEqual(messages, [
     onNext(210, {buffer: buffer(1), offset: 5}),
     onNext(220, {buffer: buffer(10), offset: 6}),

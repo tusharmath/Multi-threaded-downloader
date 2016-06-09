@@ -1,4 +1,4 @@
-import {CreateMeta} from '../src/Utils'
+import {CreateMeta$} from '../src/Utils'
 import * as err from '../src/Error'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
@@ -14,7 +14,7 @@ test((t) => {
   }
   const sh = new TestScheduler()
   const size$ = sh.createHotObservable(onNext(220, 8000), onCompleted())
-  const out = createTestObserver(CreateMeta({size$, options}))
+  const out = createTestObserver(CreateMeta$({size$, options}))
   sh.start()
   t.deepEqual(out, [
     {
@@ -33,7 +33,7 @@ test('invalid size', (t) => {
   }
   const sh = new TestScheduler()
   const size$ = sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
-  createTestObserver(CreateMeta({size$, options}))
+  createTestObserver(CreateMeta$({size$, options}))
   try {
     sh.start()
   } catch (e) {
