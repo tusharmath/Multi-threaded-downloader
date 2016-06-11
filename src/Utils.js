@@ -13,6 +13,10 @@ import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
 const first = R.nth(0)
 const second = R.nth(1)
+export const trace = R.curry((msg, value) => {
+  console.log(msg, value)
+  return value
+})
 export const BUFFER_SIZE = 512
 export const zipUnApply = R.compose(R.unapply, R.zipObj)
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
