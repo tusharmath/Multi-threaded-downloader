@@ -8,6 +8,7 @@ import PATH from 'path'
 import URL from 'url'
 import {Observable as O} from 'rx'
 import R from 'ramda'
+import * as Rx from './RxFP'
 import {mux} from 'muxer'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
@@ -29,14 +30,15 @@ export const SplitRange = (totalBytes, range) => {
   end[range - 1] = totalBytes
   return R.zip(start, end)
 }
+export const CreateRangeHeader = ([start, end]) => `bytes=${start}-${end}`
+export const SetRangeHeader = ({request, range}) => R.set(
+  R.lensPath(['headers', 'range']),
+  CreateRangeHeader(range),
+  R.omit(['threads', 'offsets'], request)
+)
 export const CreateRequestParams = ({meta, index}) => {
-  const offset = meta.offsets[index]
-  const range = meta.threads[index]
-  return R.set(
-    R.lensPath(['headers', 'range']),
-    `bytes=${offset}-${second(range)}`,
-    R.omit(['threads', 'offsets'], meta)
-  )
+  const range = [meta.offsets[index], second(meta.threads[index])]
+  return SetRangeHeader({request: meta, range})
 }
 export const ToBuffer = R.curry((size, str) => {
   var buffer = CreateFilledBuffer(size)
@@ -55,7 +57,14 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
 /*
  * STREAM BASED
  */
-
+export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
+  const HTTPRequestData = R.compose(HTTP.select('data'), HTTP.requestBody)
+  const buffer$ = HTTPRequestData(requestParams)
+  const bufferSize$ = buffer$.map(R.length)
+  const position$ = bufferSize$.scan(R.add, offset).zip(bufferSize$, R.subtract)
+  return O.zip(buffer$, position$)
+}
+export const FlattenThreads = R.compose(Rx.scanWith(R.add, -1), Rx.repeat(1), R.length, R.prop('threads'))
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
 export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
@@ -115,9 +124,10 @@ export const DownloadThread = ({HTTP, meta, index}) => {
 }
 export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
-  return meta$
-    .flatMap(threads)
-    .flatMap(({meta, index}) => DownloadThread({meta, index, HTTP}))
+  return R.compose(
+    Rx.flatMap(({meta, index}) => DownloadThread({meta, index, HTTP})),
+    Rx.flatMap(threads)
+  )(meta$)
 }
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
