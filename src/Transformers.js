@@ -9,13 +9,13 @@ export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 export const FILE = R.curry((fs) => {
   return [{
     // New Methods
-    open: signal$ => signal$.flatMap(fromCB(fs.open)),
-    fstat: signal$ => signal$.flatMap(fromCB(fs.fstat)),
-    read: signal$ => signal$.flatMap(fromCB(fs.read)),
-    write: signal$ => signal$.flatMap(fromCB(fs.write)),
-    close: signal$ => signal$.flatMap(fromCB(fs.close)),
-    truncate: signal$ => signal$.flatMap(fromCB(fs.truncate)),
-    rename: signal$ => signal$.flatMap(fromCB(fs.rename))
+    open: signal$ => signal$.flatMap(fromCB(fs.open)).shareReplay(1),
+    fstat: signal$ => signal$.flatMap(fromCB(fs.fstat)).shareReplay(1),
+    read: signal$ => signal$.flatMap(fromCB(fs.read)).shareReplay(1),
+    write: signal$ => signal$.flatMap(fromCB(fs.write)).shareReplay(1),
+    close: signal$ => signal$.flatMap(fromCB(fs.close)).shareReplay(1),
+    truncate: signal$ => signal$.flatMap(fromCB(fs.truncate)).shareReplay(1),
+    rename: signal$ => signal$.flatMap(fromCB(fs.rename)).shareReplay(1)
   }]
 })
 
@@ -43,6 +43,6 @@ export const HTTP = R.curry((request) => {
     requestHead,
     select,
     // UPDATED METHODS
-    request: signal$ => signal$.flatMap(requestBody)
+    request: signal$ => signal$.flatMap(requestBody).shareReplay(1)
   }, executor]
 })
