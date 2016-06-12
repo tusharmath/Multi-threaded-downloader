@@ -110,8 +110,8 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .distinctUntilChanged()
 }
 export const BufferOffset$ = ({buffer$, offset}) => {
-  const acc = (m, buffer) => ({buffer, offset: m.offset + m.buffer.length})
-  return buffer$.scan(acc, {offset, buffer: {length: 0}})
+  const acc = ([mOffset, mBuffer], buffer) => [mOffset + mBuffer.length, buffer]
+  return buffer$.scan(acc, [offset, {length: 0}])
 }
 export const RequestThreadData$ = ({HTTP, meta, index}) => {
   return R.compose(HTTP.select('data'), HTTP.requestBody, CreateRequestParams)({meta, index})
@@ -120,7 +120,9 @@ export const DownloadThread = ({HTTP, meta, index}) => {
   const range = meta.threads[index]
   const offset = meta.offsets[index]
   const buffer$ = RequestThreadData$({HTTP, meta, index})
-  return BufferOffset$({buffer$, offset}).map(R.merge({range, index}))
+  return BufferOffset$({buffer$, offset})
+    .map(R.zipObj(['offset', 'buffer']))
+    .map(R.merge({range, index}))
 }
 export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
