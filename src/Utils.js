@@ -125,6 +125,7 @@ export const DownloadThread = ({HTTP, meta, index}) => {
 export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
   return R.compose(
+    Rx.shareReplay(1),
     Rx.flatMap(({meta, index}) => DownloadThread({meta, index, HTTP})),
     Rx.flatMap(threads)
   )(meta$)
@@ -135,10 +136,8 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const metaPosition$ = MetaPosition$({size$})
   const metaBuffer$ = ReadFileAt$({FILE, fd$, position$: metaPosition$}).map(second)
   const meta$ = BufferToJS$(metaBuffer$)
-
   const loadedOffsets$ = meta$.pluck('offsets')
-  // TODO: Add tests for shareReplay(1)
-  const bufferOffsets$ = DownloadFromMeta({HTTP, meta$}).shareReplay(1)
+  const bufferOffsets$ = DownloadFromMeta({HTTP, meta$})
   const buffer$ = bufferOffsets$.pluck('buffer')
   const position$ = bufferOffsets$.pluck('offset')
   const saveBuffer$ = FILE.write(WriteBuffer({FILE, fd$, buffer$, position$}))
