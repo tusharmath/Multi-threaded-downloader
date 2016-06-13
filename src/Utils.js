@@ -108,26 +108,21 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .map(updateMetaOffsets)
     .distinctUntilChanged()
 }
-export const BufferOffset$ = ({buffer$, offset}) => {
-  const acc = ([mOffset, mBuffer], buffer) => [mOffset + mBuffer.length, buffer]
-  return buffer$.scan(acc, [offset, {length: 0}])
-}
-export const RequestThreadData$ = ({HTTP, meta, index}) => {
-  return R.compose(HTTP.select('data'), HTTP.requestBody, CreateRequestParams)({meta, index})
-}
-export const DownloadThread = ({HTTP, meta, index}) => {
-  const range = meta.threads[index]
-  const offset = meta.offsets[index]
-  const buffer$ = RequestThreadData$({HTTP, meta, index})
-  return BufferOffset$({buffer$, offset})
-    .map(R.zipObj(['offset', 'buffer']))
-    .map(R.merge({range, index}))
-}
 export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
+  const Request = R.compose(RequestDataOffset, R.merge({HTTP}))
+  const zipObj = R.zipObj(['buffer', 'offset'])
+  const Params = ({meta, index}) => {
+    const offset = meta.offsets[index]
+    const requestParams = CreateRequestParams({meta, index})
+    return {offset, requestParams}
+  }
   return R.compose(
     Rx.shareReplay(1),
-    Rx.flatMap(({meta, index}) => DownloadThread({meta, index, HTTP})),
+    Rx.flatMap(({meta, index}) => {
+      const toObj = R.compose(R.merge({index}), zipObj)
+      return R.compose(Rx.map(toObj), Request, Params)({meta, index})
+    }),
     Rx.flatMap(threads)
   )(meta$)
 }

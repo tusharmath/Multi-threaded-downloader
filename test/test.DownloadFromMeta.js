@@ -65,10 +65,10 @@ test('response', (t) => {
   const responses = createTestObserver(DownloadFromMeta({HTTP, meta$}))
   scheduler.start()
   t.deepEqual(responses, [
-    {buffer: '0000', offset: 0, range: [0, 10], index: 0},
-    {buffer: '111', offset: 11, range: [11, 20], index: 1},
-    {buffer: '00000000', offset: 4, range: [0, 10], index: 0},
-    {buffer: '111111', offset: 14, range: [11, 20], index: 1}
+    {buffer: '0000', offset: 0, index: 0},
+    {buffer: '111', offset: 11, index: 1},
+    {buffer: '00000000', offset: 4, index: 0},
+    {buffer: '111111', offset: 14, index: 1}
   ])
 })
 
@@ -88,8 +88,8 @@ test('offset', (t) => {
   const out = createTestObserver(DownloadFromMeta({HTTP, meta$}))
   scheduler.start()
   t.deepEqual(out, [
-    {buffer: '0-AAA', offset: 2, range: [0, 10], index: 0},
-    {buffer: '0-AAA', offset: 13, range: [11, 20], index: 1},
-    {buffer: '0-AAA', offset: 23, range: [21, 30], index: 2}
+    {buffer: '0-AAA', offset: 2, index: 0},
+    {buffer: '0-AAA', offset: 13, index: 1},
+    {buffer: '0-AAA', offset: 23, index: 2}
   ])
 })
