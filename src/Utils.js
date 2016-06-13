@@ -60,9 +60,8 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const HTTPRequestData = R.compose(HTTP.select('data'), HTTP.requestBody)
   const buffer$ = HTTPRequestData(requestParams)
-  const bufferSize$ = buffer$.map(R.length)
-  const position$ = bufferSize$.scan(R.add, offset).zip(bufferSize$, R.subtract)
-  return O.zip(buffer$, position$)
+  const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
+  return buffer$.scan(accumulator, [{length: 0}, offset])
 }
 export const FlattenThreads = R.compose(Rx.scanWith(R.add, -1), Rx.repeat(1), R.length, R.prop('threads'))
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
