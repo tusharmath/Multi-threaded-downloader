@@ -112,17 +112,13 @@ export const DownloadFromMeta = ({HTTP, meta$}) => {
   const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
   const Request = R.compose(RequestDataOffset, R.merge({HTTP}))
   const zipObj = R.zipObj(['buffer', 'offset'])
-  const Params = ({meta, index}) => {
-    const offset = meta.offsets[index]
-    const requestParams = CreateRequestParams({meta, index})
-    return {offset, requestParams}
-  }
+  const Offset = ({meta, index}) => meta.offsets[index]
+  const Params = R.applySpec({offset: Offset, requestParams: CreateRequestParams})
+  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index}), zipObj))
+  const RequestParams = R.compose(Request, Params)
   return R.compose(
     Rx.shareReplay(1),
-    Rx.flatMap(({meta, index}) => {
-      const toObj = R.compose(R.merge({index}), zipObj)
-      return R.compose(Rx.map(toObj), Request, Params)({meta, index})
-    }),
+    Rx.flatMap(R.ap(AttachIndex, RequestParams)),
     Rx.flatMap(threads)
   )(meta$)
 }
