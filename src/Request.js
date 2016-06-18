@@ -20,7 +20,7 @@ export const RequestParams = R.curry((request, params) => {
 })
 
 export const Request = R.curry((request, params) => {
-  const Response$ = ev(RequestParams(params))
+  const Response$ = ev(RequestParams(request, params))
   return mux({
     response$: Response$('response'),
     data$: Response$('data')

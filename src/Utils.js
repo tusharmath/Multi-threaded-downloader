@@ -9,7 +9,7 @@ import URL from 'url'
 import {Observable as O} from 'rx'
 import R from 'ramda'
 import * as Rx from './RxFP'
-import {mux} from 'muxer'
+import {mux, demux} from 'muxer'
 import {MTDError, FILE_SIZE_UNKNOWN} from './Error'
 
 const first = R.nth(0)
@@ -58,10 +58,10 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
  * STREAM BASED
  */
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
-  const HTTPRequestData = R.compose(HTTP.select('data'), HTTP.requestBody)
-  const buffer$ = HTTPRequestData(requestParams)
+  const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
   const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
-  return buffer$.scan(accumulator, [{length: 0}, offset])
+  const buffer$ = data$.scan(accumulator, [{length: 0}, offset])
+  return mux({buffer$, response$})
 }
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
@@ -118,6 +118,9 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
   const RequestParams = R.compose(
     Rx.map(R.zipObj(['buffer', 'offset'])),
+    R.prop('buffer$'),
+    first,
+    R.partialRight(demux, ['buffer$']),
     RequestDataOffset,
     R.merge({HTTP}),
     Params

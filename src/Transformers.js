@@ -3,6 +3,7 @@
 import Rx, {Observable as O} from 'rx'
 import {demux} from 'muxer'
 import R from 'ramda'
+import {Request} from './Request'
 
 export const fromCB = R.compose(R.apply, O.fromNodeCallback)
 
@@ -43,6 +44,6 @@ export const HTTP = R.curry((request) => {
     requestHead,
     select,
     // UPDATED METHODS
-    request: signal$ => signal$.flatMap(requestBody).shareReplay(1)
+    request: Request(request)
   }, executor]
 })
