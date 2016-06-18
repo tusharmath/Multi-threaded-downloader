@@ -91,11 +91,11 @@ export const ReadFileAt$ = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
   return FILE.read(readParams$.map(toParam))
 }
 export const MetaPosition$ = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
-export const WriteBufferAt = ({fd$, buffer$, position$}) => {
+export const CreateWriteBufferAtParams = ({fd$, buffer$, position$}) => {
   const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
   return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
 }
-export const WriteBuffer = ({fd$, buffer$, position$}) => {
+export const CreateWriteBufferParams = ({fd$, buffer$, position$}) => {
   const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
   return O.combineLatest(fd$, O.zip(buffer$, position$))
     .map(R.compose(toParams, R.unnest))
@@ -108,10 +108,6 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .distinctUntilChanged()
 }
 export const ReadJSON$ = R.compose(BufferToJS$, Rx.map(second), ReadFileAt$)
-export const MetaWithThread = (meta) => meta.threads.map((_, index) => ({meta, index}))
-export const MetaOffset = ({meta, index}) => meta.offsets[index]
-export const Params = R.applySpec({offset: MetaOffset, requestParams: CreateRequestParams})
-export const AttachIndex = R.compose(Rx.map, R.merge, R.pick(['index']))
 export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   const MetaOffset = ({meta, index}) => meta.offsets[index]
   const addIndex = (meta) => meta.threads.map((_, index) => ({meta, index}))
@@ -121,21 +117,33 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   })
   return Rx.flatMap(addIndex, meta$).map(Params)
 }
+export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
-  const HttpRequest = R.compose(RequestDataOffset, R.merge({HTTP}))
-  const HttpRequestReplay = R.compose(Rx.shareReplay(1), Rx.flatMap(HttpRequest))
+  // Create Request function
+  const HttpRequestReplay = RxFlatMapReplay(R.compose(RequestDataOffset, R.merge({HTTP})))
+
+  // Open file to read+append
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
+
+  // Retrieve File size on disk
   const size$ = LocalFileSize$({FILE, fd$})
+
+  // Retrieve Meta info
   const metaPosition$ = MetaPosition$({size$})
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
+
+  // Create request params and make HTTP requests
   const request$ = CreateRequestParamsWithOffset({meta$, CreateRequestParams})
-  const [HttpResponse] = demux(HttpRequestReplay(request$), 'buffer$', 'response$')
-  const bufferOffsets$ = HttpResponse.buffer$
-  const buffer$ = bufferOffsets$.map(first)
-  const position$ = bufferOffsets$.map(second)
-  const saveBuffer$ = FILE.write(WriteBuffer({FILE, fd$, buffer$, position$}))
+
+  // Receive response stream
+  const [{response$, buffer$}] = demux(HttpRequestReplay(request$), 'buffer$', 'response$')
+
+  // Create write params and save buffer+offset to disk
+  const saveBuffer$ = FILE.write(CreateWriteBufferParams({FILE, fd$, buffer$: buffer$.map(first), position$: buffer$.map(second)}))
+
+  // Update META info
   const bytesSaved$ = saveBuffer$
-    .zip(bufferOffsets$, R.nthArg(1))
+    .zip(buffer$, R.nthArg(1))
     .map(R.pick(['offset', 'index']))
     .withLatestFrom(meta$.pluck('offsets'))
     .scan((previous, current) => {
@@ -145,12 +153,16 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
     })
     .map(second)
   const nMeta$ = UpdateMeta({meta$, bytesSaved$})
-  const bytes$ = FILE.write(WriteBufferAt({fd$, buffer$: JSToBuffer$(nMeta$), position$: size$}))
-  return mux({bytes$, size$, meta$: O.merge(nMeta$, meta$), fd$, metaPosition$})
+  const bytes$ = FILE.write(CreateWriteBufferAtParams({fd$, buffer$: JSToBuffer$(nMeta$), position$: size$}))
+  return mux({
+    bytes$, size$, fd$, metaPosition$,
+    meta$: O.merge(nMeta$, meta$),
+    response$
+  })
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'w']))
   const size$ = RemoteFileSize$({HTTP, options})
   const meta$ = CreateMeta$({options, size$})
-  return FILE.write(WriteBufferAt({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
+  return FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
 }

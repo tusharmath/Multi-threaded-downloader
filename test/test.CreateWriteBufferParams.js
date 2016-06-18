@@ -7,7 +7,7 @@
 import test from 'ava'
 import {spy} from 'sinon'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {WriteBuffer} from '../src/Utils'
+import {CreateWriteBufferParams} from '../src/Utils'
 const {onNext, onCompleted} = ReactiveTest
 
 test((t) => {
@@ -27,7 +27,7 @@ test((t) => {
     onNext(222, 20),
     onNext(229, 30)
   )
-  const {messages} = sh.startScheduler(() => WriteBuffer({FILE, fd$, buffer$, position$}))
+  const {messages} = sh.startScheduler(() => CreateWriteBufferParams({FILE, fd$, buffer$, position$}))
   // fs.write(fd, buffer, offset, length[, position], callback)
   t.deepEqual(messages, [
     onNext(210, [1000, 'AA', 0, 2, 10]),
