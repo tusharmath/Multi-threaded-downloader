@@ -107,25 +107,26 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .map(updateMetaOffsets)
     .distinctUntilChanged()
 }
-
+export const ReadJSON$ = R.compose(BufferToJS$, Rx.map(second), ReadFileAt$)
+export const MetaWithThread = (meta) => meta.threads.map((_, index) => ({meta, index}))
+export const MetaOffset = ({meta, index}) => meta.offsets[index]
+export const Params = R.applySpec({offset: MetaOffset, requestParams: CreateRequestParams})
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
   const size$ = LocalFileSize$({FILE, fd$})
   const metaPosition$ = MetaPosition$({size$})
-  const metaBuffer$ = ReadFileAt$({FILE, fd$, position$: metaPosition$}).map(second)
-  const meta$ = BufferToJS$(metaBuffer$)
-  const loadedOffsets$ = meta$.pluck('offsets')
-  const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
-  const Request = R.compose(RequestDataOffset, R.merge({HTTP}))
-  const zipObj = R.zipObj(['buffer', 'offset'])
-  const Offset = ({meta, index}) => meta.offsets[index]
-  const Params = R.applySpec({offset: Offset, requestParams: CreateRequestParams})
-  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index}), zipObj))
-  const RequestParams = R.compose(Request, Params)
+  const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
+  const RequestParams = R.compose(
+    Rx.map(R.zipObj(['buffer', 'offset'])),
+    RequestDataOffset,
+    R.merge({HTTP}),
+    Params
+  )
+  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index})))
   const DownloadFromMeta = R.compose(
     Rx.shareReplay(1),
     Rx.flatMap(R.ap(AttachIndex, RequestParams)),
-    Rx.flatMap(threads)
+    Rx.flatMap(MetaWithThread)
   )
   const bufferOffsets$ = DownloadFromMeta(meta$)
   const buffer$ = bufferOffsets$.pluck('buffer')
@@ -134,7 +135,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const bytesSaved$ = saveBuffer$
     .zip(bufferOffsets$, R.nthArg(1))
     .map(R.pick(['offset', 'index']))
-    .withLatestFrom(loadedOffsets$)
+    .withLatestFrom(meta$.pluck('offsets'))
     .scan((previous, current) => {
       const {index, offset} = first(current)
       const offsets = R.set(R.lensIndex(index), offset, second(previous))
