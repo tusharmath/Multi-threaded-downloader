@@ -63,7 +63,6 @@ export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
   return buffer$.scan(accumulator, [{length: 0}, offset])
 }
-export const FlattenThreads = R.compose(Rx.scanWith(R.add, -1), Rx.repeat(1), R.length, R.prop('threads'))
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
 export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
