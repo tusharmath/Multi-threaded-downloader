@@ -107,20 +107,7 @@ export const UpdateMeta = ({meta$, bytesSaved$}) => {
     .map(updateMetaOffsets)
     .distinctUntilChanged()
 }
-export const DownloadFromMeta = ({HTTP, meta$}) => {
-  const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
-  const Request = R.compose(RequestDataOffset, R.merge({HTTP}))
-  const zipObj = R.zipObj(['buffer', 'offset'])
-  const Offset = ({meta, index}) => meta.offsets[index]
-  const Params = R.applySpec({offset: Offset, requestParams: CreateRequestParams})
-  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index}), zipObj))
-  const RequestParams = R.compose(Request, Params)
-  return R.compose(
-    Rx.shareReplay(1),
-    Rx.flatMap(R.ap(AttachIndex, RequestParams)),
-    Rx.flatMap(threads)
-  )(meta$)
-}
+
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
   const size$ = LocalFileSize$({FILE, fd$})
@@ -128,7 +115,19 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   const metaBuffer$ = ReadFileAt$({FILE, fd$, position$: metaPosition$}).map(second)
   const meta$ = BufferToJS$(metaBuffer$)
   const loadedOffsets$ = meta$.pluck('offsets')
-  const bufferOffsets$ = DownloadFromMeta({HTTP, meta$})
+  const threads = (meta) => meta.threads.map((_, index) => ({meta, index}))
+  const Request = R.compose(RequestDataOffset, R.merge({HTTP}))
+  const zipObj = R.zipObj(['buffer', 'offset'])
+  const Offset = ({meta, index}) => meta.offsets[index]
+  const Params = R.applySpec({offset: Offset, requestParams: CreateRequestParams})
+  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index}), zipObj))
+  const RequestParams = R.compose(Request, Params)
+  const DownloadFromMeta = R.compose(
+    Rx.shareReplay(1),
+    Rx.flatMap(R.ap(AttachIndex, RequestParams)),
+    Rx.flatMap(threads)
+  )
+  const bufferOffsets$ = DownloadFromMeta(meta$)
   const buffer$ = bufferOffsets$.pluck('buffer')
   const position$ = bufferOffsets$.pluck('offset')
   const saveBuffer$ = FILE.write(WriteBuffer({FILE, fd$, buffer$, position$}))
