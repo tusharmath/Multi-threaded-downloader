@@ -111,29 +111,28 @@ export const ReadJSON$ = R.compose(BufferToJS$, Rx.map(second), ReadFileAt$)
 export const MetaWithThread = (meta) => meta.threads.map((_, index) => ({meta, index}))
 export const MetaOffset = ({meta, index}) => meta.offsets[index]
 export const Params = R.applySpec({offset: MetaOffset, requestParams: CreateRequestParams})
+export const AttachIndex = R.compose(Rx.map, R.merge, R.pick(['index']))
+export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
+  const MetaOffset = ({meta, index}) => meta.offsets[index]
+  const addIndex = (meta) => meta.threads.map((_, index) => ({meta, index}))
+  const Params = R.applySpec({
+    offset: MetaOffset,
+    requestParams: CreateRequestParams
+  })
+  return Rx.flatMap(addIndex, meta$).map(Params)
+}
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
+  const HttpRequest = R.compose(RequestDataOffset, R.merge({HTTP}))
+  const HttpRequestReplay = R.compose(Rx.shareReplay(1), Rx.flatMap(HttpRequest))
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
   const size$ = LocalFileSize$({FILE, fd$})
   const metaPosition$ = MetaPosition$({size$})
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
-  const RequestParams = R.compose(
-    Rx.map(R.zipObj(['buffer', 'offset'])),
-    R.prop('buffer$'),
-    first,
-    R.partialRight(demux, ['buffer$']),
-    RequestDataOffset,
-    R.merge({HTTP}),
-    Params
-  )
-  const AttachIndex = ({index}) => Rx.map(R.compose(R.merge({index})))
-  const DownloadFromMeta = R.compose(
-    Rx.shareReplay(1),
-    Rx.flatMap(R.ap(AttachIndex, RequestParams)),
-    Rx.flatMap(MetaWithThread)
-  )
-  const bufferOffsets$ = DownloadFromMeta(meta$)
-  const buffer$ = bufferOffsets$.pluck('buffer')
-  const position$ = bufferOffsets$.pluck('offset')
+  const request$ = CreateRequestParamsWithOffset({meta$, CreateRequestParams})
+  const [HttpResponse] = demux(HttpRequestReplay(request$), 'buffer$', 'response$')
+  const bufferOffsets$ = HttpResponse.buffer$
+  const buffer$ = bufferOffsets$.map(first)
+  const position$ = bufferOffsets$.map(second)
   const saveBuffer$ = FILE.write(WriteBuffer({FILE, fd$, buffer$, position$}))
   const bytesSaved$ = saveBuffer$
     .zip(bufferOffsets$, R.nthArg(1))
