@@ -8,7 +8,7 @@ import {Observable as O} from 'rx'
 import {mux} from 'muxer'
 import R from 'ramda'
 
-export const ev = R.curry((event, message) => message.event === event)
+export const ev = R.curry(($, event) => $.filter(R.whereEq({event})).pluck('message'))
 
 export const RequestParams = R.curry((request, params) => {
   return O.create((observer) => request(params)
@@ -19,10 +19,10 @@ export const RequestParams = R.curry((request, params) => {
   )
 })
 
-export const Request = R.curry((request, requestParams$) => {
-  const response$ = requestParams$.flatMap(RequestParams(request))
+export const Request = R.curry((request, params) => {
+  const Response$ = ev(RequestParams(params))
   return mux({
-    response$: response$.filter(ev('response')),
-    data$: response$.filter(ev('data'))
+    response$: Response$('response'),
+    data$: Response$('data')
   })
 })
