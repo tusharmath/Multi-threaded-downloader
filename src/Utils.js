@@ -30,11 +30,13 @@ export const SplitRange = (totalBytes, range) => {
   return R.zip(start, end)
 }
 export const CreateRangeHeader = ([start, end]) => `bytes=${start}-${end}`
-export const SetRangeHeader = ({request, range}) => R.set(
-  R.lensPath(['headers', 'range']),
-  CreateRangeHeader(range),
-  R.omit(['threads', 'offsets'], request)
-)
+export const SetRangeHeader = ({request, range}) => {
+  return R.set(
+    R.lensPath(['headers', 'range']),
+    CreateRangeHeader(range),
+    R.omit(['threads', 'offsets'], request)
+  )
+}
 export const CreateRequestParams = ({meta, index}) => {
   const range = [meta.offsets[index], second(meta.threads[index])]
   return SetRangeHeader({request: meta, range})
@@ -56,6 +58,10 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
 /*
  * STREAM BASED
  */
+export const RxFromCB = () => {
+  let _observer
+  return [O.create(observer => (_observer = observer)), x => _observer.onNext(x)]
+}
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
   const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
@@ -132,10 +138,10 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   return Rx.flatMap(addIndex, meta$).map(Params)
 }
 export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
-export const RxThrottleComplete = (window$, $, sh) => window$.first().flatMap(window => O.merge(
-  $.throttle(window, sh),
-  $.last()
-))
+export const RxThrottleComplete = (window$, $, sh) => {
+  const selector = window => O.merge($.throttle(window, sh), $.last())
+  return window$.first().flatMap(selector)
+}
 export const RemoveMETA = ({FILE, meta$, fd$}) => {
   const size$ = meta$.pluck('totalBytes')
   return FILE.truncate(O.combineLatest(fd$, size$).take(1))
