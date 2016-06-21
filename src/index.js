@@ -25,7 +25,7 @@ export const createDownload = (_options) => {
     return CreateMTDFile({FILE, HTTP, options}).tap(toStat('CREATE'))
   }
   const download = () => {
-    const [{metaPosition$}] = demux(DownloadFromMTDFile({HTTP, FILE, options}), 'metaPosition$')
+    const [{metaPosition$}] = demux(DownloadFromMTDFile({HTTP, FILE, mtdPath: options.mtdPath}), 'metaPosition$')
     const totalBytes$ = metaPosition$.tap(toStat('DATA')).last()
     const truncated$ = FILE.truncate(totalBytes$.map(bytes => [options.mtdPath, bytes]))
       .tap(toStat('TRUNCATE'))

@@ -18,7 +18,8 @@ test(t => {
     onNext(250, 4),
     onCompleted(260)
   )
-  const {messages} = sh.startScheduler(() => RxThrottleComplete(30, $, sh))
+  const window$ = sh.createColdObservable(onNext(0, 30))
+  const {messages} = sh.startScheduler(() => RxThrottleComplete(window$, $, sh))
   t.deepEqual(messages, [
     onNext(210, 0),
     onNext(240, 3),

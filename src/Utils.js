@@ -74,7 +74,7 @@ export const RemoteFileSize$ = ({HTTP, options}) => {
 export const LocalFileSize$ = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
 export const CreateMeta$ = ({size$, options}) => {
   const mergeDefault = R.compose(
-    R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL']),
+    R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL', 'metaWrite']),
     R.merge(options)
   )
   return size$.map((totalBytes) => {
@@ -135,11 +135,11 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   return Rx.flatMap(addIndex, meta$).map(Params)
 }
 export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
-export const RxThrottleComplete = (window, $, sh) => O.merge(
+export const RxThrottleComplete = (window$, $, sh) => window$.first().flatMap(window => O.merge(
   $.throttle(window, sh),
   $.last()
-)
-export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
+))
+export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create Request function
    */
@@ -148,7 +148,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   /**
    * Open file to read+append
    */
-  const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
+  const fd$ = FILE.open(O.just([mtdPath, 'r+']))
 
   /**
    * Retrieve File size on disk
@@ -191,7 +191,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
    */
   const metaWritten$ = FILE.write(CreateWriteBufferAtParams({
     fd$,
-    buffer$: JSToBuffer$(RxThrottleComplete(options.metaWrite, nMeta$)),
+    buffer$: JSToBuffer$(RxThrottleComplete(meta$.pluck('metaWrite'), nMeta$)),
     position$: size$
   }))
   return mux({
