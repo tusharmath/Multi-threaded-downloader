@@ -51,7 +51,7 @@ export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
   return buffer
 }
 export const MergeDefaultOptions = (options) => R.mergeAll([
-  {mtdPath: options.path + '.mtd', range: 3},
+  {mtdPath: options.path + '.mtd', range: 3, metaWrite: 300},
   options
 ])
 /*
@@ -136,6 +136,10 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   return Rx.flatMap(addIndex, meta$).map(Params)
 }
 export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
+export const RxThrottleComplete = (window, $, sh) => O.merge(
+  $.throttle(window, sh),
+  $.last()
+)
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   /**
    * Create Request function
@@ -182,7 +186,15 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
    * Update META info
    */
   const nMeta$ = AccumulateOffset({meta$, written$: saveBuffer$.map(first), thread$: buffer$.map(second)})
-  const bytes$ = FILE.write(CreateWriteBufferAtParams({fd$, buffer$: JSToBuffer$(nMeta$), position$: size$}))
+
+  /**
+   * Persist META to disk
+   */
+  const bytes$ = FILE.write(CreateWriteBufferAtParams({
+    fd$,
+    buffer$: JSToBuffer$(RxThrottleComplete(options.metaWrite, nMeta$)),
+    position$: size$
+  }))
   return mux({
     bytes$, size$, fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$),
