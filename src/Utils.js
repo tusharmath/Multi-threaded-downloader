@@ -100,12 +100,30 @@ export const CreateWriteBufferParams = ({fd$, buffer$, position$}) => {
   return O.combineLatest(fd$, O.zip(buffer$, position$))
     .map(R.compose(toParams, R.unnest))
 }
-export const UpdateMeta = ({meta$, bytesSaved$}) => {
-  const updateMetaOffsets = ({meta, offsets}) => R.mergeAll([meta, {offsets}])
-  return bytesSaved$
-    .withLatestFrom(meta$, zipUnApply(['offsets', 'meta']))
-    .map(updateMetaOffsets)
-    .distinctUntilChanged()
+export const AccumulateOffset = ({meta$, written$, thread$}) => {
+  const offsetLens = thread => R.compose(R.lensProp('offsets'), R.lensIndex(thread))
+  const start$ = meta$.map(meta => ({meta, len: 0, thread: 0})).first()
+  const source$ = O.merge(
+    start$,
+    O.zip(written$, thread$)
+      .map(R.zipObj(['len', 'thread']))
+      .withLatestFrom(meta$.map(R.objOf('meta')))
+      .map(R.mergeAll)
+  )
+
+  const accumulator = (previous, current) => {
+    const thread = current.thread
+    const pMeta = previous.meta
+    const oldVal = pMeta.offsets[thread]
+    const lens = offsetLens(thread)
+    const meta = R.set(lens, R.add(oldVal, current.len), pMeta)
+    return R.merge(current, {meta})
+  }
+
+  return source$
+    .scan(accumulator)
+    .skip(1)
+    .pluck('meta')
 }
 export const ReadJSON$ = R.compose(BufferToJS$, Rx.map(second), ReadFileAt$)
 export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
@@ -119,40 +137,51 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
 }
 export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
 export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
-  // Create Request function
+  /**
+   * Create Request function
+   */
   const HttpRequestReplay = RxFlatMapReplay(R.compose(RequestDataOffset, R.merge({HTTP})))
 
-  // Open file to read+append
+  /**
+   * Open file to read+append
+   */
   const fd$ = FILE.open(O.just([options.mtdPath, 'r+']))
 
-  // Retrieve File size on disk
+  /**
+   * Retrieve File size on disk
+   */
   const size$ = LocalFileSize$({FILE, fd$})
 
-  // Retrieve Meta info
+  /**
+   * Retrieve Meta info
+   */
   const metaPosition$ = MetaPosition$({size$})
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
 
-  // Create request params and make HTTP requests
+  /**
+   * Create request params and make HTTP requests
+   */
   const request$ = CreateRequestParamsWithOffset({meta$, CreateRequestParams})
 
-  // Receive response stream
+  /**
+   * Receive response stream
+   */
   const [{response$, buffer$}] = demux(HttpRequestReplay(request$), 'buffer$', 'response$')
 
-  // Create write params and save buffer+offset to disk
-  const saveBuffer$ = FILE.write(CreateWriteBufferParams({FILE, fd$, buffer$: buffer$.map(first), position$: buffer$.map(second)}))
+  /**
+   * Create write params and save buffer+offset to disk
+   */
+  const saveBuffer$ = FILE.write(CreateWriteBufferParams({
+    FILE,
+    fd$,
+    buffer$: buffer$.map(first),
+    position$: buffer$.map(second)
+  }))
 
-  // Update META info
-  const bytesSaved$ = saveBuffer$
-    .zip(buffer$, R.nthArg(1))
-    .map(R.pick(['offset', 'index']))
-    .withLatestFrom(meta$.pluck('offsets'))
-    .scan((previous, current) => {
-      const {index, offset} = first(current)
-      const offsets = R.set(R.lensIndex(index), offset, second(previous))
-      return [current, offsets]
-    })
-    .map(second)
-  const nMeta$ = UpdateMeta({meta$, bytesSaved$})
+  /**
+   * Update META info
+   */
+  const nMeta$ = AccumulateOffset({meta$, written$: saveBuffer$.map(first), thread$: buffer$.map(second)})
   const bytes$ = FILE.write(CreateWriteBufferAtParams({fd$, buffer$: JSToBuffer$(nMeta$), position$: size$}))
   return mux({
     bytes$, size$, fd$, metaPosition$,
