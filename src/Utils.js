@@ -19,7 +19,6 @@ export const trace = R.curry((msg, value) => {
   return value
 })
 export const BUFFER_SIZE = 512
-export const zipUnApply = R.compose(R.unapply, R.zipObj)
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
 export const GenerateFileName = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
 export const ResolvePath = R.compose(NormalizePath, GenerateFileName)
@@ -190,20 +189,35 @@ export const DownloadFromMTDFile = ({FILE, HTTP, options}) => {
   /**
    * Persist META to disk
    */
-  const bytes$ = FILE.write(CreateWriteBufferAtParams({
+  const metaWritten$ = FILE.write(CreateWriteBufferAtParams({
     fd$,
     buffer$: JSToBuffer$(RxThrottleComplete(options.metaWrite, nMeta$)),
     position$: size$
   }))
   return mux({
-    bytes$, size$, fd$, metaPosition$,
+    metaWritten$, size$, fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$),
     response$
   })
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
+  /**
+   * Create a new file
+   */
   const fd$ = FILE.open(O.just([options.mtdPath, 'w']))
+
+  /**
+   * Retreive file size on remote server
+   */
   const size$ = RemoteFileSize$({HTTP, options})
+
+  /**
+   * Create initial meta data
+   */
   const meta$ = CreateMeta$({options, size$})
+
+  /**
+   * Create a new file with meta info appended at the end
+   */
   return FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
 }
