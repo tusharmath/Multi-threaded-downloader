@@ -210,7 +210,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
     position$: size$
   }))
   return mux({
-    metaWritten$, localFileSize$: size$, fd$, metaPosition$,
+    metaWritten$, localFileSize$: size$, fdR$: fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$),
     response$
   })
@@ -234,6 +234,11 @@ export const CreateMTDFile = ({FILE, HTTP, options}) => {
   /**
    * Create a new file with meta info appended at the end
    */
-  const written$ = FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
-  return mux({written$, meta$, remoteFileSize: size$, fd$})
+  const written$ = FILE.write(CreateWriteBufferAtParams({
+    FILE,
+    fd$: fd$,
+    buffer$: JSToBuffer$(meta$),
+    position$: size$
+  }))
+  return mux({written$, meta$, remoteFileSize: size$, fdW$: fd$})
 }
