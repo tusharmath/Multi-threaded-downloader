@@ -7,7 +7,7 @@ import R from 'ramda'
 import request from 'request'
 import {demux} from 'muxer'
 import fs from 'graceful-fs'
-import {MergeDefaultOptions, DownloadFromMTDFile, CreateMTDFile} from './Utils'
+import {MergeDefaultOptions, DownloadFromMTDFile, CreateMTDFile, FinalizeDownload} from './Utils'
 import * as T from './Transformers'
 
 export const createDownload = (_options) => {
@@ -26,16 +26,15 @@ export const createDownload = (_options) => {
     return written$.tap(toStat('CREATE'))
   }
   const download = () => {
-    const [{metaPosition$}] = demux(DownloadFromMTDFile({HTTP, FILE, mtdPath: options.mtdPath}), 'metaPosition$')
-    const totalBytes$ = metaPosition$.tap(toStat('DATA')).last()
-    const truncated$ = FILE.truncate(totalBytes$.map(bytes => [options.mtdPath, bytes]))
-      .tap(toStat('TRUNCATE'))
-    return FILE.rename(truncated$.map([options.mtdPath, options.path]))
-      .tap(toStat('RENAME'))
-      .tapOnCompleted((x) => stats.onCompleted())
+    const [{metaPosition$, fd$, meta$}] = demux(
+      DownloadFromMTDFile({HTTP, FILE, mtdPath: options.mtdPath}),
+      'metaPosition$', 'fd$', 'meta$'
+    )
+    const complete$ = metaPosition$.last()
+    const [_, rest$] = demux(FinalizeDownload({FILE, fd$, meta$, complete$}))
+    return rest$
   }
   return {
-
     start, download, init
   }
 }

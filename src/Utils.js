@@ -136,6 +136,18 @@ export const RxThrottleComplete = (window$, $, sh) => window$.first().flatMap(wi
   $.throttle(window, sh),
   $.last()
 ))
+export const RemoveMETA = ({FILE, meta$, fd$}) => {
+  const size$ = meta$.pluck('totalBytes')
+  return FILE.truncate(O.combineLatest(fd$, size$).take(1))
+}
+export const ResetFileName = ({FILE, meta$}) => FILE.rename(
+  meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
+)
+export const FinalizeDownload = ({FILE, fd$, meta$, complete$}) => {
+  const metaRemoved$ = complete$.flatMap(() => RemoveMETA({FILE, meta$, fd$}))
+  const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
+  return mux({metaRemoved$, renamed$})
+}
 export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create Request function
@@ -192,7 +204,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
     position$: size$
   }))
   return mux({
-    metaWritten$, size$, fd$, metaPosition$,
+    metaWritten$, localFileSize$: size$, fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$),
     response$
   })
@@ -217,5 +229,5 @@ export const CreateMTDFile = ({FILE, HTTP, options}) => {
    * Create a new file with meta info appended at the end
    */
   const written$ = FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
-  return mux({written$, meta$, size$, fd$})
+  return mux({written$, meta$, remoteFileSize: size$, fd$})
 }
