@@ -60,7 +60,7 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
  */
 export const RxFromCB = () => {
   let _observer
-  return [O.create(observer => (_observer = observer)), x => _observer.onNext(x)]
+  return [O.create(observer => (_observer = observer)).share(), x => _observer.onNext(x)]
 }
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
