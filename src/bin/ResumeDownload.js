@@ -1,4 +1,4 @@
-import {NormalizePath} from './Utils'
+import {NormalizePath} from '../Utils'
 import _ from 'lodash'
 import Rx from 'rx'
 
