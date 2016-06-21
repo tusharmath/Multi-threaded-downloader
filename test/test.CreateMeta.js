@@ -22,7 +22,9 @@ test((t) => {
       url: 'sample-url',
       totalBytes: 8000,
       threads: [[0, 3999], [4000, 8000]],
-      offsets: [0, 4000]
+      offsets: [0, 4000],
+      a: 1,
+      b: 2
     }
   ])
 })

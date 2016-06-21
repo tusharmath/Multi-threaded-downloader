@@ -72,15 +72,12 @@ export const RemoteFileSize$ = ({HTTP, options}) => {
     .map((x) => parseInt(x, 10))
 }
 export const LocalFileSize$ = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
+export const PickFirst = R.map(first)
 export const CreateMeta$ = ({size$, options}) => {
-  const mergeDefault = R.compose(
-    R.pick(['range', 'url', 'totalBytes', 'threads', 'offsets', 'strictSSL', 'metaWrite']),
-    R.merge(options)
-  )
   return size$.map((totalBytes) => {
     if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
     const threads = SplitRange(totalBytes, options.range)
-    return mergeDefault({totalBytes, threads, offsets: threads.map(first)})
+    return R.merge(options, {totalBytes, threads, offsets: PickFirst(threads)})
   })
 }
 export const ReadFileAt$ = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
