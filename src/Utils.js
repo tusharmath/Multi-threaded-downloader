@@ -216,5 +216,6 @@ export const CreateMTDFile = ({FILE, HTTP, options}) => {
   /**
    * Create a new file with meta info appended at the end
    */
-  return FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
+  const written$ = FILE.write(CreateWriteBufferAtParams({FILE, fd$, buffer$: JSToBuffer$(meta$), position$: size$}))
+  return mux({written$, meta$, size$, fd$})
 }

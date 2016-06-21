@@ -22,7 +22,8 @@ export const createDownload = (_options) => {
   }
 
   const init = () => {
-    return CreateMTDFile({FILE, HTTP, options}).tap(toStat('CREATE'))
+    const [{written$}] = demux(CreateMTDFile({FILE, HTTP, options}), 'written$')
+    return written$.tap(toStat('CREATE'))
   }
   const download = () => {
     const [{metaPosition$}] = demux(DownloadFromMTDFile({HTTP, FILE, mtdPath: options.mtdPath}), 'metaPosition$')
