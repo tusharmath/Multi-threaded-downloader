@@ -15,32 +15,31 @@ export const createDownload = (_options) => {
   const [FILE] = T.FILE(fs)
   const options = U.MergeDefaultOptions(_options)
 
-  return {
-    start () {
-      /**
-       * Create MTD File
-       */
-      const createMTDFile$ = U.CreateMTDFile({FILE, HTTP, options})
+  /**
+   * Create MTD File
+   */
+  const createMTDFile$ = U.CreateMTDFile({FILE, HTTP, options}).share()
 
-      /**
-       * Download From MTD File
-       */
-      const downloadFromMTDFile$ = createMTDFile$.last()
-        .map({HTTP, FILE, mtdPath: options.mtdPath})
-        .flatMap(U.DownloadFromMTDFile)
-      const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
+  /**
+   * Download From MTD File
+   */
+  const downloadFromMTDFile$ = createMTDFile$.last()
+    .map({HTTP, FILE, mtdPath: options.mtdPath})
+    .flatMap(U.DownloadFromMTDFile)
+    .share()
 
-      /**
-       * Finalize Downloaded FILE
-       */
-      const finalizeDownload$ = downloadFromMTDFile$.last()
-        .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({FILE, fd$: O.just(fd), meta$: O.just(meta)}))
-        .flatMap(U.FinalizeDownload)
+  const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
 
-      /**
-       * Create Sink
-       */
-      return mux({finalizeDownload$, meta$})
-    }
-  }
+  /**
+   * Finalize Downloaded FILE
+   */
+  const finalizeDownload$ = downloadFromMTDFile$.last()
+    .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({FILE, fd$: O.just(fd), meta$: O.just(meta)}))
+    .flatMap(U.FinalizeDownload)
+    .share()
+
+  /**
+   * Create Sink
+   */
+  return mux({finalizeDownload$, meta$})
 }
