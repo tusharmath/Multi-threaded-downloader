@@ -3,33 +3,44 @@
  */
 'use strict'
 import request from 'request'
-import {demux} from 'muxer'
 import fs from 'graceful-fs'
-import {MergeDefaultOptions, DownloadFromMTDFile, CreateMTDFile, FinalizeDownload} from './Utils'
+import {Observable as O} from 'rx'
+import * as U from './Utils'
 import * as T from './Transformers'
+import {mux, demux} from 'muxer'
 
+export const Utils = U
 export const createDownload = (_options) => {
   const [HTTP] = T.HTTP(request)
   const [FILE] = T.FILE(fs)
-  const options = MergeDefaultOptions(_options)
-  const start = () => {
-    return init().flatMap(() => download())
-  }
+  const options = U.MergeDefaultOptions(_options)
 
-  const init = () => {
-    const [{written$}] = demux(CreateMTDFile({FILE, HTTP, options}), 'written$')
-    return written$
-  }
-  const download = () => {
-    const [{metaPosition$, fd$, meta$}] = demux(
-      DownloadFromMTDFile({HTTP, FILE, mtdPath: options.mtdPath}),
-      'metaPosition$', 'fd$', 'meta$'
-    )
-    const complete$ = metaPosition$.last()
-    const [_, rest$] = demux(FinalizeDownload({FILE, fd$, meta$, complete$}))
-    return rest$
-  }
   return {
-    start, download, init
+    start () {
+      /**
+       * Create MTD File
+       */
+      const createMTDFile$ = U.CreateMTDFile({FILE, HTTP, options})
+
+      /**
+       * Download From MTD File
+       */
+      const downloadFromMTDFile$ = createMTDFile$.last()
+        .map({HTTP, FILE, mtdPath: options.mtdPath})
+        .flatMap(U.DownloadFromMTDFile)
+      const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
+
+      /**
+       * Finalize Downloaded FILE
+       */
+      const finalizeDownload$ = downloadFromMTDFile$.last()
+        .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({FILE, fd$: O.just(fd), meta$: O.just(meta)}))
+        .flatMap(U.FinalizeDownload)
+
+      /**
+       * Create Sink
+       */
+      return mux({finalizeDownload$, meta$})
+    }
   }
 }

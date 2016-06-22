@@ -58,10 +58,6 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
 /*
  * STREAM BASED
  */
-export const RxFromCB = () => {
-  let _observer
-  return [O.create(observer => (_observer = observer)).share(), x => _observer.onNext(x)]
-}
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
   const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
@@ -149,8 +145,8 @@ export const RemoveMETA = ({FILE, meta$, fd$}) => {
 export const ResetFileName = ({FILE, meta$}) => FILE.rename(
   meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
 )
-export const FinalizeDownload = ({FILE, fd$, meta$, complete$}) => {
-  const metaRemoved$ = complete$.flatMap(() => RemoveMETA({FILE, meta$, fd$}))
+export const FinalizeDownload = ({FILE, fd$, meta$}) => {
+  const metaRemoved$ = RemoveMETA({FILE, meta$, fd$})
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
   return mux({metaRemoved$, renamed$})
 }
@@ -240,5 +236,5 @@ export const CreateMTDFile = ({FILE, HTTP, options}) => {
     buffer$: JSToBuffer$(meta$),
     position$: size$
   }))
-  return mux({written$, meta$, remoteFileSize: size$, fdW$: fd$})
+  return mux({written$, meta$, remoteFileSize$: size$, fdW$: fd$})
 }
