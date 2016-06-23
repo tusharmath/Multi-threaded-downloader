@@ -142,9 +142,17 @@ export const RemoveMETA = ({FILE, meta$, fd$}) => {
   const size$ = meta$.pluck('totalBytes')
   return FILE.truncate(O.combineLatest(fd$, size$).take(1))
 }
-export const ResetFileName = ({FILE, meta$}) => FILE.rename(
-  meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
-)
+export const ResetFileName = ({FILE, meta$}) => {
+  const params$ = meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
+  return FILE.rename(params$)
+}
+export const IsCompleted$ = ({meta$}) => {
+  const equals = R.apply(R.equals)
+  const offsetsA = R.prop('offsets')
+  const offsetsB = R.compose(R.map(second), R.prop('threads'))
+  const isComplete = R.compose(equals, R.ap([offsetsA, offsetsB]), R.of)
+  return meta$.map(isComplete).distinctUntilChanged()
+}
 export const FinalizeDownload = ({FILE, fd$, meta$}) => {
   const metaRemoved$ = RemoveMETA({FILE, meta$, fd$})
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
@@ -208,7 +216,8 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   return mux({
     metaWritten$, localFileSize$: size$, fdR$: fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$),
-    response$
+    response$,
+    completed$: IsCompleted$({meta$})
   })
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
