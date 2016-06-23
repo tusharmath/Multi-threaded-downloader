@@ -20,9 +20,9 @@ test((t) => {
   const CreateRequestParams = ({index, meta}) => meta.threads[index]
   const {messages} = sh.startScheduler(() => CreateRequestParamsWithOffset({meta$, CreateRequestParams}))
   t.deepEqual(messages, [
-    onNext(210, {requestParams: 10, offset: 1000, index: 0}),
-    onNext(210, {requestParams: 20, offset: 2000, index: 1}),
-    onNext(210, {requestParams: 30, offset: 3000, index: 2}),
+    onNext(210, {requestParams: 10, offset: 1000, thread: 0}),
+    onNext(210, {requestParams: 20, offset: 2000, thread: 1}),
+    onNext(210, {requestParams: 30, offset: 3000, thread: 2}),
     onCompleted(220)
   ])
 })
