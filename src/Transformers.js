@@ -1,6 +1,6 @@
 'use strict'
 
-import Rx, {Observable as O} from 'rx'
+import {Observable as O} from 'rx'
 import {demux} from 'muxer'
 import R from 'ramda'
 import {Request} from './Request'
@@ -20,18 +20,12 @@ export const FILE = R.curry((fs) => {
   }]
 })
 
-export const HTTP = R.curry((request) => {
-  const requestBody = (params) => Rx.Observable.create((observer) => request(params)
-    .on('data', (message) => observer.onNext({event: 'data', message}))
-    .on('response', (message) => observer.onNext({event: 'response', message}))
-    .on('complete', (message) => observer.onCompleted({event: 'completed', message}))
-    .on('error', (error) => observer.onError(error))
-  )
-
-  const requestHead = (params) => requestBody(params)
-    .first()
-    .pluck('message')
-    .tap((x) => x.destroy())
+export const HTTP = R.curry((_request) => {
+  const request = Request(_request)
+  const requestHead = (params) => {
+    const [{response$}] = demux(request(params), 'response$')
+    return response$.first().tap(x => x.destroy()).share()
+  }
 
   const select = R.curry((event, request$) => request$.filter(x => x.event === event).pluck('message'))
   const executor = (signal$) => {
@@ -39,11 +33,8 @@ export const HTTP = R.curry((request) => {
     destroy$.subscribe(request => request.destroy())
   }
   return [{
-    // TODO: DEPRECATE
-    requestBody,
     requestHead,
     select,
-    // UPDATED METHODS
-    request: Request(request)
+    request
   }, executor]
 })

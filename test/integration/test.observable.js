@@ -7,6 +7,7 @@ import request from 'request'
 import {server} from '../../perf/server'
 import test from 'ava'
 import {HTTP} from '../../src/Transformers'
+import {demux} from 'muxer'
 
 const http = HTTP(request)[0]
 let closeHttp
@@ -19,19 +20,17 @@ test.after(async function () {
   await closeHttp()
 })
 
-test('requestBody', async function (t) {
-  const response = await http
-    .requestBody({url: 'http://localhost:3100/files/pug.jpg'})
-    .filter((x) => x.event === 'response').pluck('message')
-    .toPromise()
+test('request', async function (t) {
+  const params = {url: 'http://localhost:3100/files/pug.jpg', method: 'HEAD'}
+  const [{response$}] = demux(http.request(params), 'response$')
+  const response = await response$.toPromise()
   t.deepEqual(response.headers['content-length'], '317235')
 })
 
-test('requestBody:https', async function (t) {
-  const response = await http
-    .requestBody({url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false})
-    .filter((x) => x.event === 'response').pluck('message')
-    .toPromise()
+test('request:https', async function (t) {
+  const params = {url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false}
+  const [{response$}] = demux(http.request(params), 'response$')
+  const response = await response$.toPromise()
   t.deepEqual(response.headers['content-length'], '317235')
 })
 
@@ -42,6 +41,11 @@ test('requestHead', async function (t) {
    *  https://nodejs.org/api/net.html#net_socket_remoteaddress
    */
   t.is(response.socket.remoteAddress, undefined)
+  t.true(response.socket.destroyed)
+
+  /**
+   * Check Headers
+   */
   const headers = response.headers
   t.is(headers['x-powered-by'], 'Express')
   t.is(headers['accept-ranges'], 'bytes')
