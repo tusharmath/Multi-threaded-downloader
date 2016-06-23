@@ -128,6 +128,7 @@ export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
   const MetaOffset = ({meta, index}) => meta.offsets[index]
   const addIndex = (meta) => meta.threads.map((_, index) => ({meta, index}))
   const Params = R.applySpec({
+    index: R.prop('index'),
     offset: MetaOffset,
     requestParams: CreateRequestParams
   })
