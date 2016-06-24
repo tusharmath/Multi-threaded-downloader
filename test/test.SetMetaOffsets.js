@@ -4,7 +4,7 @@
 
 'use strict'
 
-import {AccumulateOffset} from '../src/Utils'
+import {SetMetaOffsets} from '../src/Utils'
 import test from 'ava'
 import {ReactiveTest, TestScheduler} from 'rx'
 const {onNext} = ReactiveTest
@@ -20,7 +20,7 @@ test(t => {
     onNext(235, 0), onNext(245, 0), onNext(255, 1)
   )
   const meta$ = sh.createHotObservable(onNext(205, {offsets: [0, 10, 20], restParams: '#'}))
-  const {messages} = sh.startScheduler(() => AccumulateOffset({written$, thread$, meta$}))
+  const {messages} = sh.startScheduler(() => SetMetaOffsets({written$, thread$, meta$}))
   t.deepEqual(messages, [
     onNext(310, {offsets: [3, 10, 20], restParams: '#'}),
     onNext(320, {offsets: [3, 13, 20], restParams: '#'}),

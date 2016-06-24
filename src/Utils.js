@@ -98,7 +98,7 @@ export const CreateWriteBufferParams = ({fd$, buffer$, position$}) => {
   return O.combineLatest(fd$, O.zip(buffer$, position$))
     .map(R.compose(toParams, R.unnest))
 }
-export const AccumulateOffset = ({meta$, written$, thread$}) => {
+export const SetMetaOffsets = ({meta$, written$, thread$}) => {
   const offsetLens = thread => R.compose(R.lensProp('offsets'), R.lensIndex(thread))
   const start$ = meta$.map(meta => ({meta, len: 0, thread: 0})).first()
   const source$ = O.merge(
@@ -204,7 +204,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Update META info
    */
-  const nMeta$ = AccumulateOffset({meta$, written$: saveBuffer$.map(first), thread$: buffer$.map(second)})
+  const nMeta$ = SetMetaOffsets({meta$, written$: saveBuffer$.map(first), thread$: buffer$.map(second)})
 
   /**
    * Persist META to disk
