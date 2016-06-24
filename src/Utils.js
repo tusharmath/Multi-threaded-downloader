@@ -58,10 +58,13 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
 /*
  * STREAM BASED
  */
+export const GetBufferWriteOffset = ({buffer$, initialOffset}) => {
+  const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
+  return buffer$.scan(accumulator, [{length: 0}, initialOffset])
+}
 export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
   const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
-  const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
-  const buffer$ = data$.scan(accumulator, [{length: 0}, offset])
+  const buffer$ = GetBufferWriteOffset({buffer$: data$, initialOffset: offset})
   return mux({buffer$, response$})
 }
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
