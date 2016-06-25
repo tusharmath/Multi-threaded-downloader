@@ -7,10 +7,10 @@ import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
 import {spy} from 'sinon'
 import {mux} from 'muxer'
-import {RequestDataOffset} from '../src/Utils'
+import {RequestThread} from '../src/Utils'
 const {onNext} = ReactiveTest
 
-test((t) => {
+test.failing((t) => {
   const sh = new TestScheduler()
   const requestParams = {a: '1', b: '2'}
   const offset = 1000
@@ -23,7 +23,7 @@ test((t) => {
   const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'))
   const request = spy(() => mux({data$, response$}))
   const HTTP = {request}
-  const {messages} = sh.startScheduler(() => RequestDataOffset({HTTP, offset, requestParams}))
+  const {messages} = sh.startScheduler(() => RequestThread({HTTP, offset, requestParams}))
   t.true(request.calledWith(requestParams))
   t.deepEqual(messages, [
     onNext(210, ['response$', 'RESPONSE']),

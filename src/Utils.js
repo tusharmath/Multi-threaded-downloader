@@ -72,9 +72,15 @@ export const GetBufferWriteOffset = ({buffer$, initialOffset}) => {
   const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
   return buffer$.scan(accumulator, [{length: 0}, initialOffset])
 }
-export const RequestDataOffset = ({HTTP, requestParams, offset}) => {
-  const [{data$, response$}] = demux(HTTP.request(requestParams), 'data$', 'response$')
-  const buffer$ = GetBufferWriteOffset({buffer$: data$, initialOffset: offset})
+export const SetBufferParams = ({buffer$, index, meta}) => {
+  const initialOffset = GetOffset(meta, index)
+  const addParams = R.compose(Rx.map(R.append(index)), GetBufferWriteOffset)
+  return addParams({buffer$, initialOffset})
+}
+
+export const RequestThread = ({HttpRequest, meta, index}) => {
+  const {response$, data$} = HttpRequest({meta, index})
+  const buffer$ = SetBufferParams({buffer$: data$, meta, index})
   return mux({buffer$, response$})
 }
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
@@ -130,23 +136,23 @@ export const SetMetaOffsets = ({meta$, written$, thread$}) => {
     const meta = R.set(lens, R.add(oldVal, current.len), pMeta)
     return R.merge(current, {meta})
   }
-
   return source$
     .scan(accumulator)
     .skip(1)
     .pluck('meta')
 }
 export const ReadJSON$ = R.compose(BufferToJS$, Rx.map(second), ReadFileAt$)
-export const CreateRequestParamsWithOffset = ({meta$, CreateRequestParams}) => {
-  const MetaOffset = ({meta, index}) => meta.offsets[index]
-  const addIndex = (meta) => meta.threads.map((_, index) => ({meta, index}))
-  const Params = R.applySpec({
-    thread: R.prop('index'),
-    offset: MetaOffset,
-    requestParams: CreateRequestParams
-  })
-  return Rx.flatMap(addIndex, meta$).map(Params)
-}
+export const IsOffsetInRange = R.curry((meta, i) => {
+  const start = R.lte(GetThreadStart(meta, i))
+  const end = R.gt(GetThreadEnd(meta, i))
+  const inRange = R.allPass([start, end])
+  return inRange(GetOffset(meta, i))
+})
+export const FlattenMeta$ = Rx.flatMap((meta) => {
+  const MergeMeta = R.map(R.compose(R.merge({meta}), R.objOf('index')))
+  const IsValid = R.filter(IsOffsetInRange(meta))
+  return MergeMeta(IsValid(TimesCount(GetThreadCount(meta))))
+})
 export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
 export const RxThrottleComplete = (window$, $, sh) => {
   const selector = window => O.merge($.throttle(window, sh), $.last())
@@ -176,7 +182,8 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create Request function
    */
-  const HttpRequestReplay = RxFlatMapReplay(R.compose(RequestDataOffset, R.merge({HTTP})))
+  const HttpRequest = R.compose(R.head, demuxFP(['data$', 'response$']), HTTP.request, CreateRequestParams)
+  const HttpRequestReplay = RxFlatMapReplay(R.compose(RequestThread, R.merge({HttpRequest})))
 
   /**
    * Open file to read+append
@@ -195,14 +202,14 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
 
   /**
-   * Create request params and make HTTP requests
+   * Flatten meta with only incomplete threads
    */
-  const request$ = CreateRequestParamsWithOffset({meta$, CreateRequestParams})
+  const flattenedMeta$ = FlattenMeta$(meta$)
 
   /**
-   * Receive response stream
+   * Make a HTTP request for each thread
    */
-  const [{response$, buffer$}] = demux(HttpRequestReplay(request$), 'buffer$', 'response$')
+  const [{response$, buffer$}] = demux(HttpRequestReplay(flattenedMeta$), 'buffer$', 'response$')
 
   /**
    * Create write params and save buffer+offset to disk
@@ -217,7 +224,11 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Update META info
    */
-  const nMeta$ = SetMetaOffsets({meta$, written$: saveBuffer$.map(first), thread$: buffer$.map(second)})
+  const nMeta$ = SetMetaOffsets({
+    meta$,
+    written$: saveBuffer$.map(first),
+    thread$: buffer$.map(R.nth(2))
+  })
 
   /**
    * Persist META to disk
