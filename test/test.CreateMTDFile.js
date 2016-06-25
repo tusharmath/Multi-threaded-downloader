@@ -20,7 +20,7 @@ const MockFILE = (sh) => {
 const MockHTTP = (sh) => {
   return {
     requestHead: Hot(sh,
-      onNext(220, {headers: {'content-length': 9000}}),
+      onNext(220, {headers: {'content-length': '9000'}}),
       onCompleted(220))
   }
 }
@@ -58,3 +58,13 @@ test('written$', t => {
   ])
 })
 
+test('remoteFileSize$', t => {
+  const sh = new TestScheduler()
+  const options = {url: '/a/b/c', range: 3}
+  const params = createParams(sh, options)
+  const {messages} = sh.startScheduler(() => pluck('remoteFileSize$', CreateMTDFile(params)))
+  t.deepEqual(messages, [
+    onNext(220, 9000),
+    onCompleted(230)
+  ])
+})
