@@ -18,6 +18,7 @@ export const trace = R.curry((msg, value) => {
   console.log(msg, value)
   return value
 })
+export const demuxFP = R.curry((list, $) => demux($, ...list))
 export const BUFFER_SIZE = 512
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
 export const GenerateFileName = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
