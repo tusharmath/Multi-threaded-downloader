@@ -2,7 +2,7 @@ import {CreateMeta$} from '../src/Utils'
 import * as err from '../src/Error'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {createTestObserver} from '../perf/utils'
+import {createTestObserver} from '../perf/TestHelpers'
 const {onNext, onCompleted} = ReactiveTest
 
 test((t) => {

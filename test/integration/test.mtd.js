@@ -5,7 +5,7 @@
 'use strict'
 import Path from 'path'
 import test from 'ava'
-import {removeFile, createFileDigest} from '../../perf/utils'
+import {removeFile, createFileDigest} from '../../perf/TestHelpers'
 import {createDownload} from '../../src/index'
 import {server} from '../../perf/server'
 

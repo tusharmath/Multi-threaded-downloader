@@ -8,15 +8,19 @@ import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
 import {CreateMTDFile} from '../src/Utils'
 import {demux} from 'muxer'
+
+/**
+ * Helpers
+ */
 const {onNext, onCompleted} = ReactiveTest
 const Hot = (sh, ...args) => () => sh.createHotObservable(...args)
+const pluck = (key, $) => demux($, key)[0][key]
 const MockFILE = (sh) => {
   return {
     open: Hot(sh, onNext(210, 19), onCompleted(210)),
     write: Hot(sh, onNext(230, [1000, 'BUFFER-WRITTEN']), onCompleted(230))
   }
 }
-
 const MockHTTP = (sh) => {
   return {
     requestHead: Hot(sh,
@@ -24,8 +28,6 @@ const MockHTTP = (sh) => {
       onCompleted(220))
   }
 }
-
-const pluck = (key, $) => demux($, key)[0][key]
 const createParams = (sh, options) => ({
   FILE: MockFILE(sh),
   HTTP: MockHTTP(sh),
