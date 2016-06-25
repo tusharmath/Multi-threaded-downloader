@@ -46,3 +46,15 @@ test('meta$', t => {
     onCompleted(230)
   ])
 })
+
+test('written$', t => {
+  const sh = new TestScheduler()
+  const options = {url: '/a/b/c', range: 3}
+  const params = createParams(sh, options)
+  const {messages} = sh.startScheduler(() => pluck('written$', CreateMTDFile(params)))
+  t.deepEqual(messages, [
+    onNext(230, [1000, 'BUFFER-WRITTEN']),
+    onCompleted(230)
+  ])
+})
+
