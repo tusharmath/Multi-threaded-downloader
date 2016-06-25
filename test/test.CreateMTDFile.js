@@ -68,3 +68,14 @@ test('remoteFileSize$', t => {
     onCompleted(230)
   ])
 })
+
+test('fdW$', t => {
+  const sh = new TestScheduler()
+  const options = {url: '/a/b/c', range: 3}
+  const params = createParams(sh, options)
+  const {messages} = sh.startScheduler(() => pluck('fdW$', CreateMTDFile(params)))
+  t.deepEqual(messages, [
+    onNext(210, 19),
+    onCompleted(230)
+  ])
+})
