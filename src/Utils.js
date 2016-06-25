@@ -56,6 +56,15 @@ export const MergeDefaultOptions = (options) => R.mergeAll([
   {mtdPath: options.path + '.mtd', range: 3, metaWrite: 300},
   options
 ])
+
+// TODO: Use R.lens instead
+export const GetOffset = R.curry((meta, index) => meta.offsets[index])
+export const GetThread = R.curry((meta, index) => meta.threads[index])
+export const GetThreadStart = R.curryN(2, R.compose(R.nth(0), GetThread))
+export const GetThreadEnd = R.curryN(2, R.compose(R.nth(1), GetThread))
+export const GetThreadCount = R.compose(R.length, R.prop('threads'))
+export const TimesCount = R.times(R.identity)
+
 /*
  * STREAM BASED
  */
