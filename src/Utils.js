@@ -85,14 +85,16 @@ export const SetBufferParams = ({buffer$, index, meta}) => {
  * Makes an HTTP request using the {HttpRequest} function and appends the
  * buffer response with appropriate write position and thread index.
  * @function
- * @param {Function} HttpRequest - function that takes in meta and index
+ * @param {Object} HTTP - HTTP transformer
+ * @param {function} HTTP.request - HTTP request function
  * @param {Object} r - a dict of meta and selected thread index
  * @param {Object} r.meta - the download meta info
  * @param {Object} r.index - index of the selected thread
  * @returns {Observable} a muxed {buffer$, response$}
  */
-export const RequestThread = R.curry((HttpRequest, {meta, index}) => {
+export const RequestThread = R.curry((HTTP, {meta, index}) => {
   const pluck = demuxFPH(['data$', 'response$'])
+  const HttpRequest = R.compose(HTTP.request, CreateRequestParams)
   const {response$, data$} = pluck(HttpRequest({meta, index}))
   const buffer$ = SetBufferParams({buffer$: data$, meta, index})
   return mux({buffer$, response$})
@@ -130,10 +132,9 @@ export const CreateWriteBufferAtParams = ({fd$, buffer$, position$}) => {
   const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
   return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
 }
-export const CreateWriteBufferParams = ({fd$, buffer$, position$}) => {
+export const CreateWriteBufferParams = ({fd$, buffer$}) => {
   const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
-  return O.combineLatest(fd$, O.zip(buffer$, position$))
-    .map(R.compose(toParams, R.unnest))
+  return O.combineLatest(fd$, buffer$).map(R.compose(toParams, R.unnest))
 }
 export const SetMetaOffsets = ({meta$, written$, thread$}) => {
   const offsetLens = thread => R.compose(R.lensProp('offsets'), R.lensIndex(thread))
@@ -171,7 +172,6 @@ export const FlattenMeta$ = Rx.flatMap((meta) => {
   const IsValid = R.filter(IsOffsetInRange(meta))
   return MergeMeta(IsValid(TimesCount(GetThreadCount(meta))))
 })
-export const RxFlatMapReplay = R.curryN(2, R.compose(Rx.shareReplay(1), Rx.flatMap))
 export const RxThrottleComplete = (window$, $, sh) => {
   const selector = window => O.merge($.throttle(window, sh), $.last())
   return window$.first().flatMap(selector)
@@ -198,29 +198,18 @@ export const FinalizeDownload = ({FILE, fd$, meta$}) => {
 }
 
 /**
- * Creates request params and then makes an HTTP request based on
- * meta info being passed and the selected thread
+ * Makes HTTP requests to start downloading data for each thread described in
+ * the meta data.
  * @function
- * @param {HTTP} HTTP - HTTP transformer
- * @param {Object} t - a dictionary of {meta} and {index}
- * @param {Object} t.meta - meta data retrieved from .mtd file
- * @param {Number} t.index - index of the thread that needs to be requested for
- * @returns {Observable} response$$ - multiplexed response stream
+ * @param {Object} HTTP - an HTTP transformer
+ * @param {function} HTTP.request - an HTTP transformer
+ * @param {Observable} meta$ - meta data as a stream
+ * @returns {Observable} - muxed stream of responses$ and buffer$
  */
-export const RequestWithParams = R.uncurryN(
-  2, HTTP => R.compose(HTTP.request, CreateRequestParams)
-)
-
-export const HttpRequest = R.compose(
-  RxFlatMapReplay, RequestThread, RequestWithParams
-)
-export const HttpRequestMeta$ = ({HTTP, meta$}) => {
-  return R.compose(
-    demuxFPH(['buffer$', 'response$']),
-    HttpRequest(HTTP),
-    FlattenMeta$
-  )(meta$)
-}
+export const RequestWithMeta = R.uncurryN(2, (HTTP) => R.compose(
+  Rx.flatMap(RequestThread(HTTP)),
+  FlattenMeta$
+))
 export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Open file to read+append
@@ -241,17 +230,16 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Make a HTTP request for each thread
    */
-  const {response$, buffer$} = HttpRequestMeta$({HTTP, meta$})
+  const {response$, buffer$} = demuxFPH(
+    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$)
+  )
 
   /**
    * Create write params and save buffer+offset to disk
    */
-  const bufferWritten$ = FILE.write(CreateWriteBufferParams({
-    FILE,
-    fd$,
-    buffer$: buffer$.map(first),
-    position$: buffer$.map(second)
-  }))
+  const bufferWritten$ = FILE.write(
+    CreateWriteBufferParams({FILE, fd$, buffer$})
+  )
 
   /**
    * Update META info

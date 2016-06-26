@@ -4,7 +4,7 @@
 
 'use strict'
 import test from 'ava'
-import {TestScheduler, ReactiveTest} from 'rx'
+import {TestScheduler, ReactiveTest, Observable as O} from 'rx'
 import {spy} from 'sinon'
 import {mux} from 'muxer'
 import {RequestThread} from '../src/Utils'
@@ -20,14 +20,14 @@ test('response$', (t) => {
     onCompleted(250)
   )
   const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'), onCompleted(210))
-  const HttpRequest = () => mux({data$, response$})
+  const HTTP = {request: () => mux({data$, response$})}
   const meta = {
     threads: [[0, 100], [101, 200], [201, 300]],
     offsets: [50, 150, 250]
   }
   const index = 1
   const {messages} = sh.startScheduler(
-    () => RequestThread(HttpRequest, {meta, index})
+    () => RequestThread(HTTP, {meta, index})
   )
   t.deepEqual(messages, [
     onNext(210, ['response$', 'RESPONSE']),
@@ -46,15 +46,32 @@ test('request', (t) => {
     onCompleted(250)
   )
   const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'), onCompleted(210))
-  const HttpRequest = spy(() => mux({data$, response$}))
+  const HTTP = {request: spy(() => mux({data$, response$}))}
   const meta = {
     url: '/a/b/c',
     threads: [[0, 100], [101, 200], [201, 300]],
     offsets: [50, 150, 250]
   }
   const index = 1
-  sh.startScheduler(
-    () => RequestThread(HttpRequest, {meta, index})
-  )
-  t.true(HttpRequest.calledWith({meta, index}))
+  sh.startScheduler(() => RequestThread(HTTP, {meta, index}))
+  t.true(HTTP.request.calledWith({
+    url: '/a/b/c',
+    headers: {range: 'bytes=150-200'}
+  }))
+})
+
+test('curried', (t) => {
+  const sh = new TestScheduler()
+  const data$ = O.never()
+  const response$ = O.never()
+  const HTTP = {request: () => mux({data$, response$})}
+  const meta = {
+    threads: [[0, 100], [101, 200], [201, 300]],
+    offsets: [50, 150, 250]
+  }
+  const index = 1
+  /**
+   * CURRY CALL
+   */
+  sh.startScheduler(() => RequestThread(HTTP)({meta, index}))
 })
