@@ -184,11 +184,12 @@ export const ResetFileName = ({FILE, meta$}) => {
   const params$ = meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
   return FILE.rename(params$)
 }
-export const IsCompleted$ = ({meta$}) => {
-  const equals = R.apply(R.equals)
+export const IsCompleted$ = (meta$) => {
   const offsetsA = R.prop('offsets')
   const offsetsB = R.compose(R.map(second), R.prop('threads'))
-  const isComplete = R.compose(equals, R.ap([offsetsA, offsetsB]), R.of)
+  const subtract = R.apply(R.subtract)
+  const diff = R.compose(R.all(R.lte(0)), R.map(subtract), R.zip)
+  const isComplete = R.converge(diff, [offsetsA, offsetsB])
   return meta$.map(isComplete).distinctUntilChanged()
 }
 export const FinalizeDownload = ({FILE, fd$, meta$}) => {
