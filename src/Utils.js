@@ -182,7 +182,19 @@ export const FinalizeDownload = ({FILE, fd$, meta$}) => {
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
   return mux({metaRemoved$, renamed$})
 }
+
+/**
+ * Creates request params and then makes an HTTP request based on
+ * meta info being passed and the selected thread
+ * @function
+ * @param {HTTP} HTTP - HTTP transformer
+ * @param {Object} t - a dictionary of {meta} and {index}
+ * @param {Object} t.meta - meta data retrieved from .mtd file
+ * @param {Number} t.index - index of the thread that needs to be requested for
+ * @returns {Observable} response$$ - multiplexed response stream
+ */
 export const RequestWithParams = R.uncurryN(2, HTTP => R.compose(HTTP.request, CreateRequestParams))
+
 export const HttpRequest = R.compose(RxFlatMapReplay, RequestThread, RequestWithParams)
 export const HttpRequestMeta$ = ({HTTP, meta$}) => {
   return R.compose(
