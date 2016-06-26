@@ -8,31 +8,53 @@ import {TestScheduler, ReactiveTest} from 'rx'
 import {spy} from 'sinon'
 import {mux} from 'muxer'
 import {RequestThread} from '../src/Utils'
-const {onNext} = ReactiveTest
+const {onNext, onCompleted} = ReactiveTest
 
-test.failing((t) => {
+test('response$', (t) => {
   const sh = new TestScheduler()
-  const requestParams = {a: '1', b: '2'}
-  const offset = 1000
   const data$ = sh.createHotObservable(
     onNext(220, 'BUFFER'),
     onNext(230, 'BUFFER1'),
     onNext(240, 'BUFFER22'),
-    onNext(250, 'BUFFER333')
+    onNext(250, 'BUFFER333'),
+    onCompleted(250)
   )
-  const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'))
-  const request = spy(() => mux({data$, response$}))
-  const HTTP = {request}
-  const {messages} = sh.startScheduler(() => RequestThread(HTTP, {
-    offset,
-    requestParams
-  }))
-  t.true(request.calledWith(requestParams))
+  const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'), onCompleted(210))
+  const HttpRequest = () => mux({data$, response$})
+  const meta = {
+    threads: [[0, 100], [101, 200], [201, 300]],
+    offsets: [50, 150, 250]
+  }
+  const index = 1
+  const {messages} = sh.startScheduler(
+    () => RequestThread(HttpRequest, {meta, index})
+  )
   t.deepEqual(messages, [
     onNext(210, ['response$', 'RESPONSE']),
-    onNext(220, ['buffer$', ['BUFFER', 1000]]),
-    onNext(230, ['buffer$', ['BUFFER1', 1006]]),
-    onNext(240, ['buffer$', ['BUFFER22', 1013]]),
-    onNext(250, ['buffer$', ['BUFFER333', 1021]])
+    onNext(220, ['buffer$', ['BUFFER', 150, 1]]),
+    onNext(230, ['buffer$', ['BUFFER1', 156, 1]]),
+    onNext(240, ['buffer$', ['BUFFER22', 163, 1]]),
+    onNext(250, ['buffer$', ['BUFFER333', 171, 1]]),
+    onCompleted(250)
   ])
+})
+
+test('request', (t) => {
+  const sh = new TestScheduler()
+  const data$ = sh.createHotObservable(
+    onNext(220, 'BUFFER'),
+    onCompleted(250)
+  )
+  const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'), onCompleted(210))
+  const HttpRequest = spy(() => mux({data$, response$}))
+  const meta = {
+    url: '/a/b/c',
+    threads: [[0, 100], [101, 200], [201, 300]],
+    offsets: [50, 150, 250]
+  }
+  const index = 1
+  sh.startScheduler(
+    () => RequestThread(HttpRequest, {meta, index})
+  )
+  t.true(HttpRequest.calledWith({meta, index}))
 })

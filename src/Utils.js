@@ -79,11 +79,19 @@ export const SetBufferParams = ({buffer$, index, meta}) => {
   return addParams({buffer$, initialOffset})
 }
 
+/**
+ * Makes an HTTP request using the {HttpRequest} function and appends the
+ * buffer response with appropriate write position and thread index.
+ * @function
+ * @param {Function} HttpRequest - function that takes in meta and index
+ * @param {Object} r - a dict of meta and selected thread index
+ * @param {Object} r.meta - the download meta info
+ * @param {Object} r.index - index of the selected thread
+ * @returns {Observable} a muxed {buffer$, response$}
+ */
 export const RequestThread = R.curry((HttpRequest, {meta, index}) => {
-  const {response$, data$} = demuxFPH(['data$', 'response$'], HttpRequest({
-    meta,
-    index
-  }))
+  const pluck = demuxFPH(['data$', 'response$'])
+  const {response$, data$} = pluck(HttpRequest({meta, index}))
   const buffer$ = SetBufferParams({buffer$: data$, meta, index})
   return mux({buffer$, response$})
 })
