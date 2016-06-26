@@ -22,7 +22,9 @@ export const demuxFP = R.curry((list, $) => demux($, ...list))
 export const demuxFPH = R.curry((list, $) => R.head(demux($, ...list)))
 export const BUFFER_SIZE = 512
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
-export const GenerateFileName = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
+export const GenerateFileName = (x) => {
+  return R.last(URL.parse(x).pathname.split('/')) || Date.now()
+}
 export const ResolvePath = R.compose(NormalizePath, GenerateFileName)
 export const SplitRange = (totalBytes, range) => {
   const delta = Math.round(totalBytes / range)
@@ -98,13 +100,17 @@ export const RequestThread = R.curry((HttpRequest, {meta, index}) => {
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
 export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
-export const BufferToJS$ = buffer$ => buffer$.map(buffer => JSON.parse(buffer.toString()))
+export const BufferToJS$ = buffer$ => {
+  return buffer$.map(buffer => JSON.parse(buffer.toString()))
+}
 export const RemoteFileSize$ = ({HTTP, options}) => {
   return HTTP.requestHead(options)
     .pluck('headers', 'content-length')
     .map((x) => parseInt(x, 10))
 }
-export const LocalFileSize$ = ({FILE, fd$}) => FILE.fstat(fd$.map(R.of)).pluck('size')
+export const LocalFileSize$ = ({FILE, fd$}) => {
+  return FILE.fstat(fd$.map(R.of)).pluck('size')
+}
 export const PickFirst = R.map(first)
 export const CreateMeta$ = ({size$, options}) => {
   return size$.map((totalBytes) => {
@@ -201,9 +207,13 @@ export const FinalizeDownload = ({FILE, fd$, meta$}) => {
  * @param {Number} t.index - index of the thread that needs to be requested for
  * @returns {Observable} response$$ - multiplexed response stream
  */
-export const RequestWithParams = R.uncurryN(2, HTTP => R.compose(HTTP.request, CreateRequestParams))
+export const RequestWithParams = R.uncurryN(
+  2, HTTP => R.compose(HTTP.request, CreateRequestParams)
+)
 
-export const HttpRequest = R.compose(RxFlatMapReplay, RequestThread, RequestWithParams)
+export const HttpRequest = R.compose(
+  RxFlatMapReplay, RequestThread, RequestWithParams
+)
 export const HttpRequestMeta$ = ({HTTP, meta$}) => {
   return R.compose(
     demuxFPH(['buffer$', 'response$']),
