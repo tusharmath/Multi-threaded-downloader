@@ -80,7 +80,10 @@ export const SetBufferParams = ({buffer$, index, meta}) => {
 }
 
 export const RequestThread = R.curry((HttpRequest, {meta, index}) => {
-  const {response$, data$} = HttpRequest({meta, index})
+  const {response$, data$} = demuxFPH(['data$', 'response$'], HttpRequest({
+    meta,
+    index
+  }))
   const buffer$ = SetBufferParams({buffer$: data$, meta, index})
   return mux({buffer$, response$})
 })
@@ -159,7 +162,7 @@ export const RxThrottleComplete = (window$, $, sh) => {
   const selector = window => O.merge($.throttle(window, sh), $.last())
   return window$.first().flatMap(selector)
 }
-export const RemoveMETA = ({FILE, meta$, fd$}) => {
+export const RemoveMeta = ({FILE, meta$, fd$}) => {
   const size$ = meta$.pluck('totalBytes')
   return FILE.truncate(O.combineLatest(fd$, size$).take(1))
 }
@@ -175,17 +178,20 @@ export const IsCompleted$ = ({meta$}) => {
   return meta$.map(isComplete).distinctUntilChanged()
 }
 export const FinalizeDownload = ({FILE, fd$, meta$}) => {
-  const metaRemoved$ = RemoveMETA({FILE, meta$, fd$})
+  const metaRemoved$ = RemoveMeta({FILE, meta$, fd$})
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
   return mux({metaRemoved$, renamed$})
 }
+export const RequestWithParams = HTTP => R.compose(HTTP.request, CreateRequestParams)
+export const HttpRequest = R.compose(RxFlatMapReplay, RequestThread, RequestWithParams)
+export const HttpRequestMeta$ = ({HTTP, meta$}) => {
+  return R.compose(
+    demuxFPH(['buffer$', 'response$']),
+    HttpRequest(HTTP),
+    FlattenMeta$
+  )(meta$)
+}
 export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
-  /**
-   * Create Request function
-   */
-  const HttpRequest = R.compose(demuxFPH(['data$', 'response$']), HTTP.request, CreateRequestParams)
-  const HttpRequestReplay = RxFlatMapReplay(RequestThread(HttpRequest))
-
   /**
    * Open file to read+append
    */
@@ -203,14 +209,9 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
 
   /**
-   * Flatten meta with only incomplete threads
-   */
-  const flattenedMeta$ = FlattenMeta$(meta$)
-
-  /**
    * Make a HTTP request for each thread
    */
-  const [{response$, buffer$}] = demux(HttpRequestReplay(flattenedMeta$), 'buffer$', 'response$')
+  const {response$, buffer$} = HttpRequestMeta$({HTTP, meta$})
 
   /**
    * Create write params and save buffer+offset to disk
