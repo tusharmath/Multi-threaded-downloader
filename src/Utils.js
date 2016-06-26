@@ -182,7 +182,7 @@ export const FinalizeDownload = ({FILE, fd$, meta$}) => {
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
   return mux({metaRemoved$, renamed$})
 }
-export const RequestWithParams = HTTP => R.compose(HTTP.request, CreateRequestParams)
+export const RequestWithParams = R.uncurryN(2, HTTP => R.compose(HTTP.request, CreateRequestParams))
 export const HttpRequest = R.compose(RxFlatMapReplay, RequestThread, RequestWithParams)
 export const HttpRequestMeta$ = ({HTTP, meta$}) => {
   return R.compose(
