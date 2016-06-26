@@ -258,11 +258,15 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
     buffer$: JSToBuffer$(RxThrottleComplete(meta$.pluck('metaWrite'), nMeta$)),
     position$: size$
   }))
+
+  /**
+   * Create sink$
+   */
   return mux({
-    metaWritten$, localFileSize$: size$, fdR$: fd$, metaPosition$,
-    meta$: O.merge(nMeta$, meta$),
-    response$,
-    completed$: IsCompleted$({meta$})
+    metaWritten$, response$,
+    localFileSize$: size$,
+    fdR$: fd$, metaPosition$,
+    meta$: O.merge(nMeta$, meta$)
   })
 }
 export const CreateMTDFile = ({FILE, HTTP, options}) => {
