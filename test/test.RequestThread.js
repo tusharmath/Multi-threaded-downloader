@@ -23,7 +23,10 @@ test.failing((t) => {
   const response$ = sh.createHotObservable(onNext(210, 'RESPONSE'))
   const request = spy(() => mux({data$, response$}))
   const HTTP = {request}
-  const {messages} = sh.startScheduler(() => RequestThread({HTTP, offset, requestParams}))
+  const {messages} = sh.startScheduler(() => RequestThread(HTTP, {
+    offset,
+    requestParams
+  }))
   t.true(request.calledWith(requestParams))
   t.deepEqual(messages, [
     onNext(210, ['response$', 'RESPONSE']),

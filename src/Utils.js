@@ -19,6 +19,7 @@ export const trace = R.curry((msg, value) => {
   return value
 })
 export const demuxFP = R.curry((list, $) => demux($, ...list))
+export const demuxFPH = R.curry((list, $) => R.head(demux($, ...list)))
 export const BUFFER_SIZE = 512
 export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
 export const GenerateFileName = (x) => R.last(URL.parse(x).pathname.split('/')) || Date.now()
@@ -78,11 +79,11 @@ export const SetBufferParams = ({buffer$, index, meta}) => {
   return addParams({buffer$, initialOffset})
 }
 
-export const RequestThread = ({HttpRequest, meta, index}) => {
+export const RequestThread = R.curry((HttpRequest, {meta, index}) => {
   const {response$, data$} = HttpRequest({meta, index})
   const buffer$ = SetBufferParams({buffer$: data$, meta, index})
   return mux({buffer$, response$})
-}
+})
 export const ToJSON$ = source$ => source$.map(JSON.stringify.bind(JSON))
 export const ToBuffer$ = source$ => source$.map(ToBuffer(BUFFER_SIZE))
 export const JSToBuffer$ = R.compose(ToBuffer$, ToJSON$)
@@ -182,8 +183,8 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create Request function
    */
-  const HttpRequest = R.compose(R.head, demuxFP(['data$', 'response$']), HTTP.request, CreateRequestParams)
-  const HttpRequestReplay = RxFlatMapReplay(R.compose(RequestThread, R.merge({HttpRequest})))
+  const HttpRequest = R.compose(demuxFPH(['data$', 'response$']), HTTP.request, CreateRequestParams)
+  const HttpRequestReplay = RxFlatMapReplay(RequestThread(HttpRequest))
 
   /**
    * Open file to read+append
