@@ -246,7 +246,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create write params and save buffer+offset to disk
    */
-  const saveBuffer$ = FILE.write(CreateWriteBufferParams({
+  const bufferWritten$ = FILE.write(CreateWriteBufferParams({
     FILE,
     fd$,
     buffer$: buffer$.map(first),
@@ -258,7 +258,7 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
    */
   const nMeta$ = SetMetaOffsets({
     meta$,
-    written$: saveBuffer$.map(first),
+    written$: bufferWritten$.map(first),
     thread$: buffer$.map(R.nth(2))
   })
 
