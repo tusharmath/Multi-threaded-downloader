@@ -132,16 +132,17 @@ export const CreateWriteBufferAtParams = ({fd$, buffer$, position$}) => {
   const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
   return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
 }
-export const CreateWriteBufferParams = ({fd$, buffer$}) => {
-  const toParams = ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position]
-  return O.combineLatest(fd$, buffer$).map(R.compose(toParams, R.unnest))
-}
-export const SetMetaOffsets = ({meta$, written$, thread$}) => {
+export const CreateWriteBufferParams = R.compose(
+  O.just,
+  ([fd, buffer, position]) => [fd, buffer, 0, buffer.length, position],
+  R.unnest
+)
+export const SetMetaOffsets = ({meta$, bufferWritten$}) => {
   const offsetLens = thread => R.compose(R.lensProp('offsets'), R.lensIndex(thread))
   const start$ = meta$.map(meta => ({meta, len: 0, thread: 0})).first()
   const source$ = O.merge(
     start$,
-    O.zip(written$, thread$)
+    bufferWritten$.map(x => [x[3], x[2]])
       .map(R.zipObj(['len', 'thread']))
       .withLatestFrom(meta$.map(R.objOf('meta')))
       .map(R.mergeAll)
@@ -197,6 +198,13 @@ export const FinalizeDownload = ({FILE, fd$, meta$}) => {
   const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
   return mux({metaRemoved$, renamed$})
 }
+export const WriteBuffer = ({FILE, fd$, buffer$}) => {
+  const Write = R.compose(FILE.write, CreateWriteBufferParams)
+  return O.combineLatest(fd$, buffer$)
+    .flatMap(params => {
+      return Write(params).map(R.concat(R.nth(1, params)))
+    })
+}
 
 /**
  * Makes HTTP requests to start downloading data for each thread described in
@@ -238,18 +246,12 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
   /**
    * Create write params and save buffer+offset to disk
    */
-  const bufferWritten$ = FILE.write(
-    CreateWriteBufferParams({FILE, fd$, buffer$})
-  )
+  const bufferWritten$ = WriteBuffer({FILE, fd$, buffer$})
 
   /**
    * Update META info
    */
-  const nMeta$ = SetMetaOffsets({
-    meta$,
-    written$: bufferWritten$.map(first),
-    thread$: buffer$.map(R.nth(2))
-  })
+  const nMeta$ = SetMetaOffsets({meta$, bufferWritten$})
 
   /**
    * Persist META to disk

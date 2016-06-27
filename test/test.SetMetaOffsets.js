@@ -7,26 +7,27 @@
 import {SetMetaOffsets} from '../src/Utils'
 import test from 'ava'
 import {ReactiveTest, TestScheduler} from 'rx'
-const {onNext} = ReactiveTest
+const {onNext, onCompleted} = ReactiveTest
 
 test(t => {
   const sh = new TestScheduler()
-  const written$ = sh.createHotObservable(
-    onNext(310, 3), onNext(320, 3), onNext(330, 3),
-    onNext(340, 3), onNext(350, 3), onNext(360, 3)
+  const bufferWritten$ = sh.createHotObservable(
+    onNext(310, ['BUFFER', 0, 0, 4, 'WRITTEN']),
+    onNext(320, ['BUFFER', 10, 1, 4, 'WRITTEN']),
+    onNext(330, ['BUFFER', 20, 2, 4, 'WRITTEN']),
+    onCompleted(330)
   )
-  const thread$ = sh.createHotObservable(
-    onNext(205, 0), onNext(215, 1), onNext(225, 2),
-    onNext(235, 0), onNext(245, 0), onNext(255, 1)
+  const meta$ = sh.createHotObservable(
+    onNext(205, {offsets: [0, 10, 20], restParams: '#'}),
+    onCompleted(205)
   )
-  const meta$ = sh.createHotObservable(onNext(205, {offsets: [0, 10, 20], restParams: '#'}))
-  const {messages} = sh.startScheduler(() => SetMetaOffsets({written$, thread$, meta$}))
+  const {messages} = sh.startScheduler(
+    () => SetMetaOffsets({bufferWritten$, meta$})
+  )
   t.deepEqual(messages, [
-    onNext(310, {offsets: [3, 10, 20], restParams: '#'}),
-    onNext(320, {offsets: [3, 13, 20], restParams: '#'}),
-    onNext(330, {offsets: [3, 13, 23], restParams: '#'}),
-    onNext(340, {offsets: [6, 13, 23], restParams: '#'}),
-    onNext(350, {offsets: [9, 13, 23], restParams: '#'}),
-    onNext(360, {offsets: [9, 16, 23], restParams: '#'})
+    onNext(310, {offsets: [4, 10, 20], restParams: '#'}),
+    onNext(320, {offsets: [4, 14, 20], restParams: '#'}),
+    onNext(330, {offsets: [4, 14, 24], restParams: '#'}),
+    onCompleted(330)
   ])
 })
