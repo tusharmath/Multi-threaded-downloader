@@ -30,7 +30,7 @@ export const createDownload = (_options) => {
     .flatMap(U.DownloadFromMTDFile)
     .share()
 
-  const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
+  const [{fdR$, meta$, response$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')
 
   /**
    * Finalize Downloaded FILE
@@ -45,12 +45,12 @@ export const createDownload = (_options) => {
    * Close File Descriptors
    */
   const fd$ = finalizeDownload$.withLatestFrom(fdW$, fdR$)
-    .map(R.slice(1, Infinity))
+    .map(R.tail)
     .flatMap(R.map(R.of))
   const closed$ = FILE.close(fd$)
 
   /**
    * Create Sink
    */
-  return mux({finalizeDownload$, meta$, closed$})
+  return mux({response$, meta$, closed$})
 }
