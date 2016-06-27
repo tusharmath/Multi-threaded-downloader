@@ -177,14 +177,6 @@ export const RxThrottleComplete = (window$, $, sh) => {
   const selector = window => O.merge($.throttle(window, sh), $.last())
   return window$.first().flatMap(selector)
 }
-export const RemoveMeta = ({FILE, meta$, fd$}) => {
-  const size$ = meta$.pluck('totalBytes')
-  return FILE.truncate(O.combineLatest(fd$, size$).take(1))
-}
-export const ResetFileName = ({FILE, meta$}) => {
-  const params$ = meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
-  return FILE.rename(params$)
-}
 export const IsCompleted$ = (meta$) => {
   const offsetsA = R.prop('offsets')
   const offsetsB = R.compose(R.map(second), R.prop('threads'))
@@ -193,10 +185,34 @@ export const IsCompleted$ = (meta$) => {
   const isComplete = R.converge(diff, [offsetsA, offsetsB])
   return meta$.map(isComplete).distinctUntilChanged()
 }
+
+/**
+ * Removes the appended meta data and the .mtd extension from the file. In case
+ * there still some data leftover to be downloaded, this step will be ignored.
+ * @function
+ * @param {Object} FILE - File transformer
+ * @param {Observable} fd$ - File descriptor observable
+ * @param {Observable} meta$ - Download meta information
+ * @returns {Observable}
+ */
 export const FinalizeDownload = ({FILE, fd$, meta$}) => {
-  const metaRemoved$ = RemoveMeta({FILE, meta$, fd$})
-  const renamed$ = metaRemoved$.flatMap(() => ResetFileName({FILE, meta$}))
-  return mux({metaRemoved$, renamed$})
+  const [ok$, noop$] = IsCompleted$(meta$).partition(Boolean)
+  const Truncate = ({FILE, meta$, fd$}) => {
+    const size$ = meta$.pluck('totalBytes')
+    return FILE.truncate(O.combineLatest(fd$, size$).take(1))
+  }
+  const Rename = ({FILE, meta$}) => {
+    const params$ = meta$.map(meta => [meta.mtdPath, meta.path]).take(1)
+    return FILE.rename(params$)
+  }
+  return O.merge(
+    mux({noop$}),
+    ok$.flatMap(() => {
+      const truncated$ = Truncate({FILE, meta$, fd$})
+      const renamed$ = truncated$.flatMap(() => Rename({FILE, meta$}))
+      return mux({truncated$, renamed$})
+    })
+  )
 }
 export const WriteBuffer = ({FILE, fd$, buffer$}) => {
   const Write = R.compose(FILE.write, CreateWriteBufferParams)
