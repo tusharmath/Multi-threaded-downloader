@@ -11,7 +11,7 @@ import meow from 'meow'
 import humanize from 'humanize-plus'
 import newDownload from './NewDownload'
 import resumeDownload from './ResumeDownload'
-import {createDownload} from '../index'
+import {createDownload} from '../Main'
 import ProgressBar from 'progress'
 
 const flags = meow(`		

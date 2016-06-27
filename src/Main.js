@@ -7,13 +7,14 @@ import fs from 'graceful-fs'
 import {Observable as O} from 'rx'
 import R from 'ramda'
 import * as U from './Utils'
-import * as T from './Transformers'
+import * as T from './IO'
 import {mux, demux} from 'muxer'
 
-export const Utils = U
+export const UTILS = U
 export const createDownload = (_options) => {
-  const [HTTP] = T.HTTP(request)
-  const [FILE] = T.FILE(fs)
+
+  const HTTP = T.HTTP(request)
+  const FILE = T.FILE(fs)
   const options = U.MergeDefaultOptions(_options)
 
   /**
@@ -36,7 +37,11 @@ export const createDownload = (_options) => {
    * Finalize Downloaded FILE
    */
   const finalizeDownload$ = downloadFromMTDFile$.last()
-    .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({FILE, fd$: O.just(fd), meta$: O.just(meta)}))
+    .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({
+      FILE,
+      fd$: O.just(fd),
+      meta$: O.just(meta)
+    }))
     .flatMap(U.FinalizeDownload)
     .share()
     .last()
@@ -48,9 +53,5 @@ export const createDownload = (_options) => {
     .map(R.tail)
     .flatMap(R.map(R.of))
   const closed$ = FILE.close(fd$)
-
-  /**
-   * Create Sink
-   */
-  return mux({response$, meta$, closed$})
+  return [mux({response$, meta$, closed$}), {FILE, HTTP, UTILS}]
 }

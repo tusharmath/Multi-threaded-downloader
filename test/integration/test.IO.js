@@ -6,10 +6,10 @@
 import request from 'request'
 import {server} from '../../perf/server'
 import test from 'ava'
-import {HTTP} from '../../src/Transformers'
+import {HTTP} from '../../src/IO'
 import {demux} from 'muxer'
 
-const http = HTTP(request)[0]
+const http = HTTP(request)
 let closeHttp
 /*eslint-disable */
 test.before(async function () {
