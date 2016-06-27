@@ -17,6 +17,7 @@
     "build": "babel src --out-dir .dist",
     "test": "ava",
     "lint": "standard --verbose | snazzy",
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "engines": {
@@ -41,10 +42,12 @@
     "babel-cli": "^6.9.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
     "babel-register": "^6.9.0",
+    "coveralls": "^2.11.9",
     "cz-conventional-changelog": "^1.1.5",
     "eslint": "^2.11.1",
     "express": "^4.13.1",
     "ghooks": "^1.0.3",
+    "nyc": "^6.6.1",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.4",
     "snazzy": "^4.0.0",
