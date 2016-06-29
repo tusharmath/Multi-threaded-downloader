@@ -28,17 +28,16 @@ const MockHTTP = (sh) => {
       onCompleted(220))
   }
 }
-const createParams = (sh, options) => ({
+const createParams = (sh) => ({
   FILE: MockFILE(sh),
-  HTTP: MockHTTP(sh),
-  options
+  HTTP: MockHTTP(sh)
 })
 
 test('meta$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
-  const params = createParams(sh, options)
-  const {messages} = sh.startScheduler(() => pluck('meta$', CreateMTDFile(params)))
+  const params = createParams(sh)
+  const {messages} = sh.startScheduler(() => pluck('meta$', CreateMTDFile(params, options)))
   t.deepEqual(messages, [
     onNext(220, {
       url: '/a/b/c', range: 3, totalBytes: 9000,
@@ -52,8 +51,8 @@ test('meta$', t => {
 test('written$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
-  const params = createParams(sh, options)
-  const {messages} = sh.startScheduler(() => pluck('written$', CreateMTDFile(params)))
+  const params = createParams(sh)
+  const {messages} = sh.startScheduler(() => pluck('written$', CreateMTDFile(params, options)))
   t.deepEqual(messages, [
     onNext(230, [1000, 'BUFFER-WRITTEN']),
     onCompleted(230)
@@ -63,8 +62,8 @@ test('written$', t => {
 test('remoteFileSize$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
-  const params = createParams(sh, options)
-  const {messages} = sh.startScheduler(() => pluck('remoteFileSize$', CreateMTDFile(params)))
+  const params = createParams(sh)
+  const {messages} = sh.startScheduler(() => pluck('remoteFileSize$', CreateMTDFile(params, options)))
   t.deepEqual(messages, [
     onNext(220, 9000),
     onCompleted(230)
@@ -74,8 +73,8 @@ test('remoteFileSize$', t => {
 test('fdW$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
-  const params = createParams(sh, options)
-  const {messages} = sh.startScheduler(() => pluck('fdW$', CreateMTDFile(params)))
+  const params = createParams(sh)
+  const {messages} = sh.startScheduler(() => pluck('fdW$', CreateMTDFile(params, options)))
   t.deepEqual(messages, [
     onNext(210, 19),
     onCompleted(230)

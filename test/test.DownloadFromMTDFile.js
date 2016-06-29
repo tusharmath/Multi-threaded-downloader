@@ -38,17 +38,16 @@ const MockFILE = (sh) => {
 const MockHTTP = (sh) => {
   return {}
 }
-const createParams = (sh, mtdPath) => ({
+const createParams = (sh) => ({
   FILE: MockFILE(sh),
-  HTTP: MockHTTP(sh),
-  mtdPath
+  HTTP: MockHTTP(sh)
 })
 
 test('localFileSize$', t => {
   const sh = new TestScheduler()
-  const params = createParams(sh, './home/file.mtd')
+  const params = createParams(sh)
   const {messages} = sh.startScheduler(
-    () => pluck('localFileSize$', DownloadFromMTDFile(params))
+    () => pluck('localFileSize$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(220, 9000),
@@ -58,9 +57,9 @@ test('localFileSize$', t => {
 
 test('fdR$', t => {
   const sh = new TestScheduler()
-  const params = createParams(sh, './home/file.mtd')
+  const params = createParams(sh)
   const {messages} = sh.startScheduler(
-    () => pluck('fdR$', DownloadFromMTDFile(params))
+    () => pluck('fdR$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(210, 19),
@@ -70,9 +69,9 @@ test('fdR$', t => {
 
 test('metaWritten$', t => {
   const sh = new TestScheduler()
-  const params = createParams(sh, './home/file.mtd')
+  const params = createParams(sh)
   const {messages} = sh.startScheduler(
-    () => pluck('metaWritten$', DownloadFromMTDFile(params))
+    () => pluck('metaWritten$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(240, 'WRITE-0'),
@@ -84,9 +83,9 @@ test('metaWritten$', t => {
 
 test('metaPosition$', t => {
   const sh = new TestScheduler()
-  const params = createParams(sh, './home/file.mtd')
+  const params = createParams(sh)
   const {messages} = sh.startScheduler(
-    () => pluck('metaPosition$', DownloadFromMTDFile(params))
+    () => pluck('metaPosition$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(220, (9000 - 512)),

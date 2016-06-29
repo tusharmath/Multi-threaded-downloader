@@ -6,6 +6,7 @@
 
 import {mux} from 'muxer'
 import {Observable as O} from 'rx'
+import R from 'ramda'
 import {
   CreateWriteBufferAtParams,
   JSToBuffer$,
@@ -19,7 +20,7 @@ import {
   RxThrottleComplete
 } from './Utils'
 
-export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
+export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
   /**
    * Open file to read+append
    */
@@ -71,4 +72,4 @@ export const DownloadFromMTDFile = ({FILE, HTTP, mtdPath}) => {
     fdR$: fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$)
   })
-}
+})

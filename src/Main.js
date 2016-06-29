@@ -21,15 +21,15 @@ export const createDownload = (_options) => {
   /**
    * Create MTD File
    */
-  const createMTDFile$ = CreateMTDFile({FILE, HTTP, options}).share()
+  const createMTDFile$ = CreateMTDFile({FILE, HTTP}, options).share()
   const [{fdW$}] = demux(createMTDFile$, 'fdW$')
 
   /**
    * Download From MTD File
    */
   const downloadFromMTDFile$ = createMTDFile$.last()
-    .map({HTTP, FILE, mtdPath: options.mtdPath})
-    .flatMap(DownloadFromMTDFile)
+    .map(options.mtdPath)
+    .flatMap(DownloadFromMTDFile({HTTP, FILE}))
     .share()
 
   const [{fdR$, meta$, response$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')

@@ -4,6 +4,7 @@
 
 'use strict'
 import {mux} from 'muxer'
+import R from 'ramda'
 import {Observable as O} from 'rx'
 import {
   RemoteFileSize$,
@@ -12,7 +13,7 @@ import {
   JSToBuffer$
 } from './Utils'
 
-export const CreateMTDFile = ({FILE, HTTP, options}) => {
+export const CreateMTDFile = R.curry(({FILE, HTTP}, options) => {
   /**
    * Create a new file
    */
@@ -38,4 +39,4 @@ export const CreateMTDFile = ({FILE, HTTP, options}) => {
     position$: size$
   }))
   return mux({written$, meta$, remoteFileSize$: size$, fdW$: fd$})
-}
+})
