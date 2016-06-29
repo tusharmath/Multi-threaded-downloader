@@ -3,7 +3,7 @@
  */
 'use strict'
 import * as U from './Utils'
-import * as T from '../src/IO'
+import * as T from './IO'
 import request from 'request'
 import R from 'ramda'
 import fs from 'graceful-fs'
@@ -17,3 +17,4 @@ export const CreateMTDFile = R.compose(_CreateMTDFile({FILE, HTTP}), U.MergeDefa
 export const DownloadFromMTDFile = _DownloadFromMTDFile({FILE, HTTP})
 export const FinalizeDownload = _FinalizeDownload({FILE})
 export const MTDPath = U.MTDPath
+export const ResolvePath = U.ResolvePath
