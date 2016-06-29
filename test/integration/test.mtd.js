@@ -5,8 +5,11 @@
 'use strict'
 import Path from 'path'
 import test from 'ava'
-import {removeFile, createFileDigest} from '../../perf/TestHelpers'
-import {createDownload} from '../../src/Main'
+import {
+  removeFile,
+  createFileDigest,
+  createDownload
+} from '../../perf/TestHelpers'
 import {server} from '../../perf/server'
 
 const pathFactory = () => {
@@ -35,7 +38,10 @@ test.after(async function () {
 })
 
 test('http', async function (t) {
-  await createDownload({url: 'http://localhost:3200/files/pug.jpg', path: path1})[0].toPromise()
+  await createDownload({
+    url: 'http://localhost:3200/files/pug.jpg',
+    path: path1
+  }).toPromise()
   const digest = await createFileDigest(path1)
   t.deepEqual(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1')
 })
@@ -45,7 +51,7 @@ test('https', async function (t) {
     url: 'https://localhost:3201/files/pug.jpg',
     path: path2,
     strictSSL: false
-  })[0].toPromise()
+  }).toPromise()
   const digest = await createFileDigest(path2)
   t.deepEqual(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1')
 })
@@ -54,7 +60,7 @@ test('http(2)', async function (t) {
   await createDownload({
     url: 'http://localhost:3200/files/in.txt',
     path: path3
-  })[0].toPromise()
+  }).toPromise()
   const digest = await createFileDigest(path3)
   t.deepEqual(digest, 'A9070D71168B5135910A04F0650A91541B72762E')
 })
