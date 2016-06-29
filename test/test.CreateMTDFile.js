@@ -6,7 +6,7 @@
 
 import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
-import {CreateMTDFile} from '../src/Utils'
+import {CreateMTDFile} from '../src/CreateMTDFile'
 import {demux} from 'muxer'
 
 /**

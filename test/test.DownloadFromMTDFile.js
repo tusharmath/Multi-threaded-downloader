@@ -5,7 +5,7 @@
 'use strict'
 import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
-import {DownloadFromMTDFile} from '../src/Utils'
+import {DownloadFromMTDFile} from '../src/DownloadFromMTDFile'
 import {demux} from 'muxer'
 
 /**

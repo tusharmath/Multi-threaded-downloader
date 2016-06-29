@@ -7,6 +7,8 @@ import fs from 'graceful-fs'
 import {Observable as O} from 'rx'
 import R from 'ramda'
 import * as U from './Utils'
+import {CreateMTDFile} from './CreateMTDFile'
+import {DownloadFromMTDFile} from './DownloadFromMTDFile'
 import * as T from './IO'
 import {mux, demux} from 'muxer'
 
@@ -19,7 +21,7 @@ export const createDownload = (_options) => {
   /**
    * Create MTD File
    */
-  const createMTDFile$ = U.CreateMTDFile({FILE, HTTP, options}).share()
+  const createMTDFile$ = CreateMTDFile({FILE, HTTP, options}).share()
   const [{fdW$}] = demux(createMTDFile$, 'fdW$')
 
   /**
@@ -27,7 +29,7 @@ export const createDownload = (_options) => {
    */
   const downloadFromMTDFile$ = createMTDFile$.last()
     .map({HTTP, FILE, mtdPath: options.mtdPath})
-    .flatMap(U.DownloadFromMTDFile)
+    .flatMap(DownloadFromMTDFile)
     .share()
 
   const [{fdR$, meta$, response$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')
