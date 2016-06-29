@@ -5,7 +5,7 @@
 'use strict'
 import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
-import {FinalizeDownload} from '../src/Utils'
+import {FinalizeDownload} from '../src/FinalizeDownload'
 const {onNext, onCompleted} = ReactiveTest
 
 test('complete', t => {
@@ -32,7 +32,7 @@ test('complete', t => {
     rename: () => rename$
   }
   const {messages} = sh.startScheduler(
-    () => FinalizeDownload({FILE, fd$, meta$})
+    () => FinalizeDownload({FILE}, {fd$, meta$})
   )
   t.deepEqual(messages, [
     onNext(300, ['truncated$', 'TRUNCATED']),
@@ -64,7 +64,7 @@ test('incomplete', t => {
     rename: () => rename$
   }
   const {messages} = sh.startScheduler(
-    () => FinalizeDownload({FILE, fd$, meta$})
+    () => FinalizeDownload({FILE}, {fd$, meta$})
   )
   t.deepEqual(messages, [
     onNext(220, ['noop$', false]),

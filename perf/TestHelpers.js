@@ -5,14 +5,16 @@
 'use strict'
 import crypto from 'crypto'
 import Rx, {Observable as O} from 'rx'
-import request from 'request'
 import fs from 'graceful-fs'
 import R from 'ramda'
-import * as U from '../src/Utils'
-import {CreateMTDFile} from '../src/CreateMTDFile'
-import {DownloadFromMTDFile} from '../src/DownloadFromMTDFile'
-import * as T from '../src/IO'
-import {mux, demux} from 'muxer'
+import {
+  CreateMTDFile,
+  DownloadFromMTDFile,
+  FILE,
+  MergeDefaultOptions,
+  FinalizeDownload
+} from '../src'
+import {demux} from 'muxer'
 
 export const removeFile = (x) => Rx.Observable.fromCallback(fs.unlink)(x).toPromise()
 
@@ -32,27 +34,26 @@ export const createTestObserver = (stream) => {
   stream.subscribe((x) => out.push(x))
   return out
 }
+
 /**
  * Test UTILS for doing a real download
  * @param _options
  * @returns {Observable}
  */
 export const createDownload = (_options) => {
-  const HTTP = T.HTTP(request)
-  const FILE = T.FILE(fs)
-  const options = U.MergeDefaultOptions(_options)
+  const options = MergeDefaultOptions(_options)
 
   /**
    * Create MTD File
    */
-  const createMTDFile$ = CreateMTDFile({FILE, HTTP}, options).share()
+  const createMTDFile$ = CreateMTDFile(options).share()
   const [{fdW$}] = demux(createMTDFile$, 'fdW$')
 
   /**
    * Download From MTD File
    */
   const downloadFromMTDFile$ = createMTDFile$.last()
-    .map(options.mtdPath).flatMap(DownloadFromMTDFile({HTTP, FILE})).share()
+    .map(options.mtdPath).flatMap(DownloadFromMTDFile).share()
 
   const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')
 
@@ -61,11 +62,10 @@ export const createDownload = (_options) => {
    */
   const finalizeDownload$ = downloadFromMTDFile$.last()
     .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({
-      FILE,
       fd$: O.just(fd),
       meta$: O.just(meta)
     }))
-    .flatMap(U.FinalizeDownload)
+    .flatMap(FinalizeDownload)
     .share()
     .last()
 
