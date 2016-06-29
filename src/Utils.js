@@ -55,8 +55,10 @@ export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
   buffer.fill(fill)
   return buffer
 }
+export const MTDPath = (path) => path + '.mtd'
 export const MergeDefaultOptions = (options) => R.mergeAll([
-  {mtdPath: options.path + '.mtd', range: 3, metaWrite: 300},
+  {range: 3, metaWrite: 300},
+  {mtdPath: MTDPath(R.prop('path', options))},
   options
 ])
 

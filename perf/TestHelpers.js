@@ -11,8 +11,8 @@ import {
   CreateMTDFile,
   DownloadFromMTDFile,
   FILE,
-  MergeDefaultOptions,
-  FinalizeDownload
+  FinalizeDownload,
+  MTDPath
 } from '../src'
 import {demux} from 'muxer'
 
@@ -37,12 +37,10 @@ export const createTestObserver = (stream) => {
 
 /**
  * Test UTILS for doing a real download
- * @param _options
+ * @param options
  * @returns {Observable}
  */
-export const createDownload = (_options) => {
-  const options = MergeDefaultOptions(_options)
-
+export const createDownload = (options) => {
   /**
    * Create MTD File
    */
@@ -53,7 +51,7 @@ export const createDownload = (_options) => {
    * Download From MTD File
    */
   const downloadFromMTDFile$ = createMTDFile$.last()
-    .map(options.mtdPath).flatMap(DownloadFromMTDFile).share()
+    .map(MTDPath(options.path)).flatMap(DownloadFromMTDFile).share()
 
   const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')
 
