@@ -207,3 +207,19 @@ export const RequestWithMeta = R.uncurryN(2, (HTTP) => R.compose(
   Rx.flatMap(RequestThread(HTTP)),
   FlattenMeta$
 ))
+
+export const DOWNLOAD_TYPES = {
+  NEW: 0,
+  OLD: 1
+}
+export const GetDownloadType = R.curry((ResolvePath, options$) => {
+  const MergeType = type => R.compose(R.merge({type}), R.objOf('options'))
+  const setPath = options => R.assoc('path', ResolvePath(options.url), options)
+  const setMtdPath = options => R.assoc('mtdPath', MTDPath(options.path), options)
+
+  const [ok$, not$] = options$.partition(x => x.url)
+  return O.merge(
+    ok$.map(R.compose(setMtdPath, setPath)).map(MergeType(DOWNLOAD_TYPES.NEW)),
+    not$.map(setMtdPath).map(MergeType(DOWNLOAD_TYPES.OLD))
+  )
+})
