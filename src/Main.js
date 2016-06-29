@@ -12,7 +12,6 @@ import {mux, demux} from 'muxer'
 
 export const UTILS = U
 export const createDownload = (_options) => {
-
   const HTTP = T.HTTP(request)
   const FILE = T.FILE(fs)
   const options = U.MergeDefaultOptions(_options)
