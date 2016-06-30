@@ -6,6 +6,7 @@
 import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
 import {DownloadFromMTDFile} from '../src/DownloadFromMTDFile'
+import {BUFFER_SIZE} from '../src/Utils'
 import {demux} from 'muxer'
 
 /**
@@ -88,7 +89,7 @@ test('metaPosition$', t => {
     () => pluck('metaPosition$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
-    onNext(220, (9000 - 512)),
+    onNext(220, (9000 - BUFFER_SIZE)),
     onCompleted(260)
   ])
 })
