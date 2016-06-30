@@ -223,14 +223,20 @@ export const DOWNLOAD_TYPES = {
   NEW: 0,
   OLD: 1
 }
-export const GetDownloadType = R.curry((ResolvePath, options$) => {
+export const RemoveExtension = R.replace(/\.mtd$/, '')
+export const GetDownloadType = R.curry((NormalizePath, options$) => {
   const MergeType = type => R.compose(R.merge({type}), R.objOf('options'))
-  const setPath = options => R.assoc('path', ResolvePath(options.url), options)
-  const setMtdPath = options => R.assoc('mtdPath', MTDPath(options.path), options)
+  const GetPathFromURL = R.compose(NormalizePath, GenerateFileName, R.prop('url'))
+  const GetPathFromFile = R.compose(NormalizePath, RemoveExtension, R.prop('file'))
+  const GetMtdPathFromPath = R.compose(MTDPath, R.prop('path'))
+  const MetaAssoc = R.curry((prop, T, options) => R.assoc(prop, T(options), options))
+  const setPathFromURL = MetaAssoc('path', GetPathFromURL)
+  const setPathFromFile = MetaAssoc('path', GetPathFromFile)
+  const setMtdPath = MetaAssoc('mtdPath', GetMtdPathFromPath)
 
   const [ok$, not$] = options$.partition(x => x.url)
   return O.merge(
-    ok$.map(R.compose(setMtdPath, setPath)).map(MergeType(DOWNLOAD_TYPES.NEW)),
-    not$.map(setMtdPath).map(MergeType(DOWNLOAD_TYPES.OLD))
+    ok$.map(R.compose(setMtdPath, setPathFromURL)).map(MergeType(DOWNLOAD_TYPES.NEW)),
+    not$.map(R.compose(setMtdPath, setPathFromFile)).map(MergeType(DOWNLOAD_TYPES.OLD))
   )
 })

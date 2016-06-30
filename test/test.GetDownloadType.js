@@ -10,10 +10,10 @@ const {onNext, onCompleted} = ReactiveTest
 
 test(t => {
   const sh = new TestScheduler()
-  const Path = x => x + '-resolved'
+  const Path = x => '/home/downloads/' + x
   const options$ = sh.createHotObservable(
-    onNext(210, {url: 'a/b/c'}),
-    onNext(220, {path: '/home.txt'}),
+    onNext(210, {url: 'a/b/c.txt'}),
+    onNext(220, {file: 'home.txt.mtd'}),
     onCompleted(300)
   )
   const {messages} = sh.startScheduler(() => GetDownloadType(Path, options$))
@@ -21,14 +21,18 @@ test(t => {
     onNext(210, {
       type: DOWNLOAD_TYPES.NEW,
       options: {
-        url: 'a/b/c',
-        path: 'a/b/c-resolved',
-        mtdPath: 'a/b/c-resolved.mtd'
+        url: 'a/b/c.txt',
+        path: '/home/downloads/c.txt',
+        mtdPath: '/home/downloads/c.txt.mtd'
       }
     }),
     onNext(220, {
       type: DOWNLOAD_TYPES.OLD,
-      options: {path: '/home.txt', mtdPath: '/home.txt.mtd'}
+      options: {
+        path: '/home/downloads/home.txt',
+        mtdPath: '/home/downloads/home.txt.mtd',
+        file: 'home.txt.mtd'
+      }
     }),
     onCompleted(300)
   ])

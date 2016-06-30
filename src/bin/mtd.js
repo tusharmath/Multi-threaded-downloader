@@ -34,18 +34,9 @@ const HELP_TEXT = `
 /**
  * LIB
  */
-export const options = meow(HELP_TEXT).flags
-export const options$ = O.just(options)
-export const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
-export const Log = message => () => console.log(message)
-export const CreateProgressBar = total => {
-  console.log('CREATE')
-  return new Progress(':bar :percent', {
-    total,
-    complete: '█',
-    incomplete: '░'
-  })
-}
+const options = meow(HELP_TEXT).flags
+const options$ = O.just(options)
+const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
 
 if (!R.any(R.identity)([options.url, options.file])) {
   console.log(HELP_TEXT)
@@ -67,7 +58,7 @@ const created$ = FlatMapShare(CreateMTDFile, newOptions$).last()
 const mtdFile$ = O.merge(
   resumeOptions$,
   created$.withLatestFrom(newOptions$, R.nthArg(1))
-).pluck('mtdPath')
+).pluck('mtdPath').shareReplay(1)
 
 // Start downloading
 const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
@@ -85,7 +76,7 @@ FlatMapShare(
 ).last().subscribe('COMPLETED')
 
 // Update progressbar
-const bar = new Progress(':percent :bar', {
+const bar = new Progress(':bar :percent', {
   total: 1000,
   complete: '█',
   incomplete: '░'
