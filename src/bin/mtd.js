@@ -4,9 +4,19 @@
  */
 
 'use strict'
-import * as U from '../Utils'
 import meow from 'meow'
 import R from 'ramda'
+import {demux} from 'muxer'
+import {Observable as O} from 'rx'
+import Progress from 'progress'
+import {
+  CreateMTDFile,
+  DownloadFromMTDFile,
+  FinalizeDownload,
+  GetDownloadType,
+  DOWNLOAD_TYPES
+} from '../index'
+
 const HELP_TEXT = `		
  Usage		
  	  mtd		
@@ -19,11 +29,66 @@ const HELP_TEXT = `
  	  mtd --url http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4		
  	  mtd --file big_buck_bunny_720p_1mb.mp4.mtd		
    `
-const flags = meow(HELP_TEXT).flags
 
-if (!R.any(R.identity)([flags.url, flags.file])) {
+/**
+ * LIB
+ */
+export const options = meow(HELP_TEXT).flags
+export const options$ = O.just(options)
+export const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
+export const Log = message => () => console.log(message)
+export const CreateProgressBar = total => {
+  console.log('CREATE')
+  return new Progress(':bar :percent', {
+    total,
+    complete: '█',
+    incomplete: '░'
+  })
+}
+
+if (!R.any(R.identity)([options.url, options.file])) {
   console.log(HELP_TEXT)
   process.exit(0)
 }
 
-U.CLI(flags)
+// Check if its a new or an old download
+const [new$, resume$] = GetDownloadType(options$).partition(R.whereEq({type: DOWNLOAD_TYPES.NEW}))
+
+// Pluck options
+const newOptions$ = new$.pluck('options')
+const resumeOptions$ = resume$.pluck('options')
+
+// Create .mtd file if new
+const created$ = FlatMapShare(CreateMTDFile, newOptions$).last()
+
+// Create options for download resume
+
+const mtdFile$ = O.merge(
+  resumeOptions$,
+  created$.withLatestFrom(newOptions$, R.nthArg(1))
+).pluck('mtdPath')
+
+// Start downloading
+const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
+
+// Extract meta$
+const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
+
+// Finalize Downloaded FILE
+FlatMapShare(
+  FinalizeDownload,
+  downloaded$.last().withLatestFrom(fdR$, meta$, (_, fd, meta) => ({
+    fd$: O.just(fd),
+    meta$: O.just(meta)
+  }))
+).last().subscribe('COMPLETED')
+
+// Create progress bar
+const bar$ = meta$.first().pluck('totalBytes').map(CreateProgressBar).share()
+
+// Update progressbar
+meta$.withLatestFrom(bar$).subscribe((completion, bar) => {
+  bar.tick(completion)
+})
+
+

@@ -187,6 +187,17 @@ export const IsCompleted$ = (meta$) => {
   const isComplete = R.converge(diff, [offsetsA, offsetsB])
   return meta$.map(isComplete).distinctUntilChanged()
 }
+export const TapBetween = R.curry((min, max, value) => {
+  return Math.min(max, Math.max(min, value))
+})
+export const Completion = (meta$) => {
+  const tap0To100 = TapBetween(0, 100)
+  return meta$.map(meta => {
+    const total = meta.totalBytes
+    const downloaded = R.sum(meta.offsets) - R.sum(R.map(R.nth(0), meta.threads)) + R.length(meta.threads) - 1
+    return tap0To100(Math.ceil(downloaded / total * 100))
+  })
+}
 export const WriteBuffer = ({FILE, fd$, buffer$}) => {
   const Write = R.compose(FILE.write, CreateWriteBufferParams)
   return O.combineLatest(fd$, buffer$)
