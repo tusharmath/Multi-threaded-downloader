@@ -14,7 +14,8 @@ import {
   DownloadFromMTDFile,
   FinalizeDownload,
   GetDownloadType,
-  DOWNLOAD_TYPES
+  DOWNLOAD_TYPES,
+  Completion
 } from '../index'
 
 const HELP_TEXT = `		
@@ -83,12 +84,10 @@ FlatMapShare(
   }))
 ).last().subscribe('COMPLETED')
 
-// Create progress bar
-const bar$ = meta$.first().pluck('totalBytes').map(CreateProgressBar).share()
-
 // Update progressbar
-meta$.withLatestFrom(bar$).subscribe((completion, bar) => {
-  bar.tick(completion)
+const bar = new Progress(':percent :bar', {
+  total: 1000,
+  complete: '█',
+  incomplete: '░'
 })
-
-
+Completion(meta$).subscribe((i) => bar.update(i))

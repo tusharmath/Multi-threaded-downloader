@@ -33,9 +33,9 @@ test(t => {
   const {messages} = sh.startScheduler(() => Completion(meta$))
   t.deepEqual(messages, [
     onNext(210, 0),
-    onNext(210, 50),
-    onNext(210, 100),
-    onNext(210, 100),
+    onNext(210, 0.5),
+    onNext(210, 1),
+    onNext(210, 1),
     onCompleted(210)
   ])
 })
