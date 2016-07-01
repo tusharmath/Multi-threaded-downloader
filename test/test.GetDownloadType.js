@@ -14,6 +14,7 @@ test(t => {
   const options$ = sh.createHotObservable(
     onNext(210, {url: 'a/b/c.txt'}),
     onNext(220, {file: 'home.txt.mtd'}),
+    onNext(230, {file: 'home.txt.mtd', url: 'a/b/c.txt'}),
     onCompleted(300)
   )
   const {messages} = sh.startScheduler(() => GetDownloadType(Path, options$))
@@ -31,6 +32,15 @@ test(t => {
       options: {
         path: '/home/downloads/home.txt',
         mtdPath: '/home/downloads/home.txt.mtd',
+        file: 'home.txt.mtd'
+      }
+    }),
+    onNext(230, {
+      type: DOWNLOAD_TYPES.NEW,
+      options: {
+        url: 'a/b/c.txt',
+        path: '/home/downloads/c.txt',
+        mtdPath: '/home/downloads/c.txt.mtd',
         file: 'home.txt.mtd'
       }
     }),
