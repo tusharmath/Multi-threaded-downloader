@@ -6,79 +6,75 @@
 'use strict'
 import meow from 'meow'
 import R from 'ramda'
-import {demux} from 'muxer'
+import {demux, mux} from 'muxer'
 import {Observable as O} from 'rx'
 import Progress from 'progress'
+import * as Rx from '../RxFP'
 import {
+  GetDownloadType,
+  DOWNLOAD_TYPES,
+  CliValidOptions,
   CreateMTDFile,
   DownloadFromMTDFile,
   FinalizeDownload,
-  GetDownloadType,
-  DOWNLOAD_TYPES,
   Completion
 } from '../index'
-
-const HELP_TEXT = `		
- Usage		
- 	  mtd		
- 		
- 	Options		
- 	  --url            The url of the file that needs to be downloaded		
- 	  --file           Path to the .mtd file for resuming failed downloads		
- 		
- 	Examples		
- 	  mtd --url http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4		
- 	  mtd --file big_buck_bunny_720p_1mb.mp4.mtd		
-   `
+import {Help, Status} from './Messages'
 
 /**
  * LIB
  */
-const options = meow(HELP_TEXT).flags
-const options$ = O.just(options)
-const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
-
-if (!R.any(R.identity)([options.url, options.file])) {
-  console.log(HELP_TEXT)
-  process.exit(0)
+export const Log = console.log.bind(console)
+export const LogAlways = message => () => Log(message)
+export const FlatMapShare = R.curry((func, $) => $.flatMap(func).shareReplay(1))
+export const Size = meta$ => meta$.pluck('totalBytes').take(1)
+export const ValidOptions = Rx.partition(CliValidOptions)
+export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
+export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
+export const CreateProgressBar = () => {
+  const bar = new Progress(':bar :percent ', {
+    total: 1000,
+    complete: '█',
+    incomplete: '░'
+  })
+  return total => bar.update(total)
+}
+export const Executor = (signal$) => {
+  const [{finalized$, size$, completion$, invalidOptions$}] = demux(
+    signal$, 'finalized$', 'size$', 'completion$', 'invalidOptions$'
+  )
+  finalized$.subscribe(LogAlways('COMPLETED'))
+  size$.subscribe(R.compose(Log, Status))
+  completion$.subscribe(CreateProgressBar())
+  invalidOptions$.subscribe(LogAlways(Help))
+}
+const resumeDownload = (mtdFile$) => {
+  const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
+  const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
+  const finalized$ = FlatMapShare(
+    FinalizeDownload,
+    downloaded$.last().withLatestFrom(fdR$, meta$,
+      (_, fd, meta) => ({fd$: O.just(fd), meta$: O.just(meta)}))
+  ).last()
+  const completion$ = Completion(meta$.throttle(1000))
+  const size$ = Size(meta$)
+  return mux({finalized$, completion$, size$})
+}
+const initializeDownload = (options$) => {
+  const [new$, resume$] = DownloadOptions(options$)
+  const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
+  return O.merge(
+    resume$,
+    created$.withLatestFrom(new$, R.nthArg(1))
+  ).pluck('mtdPath')
 }
 
-// Check if its a new or an old download
-const [new$, resume$] = GetDownloadType(options$).partition(R.whereEq({type: DOWNLOAD_TYPES.NEW}))
+/**
+ * Logic
+ */
+const options$ = O.just(meow(Help).flags)
+const [validOptions$, invalidOptions$] = ValidOptions(options$)
+const mtdFile$ = initializeDownload(validOptions$)
+const [{finalized$, completion$, size$}] = demux(resumeDownload(mtdFile$), 'finalized$', 'completion$', 'size$')
 
-// Pluck options
-const newOptions$ = new$.pluck('options')
-const resumeOptions$ = resume$.pluck('options')
-
-// Create .mtd file if new
-const created$ = FlatMapShare(CreateMTDFile, newOptions$).last()
-
-// Create options for download resume
-
-const mtdFile$ = O.merge(
-  resumeOptions$,
-  created$.withLatestFrom(newOptions$, R.nthArg(1))
-).pluck('mtdPath').shareReplay(1)
-
-// Start downloading
-const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
-
-// Extract meta$
-const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
-
-// Finalize Downloaded FILE
-FlatMapShare(
-  FinalizeDownload,
-  downloaded$.last().withLatestFrom(fdR$, meta$, (_, fd, meta) => ({
-    fd$: O.just(fd),
-    meta$: O.just(meta)
-  }))
-).last().subscribe('COMPLETED')
-
-// Update progressbar
-const bar = new Progress(':bar :percent', {
-  total: 1000,
-  complete: '█',
-  incomplete: '░'
-})
-Completion(meta$).subscribe((i) => bar.update(i))
+Executor(mux({finalized$, size$, completion$, invalidOptions$}))

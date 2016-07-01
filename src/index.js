@@ -23,3 +23,4 @@ export const MTDPath = U.MTDPath
 export const GetDownloadType = U.GetDownloadType(U.NormalizePath)
 export const DOWNLOAD_TYPES = U.DOWNLOAD_TYPES
 export const Completion = U.Completion
+export const CliValidOptions = U.CliValidOptions

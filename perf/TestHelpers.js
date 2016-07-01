@@ -53,7 +53,7 @@ export const createDownload = (options) => {
   const downloadFromMTDFile$ = createMTDFile$.last()
     .map(MTDPath(options.path)).flatMap(DownloadFromMTDFile).share()
 
-  const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$', 'response$')
+  const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
 
   /**
    * Finalize Downloaded FILE
