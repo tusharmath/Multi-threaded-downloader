@@ -240,3 +240,4 @@ export const GetDownloadType = R.curry((NormalizePath, options$) => {
     not$.map(R.compose(setMtdPath, setPathFromFile)).map(MergeType(DOWNLOAD_TYPES.OLD))
   )
 })
+export const CliValidOptions = R.anyPass([R.has('url'), R.has('file')])
