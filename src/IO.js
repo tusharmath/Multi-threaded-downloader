@@ -38,3 +38,12 @@ export const HTTP = R.curry((_request) => {
     request
   }
 })
+
+export const BAR = R.curry((ProgressBar) => {
+  const bar = new ProgressBar(':bar :percent ', {
+    total: 1000,
+    complete: '█',
+    incomplete: '░'
+  })
+  return bar.update.bind(bar)
+})

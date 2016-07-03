@@ -8,7 +8,6 @@ import meow from 'meow'
 import R from 'ramda'
 import {demux, mux} from 'muxer'
 import {Observable as O} from 'rx'
-import Progress from 'progress'
 import * as Rx from '../RxFP'
 import {
   GetDownloadType,
@@ -17,7 +16,8 @@ import {
   CreateMTDFile,
   DownloadFromMTDFile,
   FinalizeDownload,
-  Completion
+  Completion,
+  BAR
 } from '../index'
 import {Help, Status} from './Messages'
 
@@ -31,22 +31,14 @@ export const Size = meta$ => meta$.pluck('totalBytes').take(1)
 export const ValidOptions = Rx.partition(CliValidOptions)
 export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
 export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
-export const CreateProgressBar = () => {
-  const bar = new Progress(':bar :percent ', {
-    total: 1000,
-    complete: '█',
-    incomplete: '░'
-  })
-  return total => bar.update(total)
-}
 export const Executor = (signal$) => {
   const [{finalized$, size$, completion$, invalidOptions$}] = demux(
     signal$, 'finalized$', 'size$', 'completion$', 'invalidOptions$'
   )
   finalized$.subscribe(LogAlways('COMPLETED'))
   size$.subscribe(R.compose(Log, Status))
-  completion$.subscribe(CreateProgressBar())
   invalidOptions$.subscribe(LogAlways(Help))
+  completion$.subscribe(BAR)
 }
 const resumeDownload = (mtdFile$) => {
   const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
