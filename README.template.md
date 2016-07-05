@@ -33,12 +33,10 @@ $ npm install -g mt-downloader
 $ mtd --help
 ```
 
+{{>main}}
+
 ## .mtd file
 Once the download starts the library will create a file with a **.mtd** extension. This file contains some meta information related to the download and is a little bigger *(around 4kb)* than the original file size. The **.mtd** file can be used later to restart downloads from where the last byte that was downloaded. After the download is completed the downloader will truncate the `.mtd` file to remove that meta information.
-
-## API
-
-{{>main}}
 
 ## Releases
 There are two release channels viz. — `latest` and `next`. The `next` is unstable and must be used with caution.
