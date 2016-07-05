@@ -25,48 +25,41 @@ import {Help, Status} from './Messages'
  * LIB
  */
 export const Log = console.log.bind(console)
+export const LogError = console.error.bind(console)
 export const LogAlways = message => () => Log(message)
 export const FlatMapShare = R.curry((func, $) => $.flatMap(func).shareReplay(1))
 export const Size = meta$ => meta$.pluck('totalBytes').take(1)
 export const ValidOptions = Rx.partition(CliValidOptions)
 export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
 export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
+export const Sample = R.curry((a$, b$) => b$.withLatestFrom(...a$, R.tail))
 export const Executor = (signal$) => {
-  const [{finalized$, size$, completion$, invalidOptions$}] = demux(
-    signal$, 'finalized$', 'size$', 'completion$', 'invalidOptions$'
+  const [{size$, completion$, invalidOptions$, validOptions$}] = demux(
+    signal$, 'size$', 'completion$', 'invalidOptions$', 'validOptions$'
   )
-  finalized$.subscribe(LogAlways('COMPLETED'))
-  size$.subscribe(R.compose(Log, Status))
-  invalidOptions$.subscribe(LogAlways(Help))
-  completion$.subscribe(BAR)
+  O.merge(
+    validOptions$.take(1).map(msg => [msg, LogAlways('\nStarting...')]),
+    size$.map(msg => [msg, R.compose(Log, Status)]),
+    invalidOptions$.map(msg => [msg, LogAlways(Help)]),
+    completion$.map(msg => [msg, BAR])
+  ).subscribe(
+    ([msg, action]) => action(msg),
+    R.partial(LogError, ['Failure']), R.partial(Log, ['Complete'])
+  )
 }
-const resumeDownload = (mtdFile$) => {
-  const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
-  const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
-  const finalized$ = FlatMapShare(
-    FinalizeDownload,
-    downloaded$.last().withLatestFrom(fdR$, meta$,
-      (_, fd, meta) => ({fd$: O.just(fd), meta$: O.just(meta)}))
+
+const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags))
+const [new$, resume$] = DownloadOptions(validOptions$)
+const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
+const mtdFile$ = O.merge(resume$, Sample([new$], created$)).pluck('mtdPath')
+const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
+const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
+const finalized$ = FlatMapShare(
+  FinalizeDownload,
+  Sample([fdR$, meta$], downloaded$.last()).map(
+    ([fd, meta]) => ({fd$: O.just(fd), meta$: O.just(meta)})
   ).last()
-  const completion$ = Completion(meta$.throttle(1000))
-  const size$ = Size(meta$)
-  return mux({finalized$, completion$, size$})
-}
-const initializeDownload = (options$) => {
-  const [new$, resume$] = DownloadOptions(options$)
-  const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
-  return O.merge(
-    resume$,
-    created$.withLatestFrom(new$, R.nthArg(1))
-  ).pluck('mtdPath')
-}
-
-/**
- * Logic
- */
-const options$ = O.just(meow(Help).flags)
-const [validOptions$, invalidOptions$] = ValidOptions(options$)
-const mtdFile$ = initializeDownload(validOptions$)
-const [{finalized$, completion$, size$}] = demux(resumeDownload(mtdFile$), 'finalized$', 'completion$', 'size$')
-
-Executor(mux({finalized$, size$, completion$, invalidOptions$}))
+)
+const completion$ = Completion(meta$.throttle(1000))
+const size$ = Size(meta$)
+Executor(mux({finalized$, size$, completion$, invalidOptions$, validOptions$}))
