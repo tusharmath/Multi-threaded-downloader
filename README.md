@@ -33,81 +33,23 @@ $ npm install -g mt-downloader
 $ mtd --help
 ```
 
-<a name="module_mtd"></a>
+## Objects
 
-## mtd
-**Example**  
-```js
-import * as mtd from 'mt-downloader'
-```
+* [Options](#Options) : <code>object</code>
 
-* [mtd](#module_mtd)
-    * _static_
-        * [.CreateMTDFile(options)](#module_mtd.CreateMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-        * [.DownloadFromMTDFile(mtdPath)](#module_mtd.DownloadFromMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-        * [.FinalizeDownload(meta$)](#module_mtd.FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-        * [.Completion(meta$)](#module_mtd.Completion) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-    * _inner_
-        * [~Options](#module_mtd..Options) : <code>object</code>
+## Functions
 
-<a name="module_mtd.CreateMTDFile"></a>
+* [CreateMTDFile(options)](#CreateMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [DownloadFromMTDFile(mtdPath)](#DownloadFromMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [FinalizeDownload(meta$)](#FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [Completion(meta$)](#Completion) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 
-### mtd.CreateMTDFile(options) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Creates a new .mtd file that is a little larger in size than the original
-file. The file is initially empty and has all the relevant meta
-information regarding the download appended to the end.
+<a name="Options"></a>
 
-**Kind**: static method of <code>[mtd](#module_mtd)</code>  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>Options</code> | The `options` must have `mtdPath` and `url`. |
-
-<a name="module_mtd.DownloadFromMTDFile"></a>
-
-### mtd.DownloadFromMTDFile(mtdPath) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Reads a `.mtd` file and resumes the download from the last successfully saved
-byte.
-
-**Kind**: static method of <code>[mtd](#module_mtd)</code>  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| mtdPath | <code>String</code> | Relative path to the `.mtd` file. |
-
-<a name="module_mtd.FinalizeDownload"></a>
-
-### mtd.FinalizeDownload(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Removes the meta information and the `.mtd` extension from the file once the
-download is successfully completed.
-
-**Kind**: static method of <code>[mtd](#module_mtd)</code>  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| meta$ | <code>Observable</code> | Meta data stream ie. exposed by [DownloadFromMTDFile](DownloadFromMTDFile) |
-
-<a name="module_mtd.Completion"></a>
-
-### mtd.Completion(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Util method that calculates the total completion percentage.
-
-**Kind**: static method of <code>[mtd](#module_mtd)</code>  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - Value between 0 - 100  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| meta$ | <code>Observable</code> | Meta data stream ie. exposed by [DownloadFromMTDFile](DownloadFromMTDFile) |
-
-<a name="module_mtd..Options"></a>
-
-### mtd~Options : <code>object</code>
+## Options : <code>object</code>
 A dictionary of all the options required for the download.
 
-**Kind**: inner namespace of <code>[mtd](#module_mtd)</code>  
+**Kind**: global namespace  
 **Properties**
 
 | Name | Type | Default | Description |
@@ -116,6 +58,58 @@ A dictionary of all the options required for the download.
 | path | <code>string</code> |  | Relative path where the file needs to be saved. |
 | range | <code>number</code> | <code>3</code> | Number of concurrent downloads. |
 | metaWrite | <code>number</code> | <code>300</code> | Throttles the write frequency of meta data. |
+
+<a name="CreateMTDFile"></a>
+
+## CreateMTDFile(options) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Creates a new .mtd file that is a little larger in size than the original
+file. The file is initially empty and has all the relevant meta
+information regarding the download appended to the end.
+
+**Kind**: global function  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | <code>[Options](#Options)</code> | The `options` must have `mtdPath` and `url`. |
+
+<a name="DownloadFromMTDFile"></a>
+
+## DownloadFromMTDFile(mtdPath) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Reads a `.mtd` file and resumes the download from the last successfully saved
+byte.
+
+**Kind**: global function  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| mtdPath | <code>String</code> | Relative path to the `.mtd` file. |
+
+<a name="FinalizeDownload"></a>
+
+## FinalizeDownload(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Removes the meta information and the `.mtd` extension from the file once the
+download is successfully completed.
+
+**Kind**: global function  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| meta$ | <code>Observable</code> | Meta data stream ie. exposed by [DownloadFromMTDFile](#DownloadFromMTDFile) |
+
+<a name="Completion"></a>
+
+## Completion(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Util method that calculates the total completion percentage.
+
+**Kind**: global function  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - Value between 0 - 100  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| meta$ | <code>Observable</code> | Meta data stream ie. exposed by [DownloadFromMTDFile](#DownloadFromMTDFile) |
 
 
 ## .mtd file

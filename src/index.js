@@ -11,11 +11,6 @@ import progress from 'progress'
 import {CreateMTDFile as _CreateMTDFile} from './CreateMTDFile'
 import {DownloadFromMTDFile as _DownloadFromMTDFile} from './DownloadFromMTDFile'
 import {FinalizeDownload as _FinalizeDownload} from './FinalizeDownload'
-/**
- * @module mtd
- * @example
- * import * as mtd from 'mt-downloader'
- */
 
 export const HTTP = T.HTTP(request)
 export const FILE = T.FILE(fs)
