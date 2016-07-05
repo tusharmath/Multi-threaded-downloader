@@ -35,7 +35,16 @@ $ mtd --help
 
 ## Objects
 
-* [Options](#Options) : <code>object</code>
+* [FILE](#FILE) : <code>object</code>
+    * [.open(params$)](#FILE.open) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.fstat(params$)](#FILE.fstat) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.read(params$)](#FILE.read) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.write(params$)](#FILE.write) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.close(params$)](#FILE.close) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.truncate(params$)](#FILE.truncate) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.rename(params$)](#FILE.rename) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [HTTP](#HTTP) : <code>object</code>
+    * [.request(params)](#HTTP.request) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 
 ## Functions
 
@@ -44,20 +53,116 @@ $ mtd --help
 * [FinalizeDownload(meta$)](#FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 * [Completion(meta$)](#Completion) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 
-<a name="Options"></a>
+<a name="FILE"></a>
 
-## Options : <code>object</code>
-A dictionary of all the options required for the download.
+## FILE : <code>object</code>
+Stream based utils for file manipulations
 
 **Kind**: global namespace  
-**Properties**
 
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| url | <code>string</code> |  | Download url. |
-| path | <code>string</code> |  | Relative path where the file needs to be saved. |
-| range | <code>number</code> | <code>3</code> | Number of concurrent downloads. |
-| metaWrite | <code>number</code> | <code>300</code> | Throttles the write frequency of meta data. |
+* [FILE](#FILE) : <code>object</code>
+    * [.open(params$)](#FILE.open) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.fstat(params$)](#FILE.fstat) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.read(params$)](#FILE.read) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.write(params$)](#FILE.write) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.close(params$)](#FILE.close) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.truncate(params$)](#FILE.truncate) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+    * [.rename(params$)](#FILE.rename) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+
+<a name="FILE.open"></a>
+
+### FILE.open(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.open`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.fstat"></a>
+
+### FILE.fstat(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.fstat`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.read"></a>
+
+### FILE.read(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.read`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.write"></a>
+
+### FILE.write(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.write`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.close"></a>
+
+### FILE.close(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.close`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.truncate"></a>
+
+### FILE.truncate(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.truncate`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="FILE.rename"></a>
+
+### FILE.rename(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Stream based for `fs.rename`
+
+**Kind**: static method of <code>[FILE](#FILE)</code>  
+
+| Param | Type |
+| --- | --- |
+| params$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | 
+
+<a name="HTTP"></a>
+
+## HTTP : <code>object</code>
+Stream based utils for HTTP request.
+
+**Kind**: global namespace  
+<a name="HTTP.request"></a>
+
+### HTTP.request(params) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+Makes HTTP requests.
+
+**Kind**: static method of <code>[HTTP](#HTTP)</code>  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplex stream  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| params | <code>object</code> | [ request](https://www.npmjs.com/package/request) module params. |
 
 <a name="CreateMTDFile"></a>
 
@@ -69,9 +174,13 @@ information regarding the download appended to the end.
 **Kind**: global function  
 **Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>[Options](#Options)</code> | The `options` must have `mtdPath` and `url`. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| options | <code>object</code> |  | The `options` must have `mtdPath` and `url`. |
+| options.url | <code>string</code> |  | Download url. |
+| options.path | <code>string</code> |  | Relative path where the file needs to be saved. |
+| [options.range] | <code>number</code> | <code>3</code> | Number of concurrent downloads. |
+| [options.metaWrite] | <code>number</code> | <code>300</code> | Throttles the write frequency of meta data. |
 
 <a name="DownloadFromMTDFile"></a>
 

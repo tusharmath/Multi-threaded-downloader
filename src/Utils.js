@@ -87,6 +87,7 @@ export const SetBufferParams = ({buffer$, index, meta}) => {
  * Makes an HTTP request using the {HttpRequest} function and appends the
  * buffer response with appropriate write position and thread index.
  * @function
+ * @private
  * @param {Object} HTTP - HTTP transformer
  * @param {function} HTTP.request - HTTP request function
  * @param {Object} r - a dict of meta and selected thread index
@@ -209,6 +210,7 @@ export const WriteBuffer = ({FILE, fd$, buffer$}) => {
  * Makes HTTP requests to start downloading data for each thread described in
  * the meta data.
  * @function
+ * @private
  * @param {Object} HTTP - an HTTP transformer
  * @param {function} HTTP.request - an HTTP transformer
  * @param {Observable} meta$ - meta data as a stream

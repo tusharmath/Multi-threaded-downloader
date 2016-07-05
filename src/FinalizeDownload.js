@@ -13,6 +13,7 @@ import {IsCompleted$} from './Utils'
  * Removes the appended meta data and the .mtd extension from the file. In case
  * there still some data leftover to be downloaded, this step will be ignored.
  * @function
+ * @private
  * @param {Object} FILE - File transformer
  * @param {Observable} fd$ - File descriptor observable
  * @param {Observable} meta$ - Download meta information

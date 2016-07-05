@@ -19,7 +19,7 @@
     "lint": "standard --verbose | snazzy",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "doc": "jsdoc2md ./src/index.js --global-index-format grouped --template README.template.md > README.md"
+    "doc": "jsdoc2md ./src/** --global-index-format grouped --template README.template.md > README.md"
   },
   "engines": {
     "node": ">= 5.0.0"

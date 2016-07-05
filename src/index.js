@@ -21,7 +21,11 @@ export const BAR = T.BAR(progress)
  * file. The file is initially empty and has all the relevant meta
  * information regarding the download appended to the end.
  * @function
- * @param {Options} options - The `options` must have `mtdPath` and `url`.
+ * @param {object} options - The `options` must have `mtdPath` and `url`.
+ * @param {string} options.url - Download url.
+ * @param {string} options.path - Relative path where the file needs to be saved.
+ * @param {number} [options.range=3] - Number of concurrent downloads.
+ * @param {number} [options.metaWrite=300] - Throttles the write frequency of meta data.
  * @return {external:Observable} multiplexed stream
  */
 export const CreateMTDFile = R.compose(_CreateMTDFile({
@@ -59,15 +63,6 @@ export const DOWNLOAD_TYPES = U.DOWNLOAD_TYPES
  */
 export const Completion = U.Completion
 export const CliValidOptions = U.CliValidOptions
-
-/**
- * A dictionary of all the options required for the download.
- * @namespace Options
- * @property {string} url - Download url.
- * @property {string} path - Relative path where the file needs to be saved.
- * @property {number} [range=3] - Number of concurrent downloads.
- * @property {number} [metaWrite=300] - Throttles the write frequency of meta data.
- */
 
 /**
  * @external Observable
