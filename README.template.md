@@ -38,17 +38,7 @@ Once the download starts the library will create a file with a **.mtd** extensio
 
 ## API
 
-<a name="CreateMTDFile"></a>
-
-## CreateMTDFile() ⇒ <code>Observable</code>
-Creates a new .mtd file that is a little larger in size than the original
-file. The file is initially empty and has all the relevant meta
-information regarding the download appended to the end.
-
-**Kind**: global function  
-**Returns**: <code>Observable</code> - multiplexed stream  
-**Access:** public  
-**Params**: <code>Object</code> options - The `options` must have `mtdPath` and `url`.  
+{{>main}}
 
 ## Releases
 There are two release channels viz. — `latest` and `next`. The `next` is unstable and must be used with caution.

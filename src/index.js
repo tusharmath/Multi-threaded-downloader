@@ -15,6 +15,15 @@ import {FinalizeDownload as _FinalizeDownload} from './FinalizeDownload'
 export const HTTP = T.HTTP(request)
 export const FILE = T.FILE(fs)
 export const BAR = T.BAR(progress)
+/**
+ * Creates a new .mtd file that is a little larger in size than the original
+ * file. The file is initially empty and has all the relevant meta
+ * information regarding the download appended to the end.
+ * @function
+ * @public
+ * @params {Object} options - The `options` must have `mtdPath` and `url`.
+ * @returns {Observable} multiplexed stream
+ */
 export const CreateMTDFile = R.compose(_CreateMTDFile({
   FILE,
   HTTP

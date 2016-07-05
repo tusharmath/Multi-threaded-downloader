@@ -14,11 +14,12 @@
   },
   "scripts": {
     "prepublish": "npm run build",
-    "build": "babel src --out-dir .dist",
+    "build": "babel src --out-dir .dist --source-maps true",
     "test": "ava",
     "lint": "standard --verbose | snazzy",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "doc": "jsdoc2md ./src/index.js --global-index-format grouped --template README.template.md > README.md"
   },
   "engines": {
     "node": ">= 5.0.0"
@@ -46,6 +47,7 @@
     "eslint": "^2.11.1",
     "express": "^4.13.1",
     "ghooks": "^1.0.3",
+    "jsdoc-to-markdown": "^1.3.6",
     "nyc": "^6.6.1",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.4",
