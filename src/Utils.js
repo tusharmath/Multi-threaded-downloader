@@ -191,6 +191,13 @@ export const IsCompleted$ = (meta$) => {
 export const TapBetween = R.curry((min, max, value) => {
   return Math.min(max, Math.max(min, value))
 })
+
+/**
+ * Util method that calculates the total completion percentage (between 0-100).
+ * @function
+ * @param {Observable} meta$ Meta data stream ie. exposed by {@link DownloadFromMTDFile}
+ * @return {external:Observable} Value between 0-100
+ */
 export const Completion = (meta$) => {
   const tap0To100 = TapBetween(0, 1)
   return meta$.map(meta => {

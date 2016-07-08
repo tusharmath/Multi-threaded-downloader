@@ -13,6 +13,23 @@ import {
   JSToBuffer$
 } from './Utils'
 
+/**
+ * Creates a new .mtd file that is a little larger in size than the original
+ * file. The file is initially empty and has all the relevant meta
+ * information regarding the download appended to the end.
+ * @function
+ * @param {object} options - The `options` must have `mtdPath` and `url`.
+ * @param {string} options.url - Download url.
+ * @param {string} options.path - Relative path where the file needs to be saved.
+ * @param {number} [options.range=3] - Number of concurrent downloads.
+ * @param {number} [options.metaWrite=300] - Throttles the write frequency of meta data.
+ * @return {external:Observable}
+ * A {@link https://github.com/tusharmath/muxer multiplexed stream} containing ~
+ * - `written$` - Bytes being saved on disk.
+ * - `meta$` - Meta information about the download.
+ * - `remoteFileSize$` - Size of the content that is to be downloaded.
+ * - `fdW$` - File descriptor in `w` mode.
+ */
 export const CreateMTDFile = R.curry(({FILE, HTTP}, options) => {
   /**
    * Create a new file

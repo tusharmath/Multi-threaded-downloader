@@ -50,7 +50,7 @@ $ mtd --help
 
 * [CreateMTDFile(options)](#CreateMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 * [DownloadFromMTDFile(mtdPath)](#DownloadFromMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-* [FinalizeDownload(meta$)](#FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [FinalizeDownload(params)](#FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 * [Completion(meta$)](#Completion) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 
 <a name="FILE"></a>
@@ -171,7 +171,11 @@ file. The file is initially empty and has all the relevant meta
 information regarding the download appended to the end.
 
 **Kind**: global function  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - A [multiplexed stream](https://github.com/tusharmath/muxer) containing ~
+- `written$` - Bytes being saved on disk.
+- `meta$` - Meta information about the download.
+- `remoteFileSize$` - Size of the content that is to be downloaded.
+- `fdW$` - File descriptor in `w` mode.  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -188,7 +192,12 @@ Reads a `.mtd` file and resumes the download from the last successfully saved
 byte.
 
 **Kind**: global function  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - A [multiplexed stream](https://github.com/tusharmath/muxer) containing ~
+- `metaWritten$` - Meta data buffer stream.
+- `response$` - HTTP response object.
+- `localFileSize$` - Size of the `.mtd` file on disk.
+- `fdR$` - File Descriptor in `r+` mode.
+- `meta$` - Download meta information.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -196,24 +205,28 @@ byte.
 
 <a name="FinalizeDownload"></a>
 
-## FinalizeDownload(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+## FinalizeDownload(params) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 Removes the meta information and the `.mtd` extension from the file once the
 download is successfully completed.
 
 **Kind**: global function  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplexed stream  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - A [multiplexed stream](https://github.com/tusharmath/muxer) containing ~
+- `truncated$` - Fired when the meta data is removed.
+- `renamed$` - Fired when the `.mtd` extension is removed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| meta$ | <code>Observable</code> | Meta data stream ie. exposed by [DownloadFromMTDFile](#DownloadFromMTDFile) |
+| params | <code>object</code> | `{fd$, meta$}` |
+| params.fd$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | File descriptor Observable |
+| params.meta$ | <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> | Download meta information |
 
 <a name="Completion"></a>
 
 ## Completion(meta$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Util method that calculates the total completion percentage.
+Util method that calculates the total completion percentage (between 0-100).
 
 **Kind**: global function  
-**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - Value between 0 - 100  
+**Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - Value between 0-100  
 
 | Param | Type | Description |
 | --- | --- | --- |

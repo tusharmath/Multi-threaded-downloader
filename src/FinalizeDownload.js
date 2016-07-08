@@ -10,14 +10,16 @@ import R from 'ramda'
 import {IsCompleted$} from './Utils'
 
 /**
- * Removes the appended meta data and the .mtd extension from the file. In case
- * there still some data leftover to be downloaded, this step will be ignored.
+ * Removes the meta information and the `.mtd` extension from the file once the
+ * download is successfully completed.
  * @function
- * @private
- * @param {Object} FILE - File transformer
- * @param {Observable} fd$ - File descriptor observable
- * @param {Observable} meta$ - Download meta information
- * @returns {Observable}
+ * @param {object} params - `{fd$, meta$}`
+ * @param {external:Observable} params.fd$ - File descriptor Observable
+ * @param {external:Observable} params.meta$ - Download meta information
+ * @returns {external:Observable}
+ * A {@link https://github.com/tusharmath/muxer multiplexed stream} containing ~
+ * - `truncated$` - Fired when the meta data is removed.
+ * - `renamed$` - Fired when the `.mtd` extension is removed.
  */
 export const FinalizeDownload = R.curry(({FILE}, {fd$, meta$}) => {
   const [ok$, noop$] = IsCompleted$(meta$).partition(Boolean)

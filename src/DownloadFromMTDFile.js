@@ -20,6 +20,19 @@ import {
   RxThrottleComplete
 } from './Utils'
 
+/**
+ * Reads a `.mtd` file and resumes the download from the last successfully saved
+ * byte.
+ * @function
+ * @param {String} mtdPath - Relative path to the `.mtd` file.
+ * @return {external:Observable}
+ * A {@link https://github.com/tusharmath/muxer multiplexed stream} containing ~
+ * - `metaWritten$` - Meta data buffer stream.
+ * - `response$` - HTTP response object.
+ * - `localFileSize$` - Size of the `.mtd` file on disk.
+ * - `fdR$` - File Descriptor in `r+` mode.
+ * - `meta$` - Download meta information.
+ */
 export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
   /**
    * Open file to read+append
