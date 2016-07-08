@@ -4,60 +4,62 @@
  */
 
 'use strict'
-
-import Rx from 'rx'
-import _ from 'lodash'
 import meow from 'meow'
-import humanize from 'humanize-plus'
-import newDownload from '../NewDownload'
-import resumeDownload from '../ResumeDownload'
-import {createDownload} from '../index'
-import ProgressBar from 'progress'
+import R from 'ramda'
+import {demux, mux} from 'muxer'
+import {Observable as O} from 'rx'
+import * as Rx from '../RxFP'
+import {
+  GetDownloadType,
+  DOWNLOAD_TYPES,
+  CliValidOptions,
+  CreateMTDFile,
+  DownloadFromMTDFile,
+  FinalizeDownload,
+  Completion,
+  BAR
+} from '../index'
+import {Help, Status} from './Messages'
 
-const flags = meow(`		
- Usage		
- 	  mtd		
- 		
- 	Options		
- 	  --url            The url of the file that needs to be downloaded		
- 	  --file           Path to the .mtd file for resuming failed downloads		
- 		
- 	Examples		
- 	  mtd --url http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4		
- 	  mtd --file big_buck_bunny_720p_1mb.mp4.mtd		
-   `).flags
-
-if (!_.some([flags.url, flags.file], (x) => x)) {
-  process.exit(0)
+/**
+ * LIB
+ */
+export const Log = console.log.bind(console)
+export const LogError = console.error.bind(console)
+export const LogAlways = message => () => Log(message)
+export const FlatMapShare = R.curry((func, $) => $.flatMap(func).shareReplay(1))
+export const Size = meta$ => meta$.pluck('totalBytes').take(1)
+export const ValidOptions = Rx.partition(CliValidOptions)
+export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
+export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
+export const Sample = R.curry((a$, b$) => b$.withLatestFrom(...a$, R.tail))
+export const Executor = (signal$) => {
+  const [{size$, completion$, invalidOptions$, validOptions$}] = demux(
+    signal$, 'size$', 'completion$', 'invalidOptions$', 'validOptions$'
+  )
+  O.merge(
+    validOptions$.take(1).map(msg => [msg, LogAlways('\nStarting...')]),
+    size$.map(msg => [msg, R.compose(Log, Status)]),
+    invalidOptions$.map(msg => [msg, LogAlways(Help)]),
+    completion$.map(msg => [msg, BAR])
+  ).subscribe(
+    ([msg, action]) => action(msg),
+    R.partial(LogError, ['Failure']), R.partial(Log, ['Complete'])
+  )
 }
 
-const pFlags = Rx.Observable.just(flags)
-
-// TODO: Add unit tests
-const downloads = Rx.Observable.merge(
-  newDownload(createDownload, pFlags),
-  resumeDownload(createDownload, pFlags)
-).share()
-
-const progress = downloads
-  .pluck('message', 'totalBytes')
-  .filter((x) => x > 0)
-  .first()
-  .map((total) => new ProgressBar(':bar :percent', {total, complete: '█', incomplete: '░'}))
-  .tap((x) => console.log(`SIZE: ${humanize.fileSize(x.total)}`)).share()
-
-downloads
-  .filter((x) => x)
-  .filter((x) => x.event === 'DATA')
-  .pluck('message')
-
-  .map((x) => _.sum(_.map(x.offsets, (o, i) => o - x.threads[i][0])) / x.totalBytes)
-  .withLatestFrom(progress, (bytes, progress) => ({bytes, progress}))
-  .subscribe((x) => x.progress.update(x.bytes))
-
-downloads.last()
-  .withLatestFrom(progress, (a, b) => b)
-  .subscribe((x) => {
-    x.update(x.total)
-    console.log('Download Completed!')
-  })
+const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags))
+const [new$, resume$] = DownloadOptions(validOptions$)
+const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
+const mtdFile$ = O.merge(resume$, Sample([new$], created$)).pluck('mtdPath')
+const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
+const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
+const finalized$ = FlatMapShare(
+  FinalizeDownload,
+  Sample([fdR$, meta$], downloaded$.last()).map(
+    ([fd, meta]) => ({fd$: O.just(fd), meta$: O.just(meta)})
+  ).last()
+)
+const completion$ = Completion(meta$.throttle(1000))
+const size$ = Size(meta$)
+Executor(mux({finalized$, size$, completion$, invalidOptions$, validOptions$}))

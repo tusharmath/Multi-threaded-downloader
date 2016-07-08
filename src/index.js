@@ -2,53 +2,34 @@
  * Created by tusharmathur on 5/15/15.
  */
 'use strict'
-import Rx from 'rx'
-import _ from 'lodash'
-import {createFD, initParams, save, initialize, downloadMTD} from './Utils'
-import * as ob from './Transformers'
+import * as U from './Utils'
+import * as T from './IO'
+import request from 'request'
+import R from 'ramda'
+import fs from 'graceful-fs'
+import progress from 'progress'
+import {CreateMTDFile as _CreateMTDFile} from './CreateMTDFile'
+import {DownloadFromMTDFile as _DownloadFromMTDFile} from './DownloadFromMTDFile'
+import {FinalizeDownload as _FinalizeDownload} from './FinalizeDownload'
 
-const initMTD = (ob, fd, options) => {
-  const initialMETA = initialize(ob, options)
-  return save(ob, fd, initialMETA)
-}
+export const HTTP = T.HTTP(request)
+export const FILE = T.FILE(fs)
+export const BAR = T.BAR(progress)
 
-export class Download {
-  constructor (ob, options) {
-    this.options = initParams(options)
-    this.ob = ob
-    this.fd = createFD(ob, this.options.mtdPath)
-    this.stats = new Rx.BehaviorSubject()
-    this.toStat = _.curry((event, message) => this.stats.onNext({event, message}))
-    this.toStat('INIT', this.options)
-  }
+export const CreateMTDFile = R.compose(_CreateMTDFile({
+  FILE,
+  HTTP
+}), U.MergeDefaultOptions)
+export const DownloadFromMTDFile = _DownloadFromMTDFile({FILE, HTTP})
+export const FinalizeDownload = _FinalizeDownload({FILE})
+export const MTDPath = U.MTDPath
+export const GetDownloadType = U.GetDownloadType(U.NormalizePath)
+export const DOWNLOAD_TYPES = U.DOWNLOAD_TYPES
 
-  start () {
-    return this
-      .init()
-      .flatMap(() => this.download())
-  }
+export const Completion = U.Completion
+export const CliValidOptions = U.CliValidOptions
 
-  init () {
-    return initMTD(this.ob, this.fd('w'), this.options)
-      .tap(this.toStat('CREATE'))
-  }
-
-  download () {
-    const fd = this.fd('r+')
-    const options = this.options
-    const ob = this.ob
-    return downloadMTD(ob, fd)
-      .tap(this.toStat('DATA'))
-      .last()
-      .flatMap((x) => ob.fsTruncate(options.mtdPath, x.totalBytes))
-      .tap(this.toStat('TRUNCATE'))
-      .flatMap(() => ob.fsRename(options.mtdPath, options.path))
-      .tap(this.toStat('RENAME'))
-      .tapOnCompleted((x) => this.stats.onCompleted())
-  }
-
-  stop () {
-  }
-}
-
-export const createDownload = (options) => new Download(ob, options)
+/**
+ * @external Observable
+ * @see {@link https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md}
+ */

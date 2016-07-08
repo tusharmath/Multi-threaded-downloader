@@ -1,8 +1,8 @@
-import {initialize} from '../src/Utils'
+import {CreateMeta$} from '../src/Utils'
 import * as err from '../src/Error'
 import test from 'ava'
 import {TestScheduler, ReactiveTest} from 'rx'
-import {createTestObserver} from '../perf/utils'
+import {createTestObserver} from '../perf/TestHelpers'
 const {onNext, onCompleted} = ReactiveTest
 
 test((t) => {
@@ -13,10 +13,8 @@ test((t) => {
     b: 2
   }
   const sh = new TestScheduler()
-  const ob = {
-    requestContentLength: () => sh.createHotObservable(onNext(220, 8000), onCompleted())
-  }
-  const out = createTestObserver(initialize(ob, options))
+  const size$ = sh.createHotObservable(onNext(220, 8000), onCompleted())
+  const out = createTestObserver(CreateMeta$({size$, options}))
   sh.start()
   t.deepEqual(out, [
     {
@@ -24,7 +22,9 @@ test((t) => {
       url: 'sample-url',
       totalBytes: 8000,
       threads: [[0, 3999], [4000, 8000]],
-      offsets: [0, 4000]
+      offsets: [0, 4000],
+      a: 1,
+      b: 2
     }
   ])
 })
@@ -34,10 +34,8 @@ test('invalid size', (t) => {
     range: 2, url: 'sample-url', a: 1, b: 2
   }
   const sh = new TestScheduler()
-  const ob = {
-    requestContentLength: () => sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
-  }
-  createTestObserver(initialize(ob, options))
+  const size$ = sh.createHotObservable(onNext(220, 'AAA'), onCompleted())
+  createTestObserver(CreateMeta$({size$, options}))
   try {
     sh.start()
   } catch (e) {
