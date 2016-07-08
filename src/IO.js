@@ -13,78 +13,79 @@ export const toOB = cb => R.compose(
 )
 
 /**
- * Stream based utils for file manipulations
+ * Provides wrappers over the async utils inside the
+ * {@link https://nodejs.org/api/fs.html fs module}.
+ * The wrappers take in an input stream of arguments
+ * and returns the result of function call as another stream.
  * @namespace FILE
  */
 export const FILE = R.curry((fs) => {
   return {
     /**
-     * Stream based for `fs.open`
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     open: toOB(fs.open),
 
     /**
-     * Stream based for `fs.fstat`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     fstat: toOB(fs.fstat),
 
     /**
-     * Stream based for `fs.read`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_read_fd_buffer_offset_length_position_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     read: toOB(fs.read),
 
     /**
-     * Stream based for `fs.write`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_write_fd_buffer_offset_length_position_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     write: toOB(fs.write),
 
     /**
-     * Stream based for `fs.close`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_close_fd_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     close: toOB(fs.close),
 
     /**
-     * Stream based for `fs.truncate`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_truncate_path_len_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     truncate: toOB(fs.truncate),
 
     /**
-     * Stream based for `fs.rename`
+     * {@link https://nodejs.org/api/fs.html#fs_fs_rename_oldpath_newpath_callback}
      * @function
      * @memberOf FILE
      * @param {external:Observable} params$
-     * @returns {external:Observable}
+     * @return {external:Observable}
      */
     rename: toOB(fs.rename)
   }
 })
 
 /**
- * Stream based utils for HTTP request.
  * @namespace HTTP
  */
 export const HTTP = R.curry((_request) => {
@@ -99,7 +100,7 @@ export const HTTP = R.curry((_request) => {
     requestHead,
     select,
     /**
-     * Makes HTTP requests.
+     * Stream based wrapper over {@link https://www.npmjs.com/package/request npm/request}
      * @function
      * @memberOf HTTP
      * @param {object} params - {@link https://www.npmjs.com/package/request  request} module params.

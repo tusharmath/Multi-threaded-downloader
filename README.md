@@ -56,7 +56,10 @@ $ mtd --help
 <a name="FILE"></a>
 
 ## FILE : <code>object</code>
-Stream based utils for file manipulations
+Provides wrappers over the async utils inside the
+[fs module](https://nodejs.org/api/fs.html).
+The wrappers take in an input stream of arguments
+and returns the result of function call as another stream.
 
 **Kind**: global namespace  
 
@@ -72,8 +75,6 @@ Stream based utils for file manipulations
 <a name="FILE.open"></a>
 
 ### FILE.open(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.open`
-
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
 | Param | Type |
@@ -83,7 +84,7 @@ Stream based for `fs.open`
 <a name="FILE.fstat"></a>
 
 ### FILE.fstat(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.fstat`
+[https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback](https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -94,7 +95,7 @@ Stream based for `fs.fstat`
 <a name="FILE.read"></a>
 
 ### FILE.read(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.read`
+[https://nodejs.org/api/fs.html#fs_fs_read_fd_buffer_offset_length_position_callback](https://nodejs.org/api/fs.html#fs_fs_read_fd_buffer_offset_length_position_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -105,7 +106,7 @@ Stream based for `fs.read`
 <a name="FILE.write"></a>
 
 ### FILE.write(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.write`
+[https://nodejs.org/api/fs.html#fs_fs_write_fd_buffer_offset_length_position_callback](https://nodejs.org/api/fs.html#fs_fs_write_fd_buffer_offset_length_position_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -116,7 +117,7 @@ Stream based for `fs.write`
 <a name="FILE.close"></a>
 
 ### FILE.close(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.close`
+[https://nodejs.org/api/fs.html#fs_fs_close_fd_callback](https://nodejs.org/api/fs.html#fs_fs_close_fd_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -127,7 +128,7 @@ Stream based for `fs.close`
 <a name="FILE.truncate"></a>
 
 ### FILE.truncate(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.truncate`
+[https://nodejs.org/api/fs.html#fs_fs_truncate_path_len_callback](https://nodejs.org/api/fs.html#fs_fs_truncate_path_len_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -138,7 +139,7 @@ Stream based for `fs.truncate`
 <a name="FILE.rename"></a>
 
 ### FILE.rename(params$) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Stream based for `fs.rename`
+[https://nodejs.org/api/fs.html#fs_fs_rename_oldpath_newpath_callback](https://nodejs.org/api/fs.html#fs_fs_rename_oldpath_newpath_callback)
 
 **Kind**: static method of <code>[FILE](#FILE)</code>  
 
@@ -149,13 +150,11 @@ Stream based for `fs.rename`
 <a name="HTTP"></a>
 
 ## HTTP : <code>object</code>
-Stream based utils for HTTP request.
-
 **Kind**: global namespace  
 <a name="HTTP.request"></a>
 
 ### HTTP.request(params) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-Makes HTTP requests.
+Stream based wrapper over [npm/request](https://www.npmjs.com/package/request)
 
 **Kind**: static method of <code>[HTTP](#HTTP)</code>  
 **Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - multiplex stream  
