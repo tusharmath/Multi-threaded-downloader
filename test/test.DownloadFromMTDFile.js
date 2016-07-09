@@ -7,7 +7,8 @@ import {ReactiveTest, TestScheduler} from 'rx'
 import test from 'ava'
 import {DownloadFromMTDFile} from '../src/DownloadFromMTDFile'
 import {BUFFER_SIZE} from '../src/Utils'
-import {demux} from 'muxer'
+import {demux, mux} from 'muxer'
+import {spy} from 'sinon'
 
 /**
  * Helpers
@@ -20,12 +21,12 @@ const MockMETA = {
   offsets: [],
   url: '/a/b/c'
 }
-const MockFILE = (sh) => {
+const MockFILE = (sh, meta = MockMETA) => {
   return {
     open: Hot(sh, onNext(210, 19), onCompleted(210)),
     fstat: Hot(sh, onNext(220, {size: 9000}), onCompleted(220)),
     read: Hot(sh,
-      onNext(230, [25, {toString: () => JSON.stringify(MockMETA)}]),
+      onNext(230, [25, {toString: () => JSON.stringify(meta)}]),
       onCompleted(230)
     ),
     write: Hot(sh,
@@ -37,10 +38,17 @@ const MockFILE = (sh) => {
   }
 }
 const MockHTTP = (sh) => {
-  return {}
+  const responses = [
+    sh.createColdObservable(onNext(10, 'RESPONSE_0'), onCompleted(10)),
+    sh.createColdObservable(onNext(10, 'RESPONSE_1'), onCompleted(10)),
+    sh.createColdObservable(onNext(10, 'RESPONSE_2'), onCompleted(10))
+  ]
+  const buffer$ = sh.createColdObservable(onCompleted(15))
+  const request = spy(() => mux({buffer$, response$: responses.shift()}))
+  return {request}
 }
-const createParams = (sh) => ({
-  FILE: MockFILE(sh),
+const createParams = (sh, meta) => ({
+  FILE: MockFILE(sh, meta),
   HTTP: MockHTTP(sh)
 })
 
@@ -92,4 +100,49 @@ test('metaPosition$', t => {
     onNext(220, (9000 - BUFFER_SIZE)),
     onCompleted(260)
   ])
+})
+
+test('response$', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    threads: [[0, 10], [11, 20], [21, 30]],
+    offsets: [0, 11, 21],
+    url: '/a/b/c'
+  })
+  const {messages} = sh.startScheduler(
+    () => pluck('response$', DownloadFromMTDFile(params, './home/file.mtd').share())
+  )
+  t.is(params.HTTP.request.callCount, 3)
+  t.deepEqual(messages, [
+    onNext(240, 'RESPONSE_0'),
+    onNext(240, 'RESPONSE_1'),
+    onNext(240, 'RESPONSE_2'),
+    onCompleted(260)
+  ])
+})
+
+test('responses$', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    threads: [[0, 10], [11, 20], [21, 30]],
+    offsets: [0, 11, 21],
+    url: '/a/b/c'
+  })
+  const {messages} = sh.startScheduler(
+    () => pluck('responses$', DownloadFromMTDFile(params, './home/file.mtd'))
+  )
+  t.deepEqual(messages, [
+    onNext(240, ['RESPONSE_0', 'RESPONSE_1', 'RESPONSE_2']),
+    onCompleted(260)
+  ])
+})
+
+test('requestCount', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    threads: [[0, 10], [11, 20], [21, 30]],
+    offsets: [0, 11, 21]
+  })
+  sh.startScheduler(() => DownloadFromMTDFile(params, './home/file.mtd'))
+  t.is(params.HTTP.request.callCount, 3)
 })

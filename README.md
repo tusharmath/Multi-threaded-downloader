@@ -195,6 +195,7 @@ byte.
 **Returns**: <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code> - A [multiplexed stream](https://github.com/tusharmath/muxer) containing ~
 - `metaWritten$` - Meta data buffer stream.
 - `response$` - HTTP response object.
+- `responses$` - List of all the HTTP response objects.
 - `localFileSize$` - Size of the `.mtd` file on disk.
 - `fdR$` - File Descriptor in `r+` mode.
 - `meta$` - Download meta information.  

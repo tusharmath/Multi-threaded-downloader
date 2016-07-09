@@ -17,7 +17,9 @@ import {
   RequestWithMeta,
   WriteBuffer,
   SetMetaOffsets,
-  RxThrottleComplete
+  RxThrottleComplete,
+  RxTakeN,
+  GetThreadCount
 } from './Utils'
 
 /**
@@ -29,6 +31,7 @@ import {
  * A {@link https://github.com/tusharmath/muxer multiplexed stream} containing ~
  * - `metaWritten$` - Meta data buffer stream.
  * - `response$` - HTTP response object.
+ * - `responses$` - List of all the HTTP response objects.
  * - `localFileSize$` - Size of the `.mtd` file on disk.
  * - `fdR$` - File Descriptor in `r+` mode.
  * - `meta$` - Download meta information.
@@ -54,8 +57,13 @@ export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
    * Make a HTTP request for each thread
    */
   const {response$, buffer$} = demuxFPH(
-    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$)
+    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$).share()
   )
+
+  /**
+   * Select all the responses
+   */
+  const responses$ = RxTakeN(meta$.map(GetThreadCount), response$)
 
   /**
    * Create write params and save buffer+offset to disk
@@ -80,7 +88,7 @@ export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
    * Create sink$
    */
   return mux({
-    metaWritten$, response$,
+    metaWritten$, response$, responses$,
     localFileSize$: size$,
     fdR$: fd$, metaPosition$,
     meta$: O.merge(nMeta$, meta$)
