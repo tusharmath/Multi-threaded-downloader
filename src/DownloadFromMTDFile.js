@@ -54,7 +54,7 @@ export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
    * Make a HTTP request for each thread
    */
   const {response$, buffer$} = demuxFPH(
-    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$)
+    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$).share()
   )
 
   /**
