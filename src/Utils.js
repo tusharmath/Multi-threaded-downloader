@@ -250,3 +250,12 @@ export const GetDownloadType = R.curry((NormalizePath, options$) => {
   )
 })
 export const CliValidOptions = R.anyPass([R.has('url'), R.has('file')])
+export const RxTakeN = R.curry((n$, $) => {
+  const accum = (memory, [value, count]) => {
+    return {list: R.append(value, memory.list), count}
+  }
+  return $.withLatestFrom(n$).scan(accum, {list: []})
+    .filter(({list, count}) => R.equals(R.length(list), count))
+    .pluck('list')
+    .take(1)
+})
