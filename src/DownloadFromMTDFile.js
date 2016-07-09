@@ -27,6 +27,8 @@ import {
  * byte.
  * @function
  * @param {String} mtdPath - Relative path to the `.mtd` file.
+ * @param {Object} [meta] - Optional meta data to override the one that's being
+ * loaded from the `.mtd` file.
  * @return {external:Observable}
  * A {@link https://github.com/tusharmath/muxer multiplexed stream} containing ~
  * - `metaWritten$` - Meta data buffer stream.
@@ -36,7 +38,7 @@ import {
  * - `fdR$` - File Descriptor in `r+` mode.
  * - `meta$` - Download meta information.
  */
-export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
+export const DownloadFromMTDFile = R.curryN(2, ({FILE, HTTP}, mtdPath, _meta) => {
   /**
    * Open file to read+append
    */
@@ -52,6 +54,7 @@ export const DownloadFromMTDFile = R.curry(({FILE, HTTP}, mtdPath) => {
    */
   const metaPosition$ = MetaPosition$({size$})
   const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
+    .map(meta => R.merge(meta, _meta))
 
   /**
    * Make a HTTP request for each thread

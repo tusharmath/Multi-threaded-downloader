@@ -49,7 +49,7 @@ $ mtd --help
 ## Functions
 
 * [CreateMTDFile(options)](#CreateMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
-* [DownloadFromMTDFile(mtdPath)](#DownloadFromMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+* [DownloadFromMTDFile(mtdPath, [meta])](#DownloadFromMTDFile) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 * [FinalizeDownload(params)](#FinalizeDownload) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 * [Completion(meta$)](#Completion) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 
@@ -187,7 +187,7 @@ information regarding the download appended to the end.
 
 <a name="DownloadFromMTDFile"></a>
 
-## DownloadFromMTDFile(mtdPath) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
+## DownloadFromMTDFile(mtdPath, [meta]) ⇒ <code>[Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md)</code>
 Reads a `.mtd` file and resumes the download from the last successfully saved
 byte.
 
@@ -203,6 +203,7 @@ byte.
 | Param | Type | Description |
 | --- | --- | --- |
 | mtdPath | <code>String</code> | Relative path to the `.mtd` file. |
+| [meta] | <code>Object</code> | Optional meta data to override the one that's being loaded from the `.mtd` file. |
 
 <a name="FinalizeDownload"></a>
 

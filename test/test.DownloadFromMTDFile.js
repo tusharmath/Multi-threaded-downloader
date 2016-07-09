@@ -146,3 +146,18 @@ test('requestCount', t => {
   sh.startScheduler(() => DownloadFromMTDFile(params, './home/file.mtd'))
   t.is(params.HTTP.request.callCount, 3)
 })
+
+test('override meta data', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    url: '/a/b/c',
+    threads: [[0, 10]],
+    offsets: [5]
+  })
+  sh.startScheduler(() => DownloadFromMTDFile(params, './home/file.mtd', {url: '/p/q/r'}))
+  t.is(params.HTTP.request.callCount, 1)
+  t.true(params.HTTP.request.calledWith({
+    url: '/p/q/r',
+    headers: {range: 'bytes=5-10'}
+  }))
+})
