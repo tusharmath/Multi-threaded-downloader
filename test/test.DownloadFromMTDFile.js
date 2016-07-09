@@ -8,7 +8,7 @@ import test from 'ava'
 import {DownloadFromMTDFile} from '../src/DownloadFromMTDFile'
 import {BUFFER_SIZE} from '../src/Utils'
 import {demux, mux} from 'muxer'
-import {spy, stub} from 'sinon'
+import {spy} from 'sinon'
 
 /**
  * Helpers
@@ -119,4 +119,30 @@ test('response$', t => {
     onNext(240, 'RESPONSE_2'),
     onCompleted(260)
   ])
+})
+
+test('responses$', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    threads: [[0, 10], [11, 20], [21, 30]],
+    offsets: [0, 11, 21],
+    url: '/a/b/c'
+  })
+  const {messages} = sh.startScheduler(
+    () => pluck('responses$', DownloadFromMTDFile(params, './home/file.mtd'))
+  )
+  t.deepEqual(messages, [
+    onNext(240, ['RESPONSE_0', 'RESPONSE_1', 'RESPONSE_2']),
+    onCompleted(260)
+  ])
+})
+
+test('requestCount', t => {
+  const sh = new TestScheduler()
+  const params = createParams(sh, {
+    threads: [[0, 10], [11, 20], [21, 30]],
+    offsets: [0, 11, 21]
+  })
+  sh.startScheduler(() => DownloadFromMTDFile(params, './home/file.mtd'))
+  t.is(params.HTTP.request.callCount, 3)
 })
