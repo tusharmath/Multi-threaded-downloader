@@ -32,7 +32,6 @@ export const Size = meta$ => meta$.pluck('totalBytes').take(1)
 export const ValidOptions = Rx.partition(CliValidOptions)
 export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
 export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
-export const Sample = R.curry((a$, b$) => b$.withLatestFrom(...a$, R.tail))
 export const Executor = (signal$) => {
   const [{size$, completion$, invalidOptions$, validOptions$}] = demux(
     signal$, 'size$', 'completion$', 'invalidOptions$', 'validOptions$'
@@ -51,12 +50,12 @@ export const Executor = (signal$) => {
 const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags))
 const [new$, resume$] = DownloadOptions(validOptions$)
 const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
-const mtdFile$ = O.merge(resume$, Sample([new$], created$)).pluck('mtdPath')
+const mtdFile$ = O.merge(resume$, Rx.sample([new$], created$).map(R.head)).pluck('mtdPath')
 const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
 const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
 const finalized$ = FlatMapShare(
   FinalizeDownload,
-  Sample([fdR$, meta$], downloaded$.last()).map(
+  Rx.sample([fdR$, meta$], downloaded$.last()).map(
     ([fd, meta]) => ({fd$: O.just(fd), meta$: O.just(meta)})
   ).last()
 )
