@@ -27,7 +27,7 @@ import {Help, Status} from './Messages'
 export const Log = console.log.bind(console)
 export const LogError = console.error.bind(console)
 export const LogAlways = message => () => Log(message)
-export const FlatMapShare = R.curry((func, $) => $.flatMap(func).shareReplay(1))
+export const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
 export const Size = meta$ => meta$.pluck('totalBytes').take(1)
 export const ValidOptions = Rx.partition(CliValidOptions)
 export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
@@ -47,7 +47,7 @@ export const Executor = (signal$) => {
   )
 }
 
-const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags))
+const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags).shareReplay(1))
 const [new$, resume$] = DownloadOptions(validOptions$)
 const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
 const mtdFile$ = O.merge(resume$, Rx.sample([new$], created$).map(R.head)).pluck('mtdPath')
