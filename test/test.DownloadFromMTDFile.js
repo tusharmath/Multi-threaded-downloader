@@ -30,9 +30,9 @@ const MockFILE = (sh, meta = MockMETA) => {
       onCompleted(230)
     ),
     write: Hot(sh,
-      onNext(240, 'WRITE-0'),
-      onNext(250, 'WRITE-1'),
-      onNext(260, 'WRITE-2'),
+      onNext(240, ['WRITE-0']),
+      onNext(250, ['WRITE-1']),
+      onNext(260, ['WRITE-2']),
       onCompleted(260)
     )
   }
@@ -83,9 +83,9 @@ test('metaWritten$', t => {
     () => pluck('metaWritten$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
-    onNext(240, 'WRITE-0'),
-    onNext(250, 'WRITE-1'),
-    onNext(260, 'WRITE-2'),
+    onNext(240, ['WRITE-0']),
+    onNext(250, ['WRITE-1']),
+    onNext(260, ['WRITE-2']),
     onCompleted(260)
   ])
 })
