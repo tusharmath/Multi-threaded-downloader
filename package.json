@@ -26,7 +26,7 @@
   },
   "main": ".dist/index.js",
   "dependencies": {
-    "graceful-fs": "^4.1.3",
+    "graceful-fs": "^4.1.11",
     "humanize-plus": "^1.8.1",
     "meow": "^3.7.0",
     "muxer": "^1.0.1",
