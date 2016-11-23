@@ -91,9 +91,12 @@ export const DownloadFromMTDFile = R.curryN(2, ({FILE, HTTP}, mtdPath, _meta) =>
    * Create sink$
    */
   return mux({
-    metaWritten$, response$, responses$,
+    metaWritten$,
+    response$,
+    responses$,
     localFileSize$: size$,
-    fdR$: fd$, metaPosition$,
+    fdR$: fd$,
+    metaPosition$,
     meta$: O.merge(nMeta$, meta$)
   })
 })
