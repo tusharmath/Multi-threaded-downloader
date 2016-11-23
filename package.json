@@ -48,7 +48,7 @@
     "express": "^4.13.1",
     "ghooks": "^1.3.2",
     "jsdoc-to-markdown": "^1.3.6",
-    "nyc": "^8.1.0",
+    "nyc": "^10.0.0",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.4",
     "snazzy": "^4.0.0",
