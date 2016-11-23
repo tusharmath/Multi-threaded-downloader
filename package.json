@@ -53,7 +53,7 @@
     "sinon": "^1.17.4",
     "snazzy": "^4.0.0",
     "standard": "^8.1.0",
-    "validate-commit-msg": "^2.0.0"
+    "validate-commit-msg": "^2.8.2"
   },
   "config": {
     "commitizen": {
