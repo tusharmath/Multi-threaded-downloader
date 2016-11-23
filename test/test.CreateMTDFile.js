@@ -40,7 +40,9 @@ test('meta$', t => {
   const {messages} = sh.startScheduler(() => pluck('meta$', CreateMTDFile(params, options)))
   t.deepEqual(messages, [
     onNext(220, {
-      url: '/a/b/c', range: 3, totalBytes: 9000,
+      url: '/a/b/c',
+      range: 3,
+      totalBytes: 9000,
       offsets: [0, 3000, 6000],
       threads: [[0, 2999], [3000, 5999], [6000, 9000]]
     }),

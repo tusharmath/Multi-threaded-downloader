@@ -13,3 +13,4 @@ node_modules/
 .nyc*
 .dist/
 .vscode/
+.DS_Store
