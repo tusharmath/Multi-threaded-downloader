@@ -249,3 +249,7 @@ npm i mt-downloader
 ```bash
 npm i mt-downloader@next
 ```
+
+## Donations
+
+If you are using this project for some profitable purposes and would be interested in contributing back by donating bitcoins you could use — `17DSUfxWc9QU4T7m315FLxWTQZFgSpreC4`
