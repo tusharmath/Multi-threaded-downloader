@@ -30,7 +30,7 @@
     "humanize-plus": "^1.8.1",
     "meow": "^3.7.0",
     "muxer": "^1.0.1",
-    "progress": "^1.1.8",
+    "progress": "^2.0.0",
     "ramda": "^0.22.1",
     "request": "^2.79.0",
     "rx": "^4.0.7",
