@@ -50,7 +50,7 @@
     "jsdoc-to-markdown": "^2.0.1",
     "nyc": "^10.0.0",
     "semantic-release": "^6.3.2",
-    "sinon": "^1.17.4",
+    "sinon": "^2.2.0",
     "snazzy": "^5.0.0",
     "standard": "^8.1.0",
     "validate-commit-msg": "^2.8.2"
