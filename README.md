@@ -1,5 +1,7 @@
 # mt-downloader
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/tusharmath/Multi-threaded-downloader.svg)](https://greenkeeper.io/)
+
 [![Join the chat at https://gitter.im/tusharmath/Multi-threaded-downloader](https://badges.gitter.im/tusharmath/Multi-threaded-downloader.svg)](https://gitter.im/tusharmath/Multi-threaded-downloader?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/tusharmath/Multi-threaded-downloader.svg?branch=master)](https://travis-ci.org/tusharmath/Multi-threaded-downloader)
 [![npm](https://img.shields.io/npm/v/mt-downloader.svg)](https://www.npmjs.com/package/mt-downloader)
