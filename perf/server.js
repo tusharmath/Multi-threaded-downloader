@@ -18,10 +18,10 @@ app.get('/fixed-size', (req, res) =>
 )
 
 const startServer = (app, port) =>
-  new Promise(i => {
+  new Promise(resolve => {
     // eslint-disable-line
     const onClose = () => new Promise(i => server.close(i)) // eslint-disable-line
-    const onStart = () => i(onClose)
+    const onStart = () => resolve(onClose)
     const server = app.listen(port, onStart)
   })
 
