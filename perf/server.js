@@ -13,16 +13,20 @@ var httpServer = http.createServer(app)
 var httpsServer = https.createServer(options, app)
 app.use('/files', express.static(path.join(__dirname, '/files')))
 app.head('/fixed-size', (req, res) => res.status(403).send())
-app.get('/fixed-size', (req, res) => res.send('a quick brown fox jumps over the lazy dog'))
+app.get('/fixed-size', (req, res) =>
+  res.send('a quick brown fox jumps over the lazy dog')
+)
 
-const startServer = (app, port) => new Promise((i) => { // eslint-disable-line
-  const onClose = () => new Promise((i) => server.close(i)) // eslint-disable-line
-  const onStart = () => i(onClose)
-  const server = app.listen(port, onStart)
-})
+const startServer = (app, port) =>
+  new Promise(i => {
+    // eslint-disable-line
+    const onClose = () => new Promise(i => server.close(i)) // eslint-disable-line
+    const onStart = () => i(onClose)
+    const server = app.listen(port, onStart)
+  })
 
-exports.server = (port) => Promise.all([
-  startServer(httpServer, port),
-  startServer(httpsServer, port + 1)
-]).then((x) => () => Promise.all(x.map((x) => x())))
-
+exports.server = port =>
+  Promise.all([
+    startServer(httpServer, port),
+    startServer(httpsServer, port + 1)
+  ]).then(x => () => Promise.all(x.map(x => x())))

@@ -7,10 +7,7 @@ import R from 'ramda'
 import {Request} from './Request'
 
 export const fromCB = R.compose(R.apply, O.fromNodeCallback)
-export const toOB = cb => R.compose(
-  Rx.shareReplay(1),
-  Rx.flatMap(fromCB(cb))
-)
+export const toOB = cb => R.compose(Rx.shareReplay(1), Rx.flatMap(fromCB(cb)))
 
 /**
  * Provides wrappers over the async utils inside the
@@ -19,7 +16,7 @@ export const toOB = cb => R.compose(
  * and returns the result of function call as another stream.
  * @namespace FILE
  */
-export const FILE = R.curry((fs) => {
+export const FILE = R.curry(fs => {
   return {
     /**
      * @function
@@ -88,14 +85,19 @@ export const FILE = R.curry((fs) => {
 /**
  * @namespace HTTP
  */
-export const HTTP = R.curry((_request) => {
+export const HTTP = R.curry(_request => {
   const request = Request(_request)
-  const requestHead = (params) => {
+  const requestHead = params => {
     const [{response$}] = demux(request(params), 'response$')
-    return response$.first().tap(x => x.destroy()).share()
+    return response$
+      .first()
+      .tap(x => x.destroy())
+      .share()
   }
 
-  const select = R.curry((event, request$) => request$.filter(x => x.event === event).pluck('message'))
+  const select = R.curry((event, request$) =>
+    request$.filter(x => x.event === event).pluck('message')
+  )
   return {
     requestHead,
     select,
@@ -110,7 +112,7 @@ export const HTTP = R.curry((_request) => {
   }
 })
 
-export const BAR = R.curry((ProgressBar) => {
+export const BAR = R.curry(ProgressBar => {
   const bar = new ProgressBar(':bar :percent ', {
     total: 1000,
     complete: '█',

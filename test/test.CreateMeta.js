@@ -5,7 +5,7 @@ import {TestScheduler, ReactiveTest} from 'rx'
 import {createTestObserver} from '../perf/TestHelpers'
 const {onNext, onCompleted} = ReactiveTest
 
-test((t) => {
+test(t => {
   const options = {
     range: 2,
     url: 'sample-url',
@@ -29,9 +29,12 @@ test((t) => {
   ])
 })
 
-test('invalid size', (t) => {
+test('invalid size', t => {
   const options = {
-    range: 2, url: 'sample-url', a: 1, b: 2
+    range: 2,
+    url: 'sample-url',
+    a: 1,
+    b: 2
   }
   const sh = new TestScheduler()
   const size$ = sh.createHotObservable(onNext(220, 'AAA'), onCompleted())

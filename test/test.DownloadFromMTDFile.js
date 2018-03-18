@@ -25,11 +25,13 @@ const MockFILE = (sh, meta = MockMETA) => {
   return {
     open: Hot(sh, onNext(210, 19), onCompleted(210)),
     fstat: Hot(sh, onNext(220, {size: 9000}), onCompleted(220)),
-    read: Hot(sh,
+    read: Hot(
+      sh,
       onNext(230, [25, {toString: () => JSON.stringify(meta)}]),
       onCompleted(230)
     ),
-    write: Hot(sh,
+    write: Hot(
+      sh,
       onNext(240, ['WRITE-0']),
       onNext(250, ['WRITE-1']),
       onNext(260, ['WRITE-2']),
@@ -37,7 +39,7 @@ const MockFILE = (sh, meta = MockMETA) => {
     )
   }
 }
-const MockHTTP = (sh) => {
+const MockHTTP = sh => {
   const responses = [
     sh.createColdObservable(onNext(10, 'RESPONSE_0'), onCompleted(10)),
     sh.createColdObservable(onNext(10, 'RESPONSE_1'), onCompleted(10)),
@@ -55,32 +57,26 @@ const createParams = (sh, meta) => ({
 test('localFileSize$', t => {
   const sh = new TestScheduler()
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(
-    () => pluck('localFileSize$', DownloadFromMTDFile(params, './home/file.mtd'))
+  const {messages} = sh.startScheduler(() =>
+    pluck('localFileSize$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
-  t.deepEqual(messages, [
-    onNext(220, 9000),
-    onCompleted(260)
-  ])
+  t.deepEqual(messages, [onNext(220, 9000), onCompleted(260)])
 })
 
 test('fdR$', t => {
   const sh = new TestScheduler()
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(
-    () => pluck('fdR$', DownloadFromMTDFile(params, './home/file.mtd'))
+  const {messages} = sh.startScheduler(() =>
+    pluck('fdR$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
-  t.deepEqual(messages, [
-    onNext(210, 19),
-    onCompleted(260)
-  ])
+  t.deepEqual(messages, [onNext(210, 19), onCompleted(260)])
 })
 
 test('metaWritten$', t => {
   const sh = new TestScheduler()
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(
-    () => pluck('metaWritten$', DownloadFromMTDFile(params, './home/file.mtd'))
+  const {messages} = sh.startScheduler(() =>
+    pluck('metaWritten$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(240, ['WRITE-0']),
@@ -93,13 +89,10 @@ test('metaWritten$', t => {
 test('metaPosition$', t => {
   const sh = new TestScheduler()
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(
-    () => pluck('metaPosition$', DownloadFromMTDFile(params, './home/file.mtd'))
+  const {messages} = sh.startScheduler(() =>
+    pluck('metaPosition$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
-  t.deepEqual(messages, [
-    onNext(220, (9000 - BUFFER_SIZE)),
-    onCompleted(260)
-  ])
+  t.deepEqual(messages, [onNext(220, 9000 - BUFFER_SIZE), onCompleted(260)])
 })
 
 test('response$', t => {
@@ -109,8 +102,8 @@ test('response$', t => {
     offsets: [0, 11, 21],
     url: '/a/b/c'
   })
-  const {messages} = sh.startScheduler(
-    () => pluck('response$', DownloadFromMTDFile(params, './home/file.mtd').share())
+  const {messages} = sh.startScheduler(() =>
+    pluck('response$', DownloadFromMTDFile(params, './home/file.mtd').share())
   )
   t.is(params.HTTP.request.callCount, 3)
   t.deepEqual(messages, [
@@ -128,8 +121,8 @@ test('responses$', t => {
     offsets: [0, 11, 21],
     url: '/a/b/c'
   })
-  const {messages} = sh.startScheduler(
-    () => pluck('responses$', DownloadFromMTDFile(params, './home/file.mtd'))
+  const {messages} = sh.startScheduler(() =>
+    pluck('responses$', DownloadFromMTDFile(params, './home/file.mtd'))
   )
   t.deepEqual(messages, [
     onNext(240, ['RESPONSE_0', 'RESPONSE_1', 'RESPONSE_2']),
@@ -154,10 +147,14 @@ test('override meta data', t => {
     threads: [[0, 10]],
     offsets: [5]
   })
-  sh.startScheduler(() => DownloadFromMTDFile(params, './home/file.mtd', {url: '/p/q/r'}))
+  sh.startScheduler(() =>
+    DownloadFromMTDFile(params, './home/file.mtd', {url: '/p/q/r'})
+  )
   t.is(params.HTTP.request.callCount, 1)
-  t.true(params.HTTP.request.calledWith({
-    url: '/p/q/r',
-    headers: {range: 'bytes=5-10'}
-  }))
+  t.true(
+    params.HTTP.request.calledWith({
+      url: '/p/q/r',
+      headers: {range: 'bytes=5-10'}
+    })
+  )
 })

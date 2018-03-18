@@ -31,8 +31,8 @@ test('complete', t => {
     truncate: () => truncate$,
     rename: () => rename$
   }
-  const {messages} = sh.startScheduler(
-    () => FinalizeDownload({FILE}, {fd$, meta$})
+  const {messages} = sh.startScheduler(() =>
+    FinalizeDownload({FILE}, {fd$, meta$})
   )
   t.deepEqual(messages, [
     onNext(300, ['truncated$', 'TRUNCATED']),
@@ -63,11 +63,8 @@ test('incomplete', t => {
     truncate: () => truncate$,
     rename: () => rename$
   }
-  const {messages} = sh.startScheduler(
-    () => FinalizeDownload({FILE}, {fd$, meta$})
+  const {messages} = sh.startScheduler(() =>
+    FinalizeDownload({FILE}, {fd$, meta$})
   )
-  t.deepEqual(messages, [
-    onNext(220, ['noop$', false]),
-    onCompleted(220)
-  ])
+  t.deepEqual(messages, [onNext(220, ['noop$', false]), onCompleted(220)])
 })

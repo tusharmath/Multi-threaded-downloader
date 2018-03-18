@@ -31,10 +31,18 @@ export const FlatMapShare = R.curry((func, $) => $.flatMap(func).share())
 export const Size = meta$ => meta$.pluck('totalBytes').take(1)
 export const ValidOptions = Rx.partition(CliValidOptions)
 export const IsNewDownload = R.whereEq({type: DOWNLOAD_TYPES.NEW})
-export const DownloadOptions = R.compose(R.map(Rx.pluck('options')), Rx.partition(IsNewDownload), GetDownloadType)
-export const Executor = (signal$) => {
+export const DownloadOptions = R.compose(
+  R.map(Rx.pluck('options')),
+  Rx.partition(IsNewDownload),
+  GetDownloadType
+)
+export const Executor = signal$ => {
   const [{size$, completion$, invalidOptions$, validOptions$}] = demux(
-    signal$, 'size$', 'completion$', 'invalidOptions$', 'validOptions$'
+    signal$,
+    'size$',
+    'completion$',
+    'invalidOptions$',
+    'validOptions$'
   )
   O.merge(
     validOptions$.take(1).map(msg => [msg, LogAlways('\nStarting...')]),
@@ -43,21 +51,27 @@ export const Executor = (signal$) => {
     completion$.map(msg => [msg, BAR])
   ).subscribe(
     ([msg, action]) => action(msg),
-    R.partial(LogError, ['Failure']), R.partial(Log, ['Complete'])
+    R.partial(LogError, ['Failure']),
+    R.partial(Log, ['Complete'])
   )
 }
 
-const [validOptions$, invalidOptions$] = ValidOptions(O.just(meow(Help).flags).shareReplay(1))
+const [validOptions$, invalidOptions$] = ValidOptions(
+  O.just(meow(Help).flags).shareReplay(1)
+)
 const [new$, resume$] = DownloadOptions(validOptions$)
 const created$ = FlatMapShare(CreateMTDFile, new$).takeLast(1)
-const mtdFile$ = O.merge(resume$, Rx.sample([new$], created$).map(R.head)).pluck('mtdPath')
+const mtdFile$ = O.merge(
+  resume$,
+  Rx.sample([new$], created$).map(R.head)
+).pluck('mtdPath')
 const downloaded$ = FlatMapShare(DownloadFromMTDFile, mtdFile$)
 const [{fdR$, meta$}] = demux(downloaded$, 'meta$', 'fdR$')
 const finalized$ = FlatMapShare(
   FinalizeDownload,
-  Rx.sample([fdR$, meta$], downloaded$.last()).map(
-    ([fd, meta]) => ({fd$: O.just(fd), meta$: O.just(meta)})
-  ).last()
+  Rx.sample([fdR$, meta$], downloaded$.last())
+    .map(([fd, meta]) => ({fd$: O.just(fd), meta$: O.just(meta)}))
+    .last()
 )
 const completion$ = Completion(meta$.throttle(1000))
 const size$ = Size(meta$)

@@ -38,65 +38,74 @@ import {
  * - `fdR$` - File Descriptor in `r+` mode.
  * - `meta$` - Download meta information.
  */
-export const DownloadFromMTDFile = R.curryN(2, ({FILE, HTTP}, mtdPath, _meta) => {
-  /**
-   * Open file to read+append
-   */
-  const fd$ = FILE.open(O.just([mtdPath, 'r+']))
+export const DownloadFromMTDFile = R.curryN(
+  2,
+  ({FILE, HTTP}, mtdPath, _meta) => {
+    /**
+     * Open file to read+append
+     */
+    const fd$ = FILE.open(O.just([mtdPath, 'r+']))
 
-  /**
-   * Retrieve File size on disk
-   */
-  const size$ = LocalFileSize$({FILE, fd$})
+    /**
+     * Retrieve File size on disk
+     */
+    const size$ = LocalFileSize$({FILE, fd$})
 
-  /**
-   * Retrieve Meta info
-   */
-  const metaPosition$ = MetaPosition$({size$})
-  const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$})
-    .map(meta => R.merge(meta, _meta))
+    /**
+     * Retrieve Meta info
+     */
+    const metaPosition$ = MetaPosition$({size$})
+    const meta$ = ReadJSON$({FILE, fd$, position$: metaPosition$}).map(meta =>
+      R.merge(meta, _meta)
+    )
 
-  /**
-   * Make a HTTP request for each thread
-   */
-  const {response$, buffer$} = demuxFPH(
-    ['buffer$', 'response$'], RequestWithMeta(HTTP, meta$).share()
-  )
+    /**
+     * Make a HTTP request for each thread
+     */
+    const {response$, buffer$} = demuxFPH(
+      ['buffer$', 'response$'],
+      RequestWithMeta(HTTP, meta$).share()
+    )
 
-  /**
-   * Select all the responses
-   */
-  const responses$ = RxTakeN(meta$.map(GetThreadCount), response$)
+    /**
+     * Select all the responses
+     */
+    const responses$ = RxTakeN(meta$.map(GetThreadCount), response$)
 
-  /**
-   * Create write params and save buffer+offset to disk
-   */
-  const bufferWritten$ = WriteBuffer({FILE, fd$, buffer$})
+    /**
+     * Create write params and save buffer+offset to disk
+     */
+    const bufferWritten$ = WriteBuffer({FILE, fd$, buffer$})
 
-  /**
-   * Update META info
-   */
-  const nMeta$ = SetMetaOffsets({meta$, bufferWritten$})
+    /**
+     * Update META info
+     */
+    const nMeta$ = SetMetaOffsets({meta$, bufferWritten$})
 
-  /**
-   * Persist META to disk
-   */
-  const metaWritten$ = FILE.write(CreateWriteBufferAtParams({
-    fd$,
-    buffer$: JSToBuffer$(RxThrottleComplete(meta$.pluck('metaWrite'), nMeta$)),
-    position$: size$
-  }))
+    /**
+     * Persist META to disk
+     */
+    const metaWritten$ = FILE.write(
+      CreateWriteBufferAtParams({
+        fd$,
+        buffer$: JSToBuffer$(
+          RxThrottleComplete(meta$.pluck('metaWrite'), nMeta$)
+        ),
+        position$: size$
+      })
+    )
 
-  /**
-   * Create sink$
-   */
-  return mux({
-    metaWritten$,
-    response$,
-    responses$,
-    localFileSize$: size$,
-    fdR$: fd$,
-    metaPosition$,
-    meta$: O.merge(nMeta$, meta$)
-  })
-})
+    /**
+     * Create sink$
+     */
+    return mux({
+      metaWritten$,
+      response$,
+      responses$,
+      localFileSize$: size$,
+      fdR$: fd$,
+      metaPosition$,
+      meta$: O.merge(nMeta$, meta$)
+    })
+  }
+)

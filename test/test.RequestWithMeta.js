@@ -27,10 +27,7 @@ test(t => {
     threads: [[0, 10]],
     offsets: [5]
   }
-  const meta$ = sh.createHotObservable(
-    onNext(210, meta),
-    onCompleted(210)
-  )
+  const meta$ = sh.createHotObservable(onNext(210, meta), onCompleted(210))
   const {messages} = sh.startScheduler(() => RequestWithMeta(HTTP, meta$))
   t.deepEqual(messages, [
     onNext(300, ['response$', 'RESPONSE']),

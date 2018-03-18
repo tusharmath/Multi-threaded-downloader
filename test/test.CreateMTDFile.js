@@ -15,20 +15,22 @@ import {demux} from 'muxer'
 const {onNext, onCompleted} = ReactiveTest
 const Hot = (sh, ...args) => () => sh.createHotObservable(...args)
 const pluck = (key, $) => demux($, key)[0][key]
-const MockFILE = (sh) => {
+const MockFILE = sh => {
   return {
     open: Hot(sh, onNext(210, 19), onCompleted(210)),
     write: Hot(sh, onNext(230, [1000, 'BUFFER-WRITTEN']), onCompleted(230))
   }
 }
-const MockHTTP = (sh) => {
+const MockHTTP = sh => {
   return {
-    requestHead: Hot(sh,
+    requestHead: Hot(
+      sh,
       onNext(220, {headers: {'content-length': '9000'}}),
-      onCompleted(220))
+      onCompleted(220)
+    )
   }
 }
-const createParams = (sh) => ({
+const createParams = sh => ({
   FILE: MockFILE(sh),
   HTTP: MockHTTP(sh)
 })
@@ -37,7 +39,9 @@ test('meta$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(() => pluck('meta$', CreateMTDFile(params, options)))
+  const {messages} = sh.startScheduler(() =>
+    pluck('meta$', CreateMTDFile(params, options))
+  )
   t.deepEqual(messages, [
     onNext(220, {
       url: '/a/b/c',
@@ -54,7 +58,9 @@ test('written$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(() => pluck('written$', CreateMTDFile(params, options)))
+  const {messages} = sh.startScheduler(() =>
+    pluck('written$', CreateMTDFile(params, options))
+  )
   t.deepEqual(messages, [
     onNext(230, [1000, 'BUFFER-WRITTEN']),
     onCompleted(230)
@@ -65,20 +71,18 @@ test('remoteFileSize$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(() => pluck('remoteFileSize$', CreateMTDFile(params, options)))
-  t.deepEqual(messages, [
-    onNext(220, 9000),
-    onCompleted(230)
-  ])
+  const {messages} = sh.startScheduler(() =>
+    pluck('remoteFileSize$', CreateMTDFile(params, options))
+  )
+  t.deepEqual(messages, [onNext(220, 9000), onCompleted(230)])
 })
 
 test('fdW$', t => {
   const sh = new TestScheduler()
   const options = {url: '/a/b/c', range: 3}
   const params = createParams(sh)
-  const {messages} = sh.startScheduler(() => pluck('fdW$', CreateMTDFile(params, options)))
-  t.deepEqual(messages, [
-    onNext(210, 19),
-    onCompleted(230)
-  ])
+  const {messages} = sh.startScheduler(() =>
+    pluck('fdW$', CreateMTDFile(params, options))
+  )
+  t.deepEqual(messages, [onNext(210, 19), onCompleted(230)])
 })

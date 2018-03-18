@@ -21,15 +21,15 @@ export const trace = R.curry((msg, value) => {
 export const demuxFP = R.curry((list, $) => demux($, ...list))
 export const demuxFPH = R.curry((list, $) => R.head(demux($, ...list)))
 export const BUFFER_SIZE = 1024 * 4
-export const NormalizePath = (path) => PATH.resolve(process.cwd(), path)
-export const GenerateFileName = (x) => {
+export const NormalizePath = path => PATH.resolve(process.cwd(), path)
+export const GenerateFileName = x => {
   return R.last(URL.parse(x).pathname.split('/')) || Date.now()
 }
 export const ResolvePath = R.compose(NormalizePath, GenerateFileName)
 export const SplitRange = (totalBytes, range) => {
   const delta = Math.round(totalBytes / range)
-  const start = R.times((x) => x * delta, range)
-  const end = R.times((x) => (x + 1) * delta - 1, range)
+  const start = R.times(x => x * delta, range)
+  const end = R.times(x => (x + 1) * delta - 1, range)
   end[range - 1] = totalBytes
   return R.zip(start, end)
 }
@@ -55,12 +55,13 @@ export const CreateFilledBuffer = (size = BUFFER_SIZE, fill = ' ') => {
   buffer.fill(fill)
   return buffer
 }
-export const MTDPath = (path) => path + '.mtd'
-export const MergeDefaultOptions = (options) => R.mergeAll([
-  {range: 3, metaWrite: 300},
-  {mtdPath: MTDPath(R.prop('path', options))},
-  options
-])
+export const MTDPath = path => path + '.mtd'
+export const MergeDefaultOptions = options =>
+  R.mergeAll([
+    {range: 3, metaWrite: 300},
+    {mtdPath: MTDPath(R.prop('path', options))},
+    options
+  ])
 
 // TODO: Use R.lens instead
 export const GetOffset = R.curry((meta, index) => meta.offsets[index])
@@ -74,7 +75,10 @@ export const TimesCount = R.times(R.identity)
  * STREAM BASED
  */
 export const GetBufferWriteOffset = ({buffer$, initialOffset}) => {
-  const accumulator = ([_buffer, _offset], buffer) => [buffer, _buffer.length + _offset]
+  const accumulator = ([_buffer, _offset], buffer) => [
+    buffer,
+    _buffer.length + _offset
+  ]
   return buffer$.scan(accumulator, [{length: 0}, initialOffset])
 }
 export const SetBufferParams = ({buffer$, index, meta}) => {
@@ -111,14 +115,14 @@ export const BufferToJS$ = buffer$ => {
 export const RemoteFileSize$ = ({HTTP, options}) => {
   return HTTP.requestHead(options)
     .pluck('headers', 'content-length')
-    .map((x) => parseInt(x, 10))
+    .map(x => parseInt(x, 10))
 }
 export const LocalFileSize$ = ({FILE, fd$}) => {
   return FILE.fstat(fd$.map(R.of)).pluck('size')
 }
 export const PickFirst = R.map(first)
 export const CreateMeta$ = ({size$, options}) => {
-  return size$.map((totalBytes) => {
+  return size$.map(totalBytes => {
     if (!isFinite(totalBytes)) throw new MTDError(FILE_SIZE_UNKNOWN)
     const threads = SplitRange(totalBytes, options.range)
     return R.merge(options, {totalBytes, threads, offsets: PickFirst(threads)})
@@ -132,7 +136,13 @@ export const ReadFileAt$ = ({FILE, fd$, position$, size = BUFFER_SIZE}) => {
 }
 export const MetaPosition$ = ({size$}) => size$.map(R.add(-BUFFER_SIZE))
 export const CreateWriteBufferAtParams = ({fd$, buffer$, position$}) => {
-  const toParam = ([buffer, fd, position]) => [fd, buffer, 0, buffer.length, position]
+  const toParam = ([buffer, fd, position]) => [
+    fd,
+    buffer,
+    0,
+    buffer.length,
+    position
+  ]
   return O.combineLatest(buffer$, fd$, position$.first()).map(toParam)
 }
 export const CreateWriteBufferParams = R.compose(
@@ -141,11 +151,13 @@ export const CreateWriteBufferParams = R.compose(
   R.unnest
 )
 export const SetMetaOffsets = ({meta$, bufferWritten$}) => {
-  const offsetLens = thread => R.compose(R.lensProp('offsets'), R.lensIndex(thread))
+  const offsetLens = thread =>
+    R.compose(R.lensProp('offsets'), R.lensIndex(thread))
   const start$ = meta$.map(meta => ({meta, len: 0, thread: 0})).first()
   const source$ = O.merge(
     start$,
-    bufferWritten$.map(x => [x[3], x[2]])
+    bufferWritten$
+      .map(x => [x[3], x[2]])
       .map(R.zipObj(['len', 'thread']))
       .withLatestFrom(meta$.map(R.objOf('meta')))
       .map(R.mergeAll)
@@ -171,7 +183,7 @@ export const IsOffsetInRange = R.curry((meta, i) => {
   const inRange = R.allPass([start, end])
   return inRange(GetOffset(meta, i))
 })
-export const FlattenMeta$ = Rx.flatMap((meta) => {
+export const FlattenMeta$ = Rx.flatMap(meta => {
   const MergeMeta = R.map(R.compose(R.merge({meta}), R.objOf('index')))
   const IsValid = R.filter(IsOffsetInRange(meta))
   return MergeMeta(IsValid(TimesCount(GetThreadCount(meta))))
@@ -180,7 +192,7 @@ export const RxThrottleComplete = (window$, $, sh) => {
   const selector = window => O.merge($.throttle(window, sh), $.last())
   return window$.first().flatMap(selector)
 }
-export const IsCompleted$ = (meta$) => {
+export const IsCompleted$ = meta$ => {
   const offsetsA = R.prop('offsets')
   const offsetsB = R.compose(R.map(second), R.prop('threads'))
   const subtract = R.apply(R.subtract)
@@ -198,20 +210,23 @@ export const TapBetween = R.curry((min, max, value) => {
  * @param {Observable} meta$ Meta data stream ie. exposed by {@link DownloadFromMTDFile}
  * @return {external:Observable} Value between 0-100
  */
-export const Completion = (meta$) => {
+export const Completion = meta$ => {
   const tap0To100 = TapBetween(0, 1)
   return meta$.map(meta => {
     const total = meta.totalBytes
-    const downloaded = R.sum(meta.offsets) - R.sum(R.map(R.nth(0), meta.threads)) + R.length(meta.threads) - 1
+    const downloaded =
+      R.sum(meta.offsets) -
+      R.sum(R.map(R.nth(0), meta.threads)) +
+      R.length(meta.threads) -
+      1
     return tap0To100(Math.ceil(downloaded / total * 100) / 100)
   })
 }
 export const WriteBuffer = ({FILE, fd$, buffer$}) => {
   const Write = R.compose(FILE.write, CreateWriteBufferParams)
-  return O.combineLatest(fd$, buffer$)
-    .flatMap(params => {
-      return Write(params).map(R.concat(R.nth(1, params)))
-    })
+  return O.combineLatest(fd$, buffer$).flatMap(params => {
+    return Write(params).map(R.concat(R.nth(1, params)))
+  })
 }
 /**
  * Makes HTTP requests to start downloading data for each thread described in
@@ -223,10 +238,9 @@ export const WriteBuffer = ({FILE, fd$, buffer$}) => {
  * @param {Observable} meta$ - meta data as a stream
  * @returns {Observable} - muxed stream of responses$ and buffer$
  */
-export const RequestWithMeta = R.uncurryN(2, (HTTP) => R.compose(
-  Rx.flatMap(RequestThread(HTTP)),
-  FlattenMeta$
-))
+export const RequestWithMeta = R.uncurryN(2, HTTP =>
+  R.compose(Rx.flatMap(RequestThread(HTTP)), FlattenMeta$)
+)
 
 export const DOWNLOAD_TYPES = {
   NEW: 0,
@@ -235,18 +249,32 @@ export const DOWNLOAD_TYPES = {
 export const RemoveExtension = R.replace(/\.mtd$/, '')
 export const GetDownloadType = R.curry((NormalizePath, options$) => {
   const MergeType = type => R.compose(R.merge({type}), R.objOf('options'))
-  const GetPathFromURL = R.compose(NormalizePath, GenerateFileName, R.prop('url'))
-  const GetPathFromFile = R.compose(NormalizePath, RemoveExtension, R.prop('file'))
+  const GetPathFromURL = R.compose(
+    NormalizePath,
+    GenerateFileName,
+    R.prop('url')
+  )
+  const GetPathFromFile = R.compose(
+    NormalizePath,
+    RemoveExtension,
+    R.prop('file')
+  )
   const GetMtdPathFromPath = R.compose(MTDPath, R.prop('path'))
-  const MetaAssoc = R.curry((prop, T, options) => R.assoc(prop, T(options), options))
+  const MetaAssoc = R.curry((prop, T, options) =>
+    R.assoc(prop, T(options), options)
+  )
   const setPathFromURL = MetaAssoc('path', GetPathFromURL)
   const setPathFromFile = MetaAssoc('path', GetPathFromFile)
   const setMtdPath = MetaAssoc('mtdPath', GetMtdPathFromPath)
 
   const [ok$, not$] = options$.partition(x => x.url)
   return O.merge(
-    ok$.map(R.compose(setMtdPath, setPathFromURL)).map(MergeType(DOWNLOAD_TYPES.NEW)),
-    not$.map(R.compose(setMtdPath, setPathFromFile)).map(MergeType(DOWNLOAD_TYPES.OLD))
+    ok$
+      .map(R.compose(setMtdPath, setPathFromURL))
+      .map(MergeType(DOWNLOAD_TYPES.NEW)),
+    not$
+      .map(R.compose(setMtdPath, setPathFromFile))
+      .map(MergeType(DOWNLOAD_TYPES.OLD))
   )
 })
 export const CliValidOptions = R.anyPass([R.has('url'), R.has('file')])
@@ -254,7 +282,8 @@ export const RxTakeN = R.curry((n$, $) => {
   const accum = (memory, [value, count]) => {
     return {list: R.append(value, memory.list), count}
   }
-  return $.withLatestFrom(n$).scan(accum, {list: []})
+  return $.withLatestFrom(n$)
+    .scan(accum, {list: []})
     .filter(({list, count}) => R.equals(R.length(list), count))
     .pluck('list')
     .take(1)

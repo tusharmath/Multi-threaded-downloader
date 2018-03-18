@@ -12,30 +12,36 @@ import {demux} from 'muxer'
 const http = HTTP(request)
 let closeHttp
 /*eslint-disable */
-test.before(async function () {
+test.before(async function() {
   closeHttp = await server(3100)
 })
 
-test.after(async function () {
+test.after(async function() {
   await closeHttp()
 })
 
-test('request', async function (t) {
+test('request', async function(t) {
   const params = {url: 'http://localhost:3100/files/pug.jpg', method: 'HEAD'}
   const [{response$}] = demux(http.request(params), 'response$')
   const response = await response$.toPromise()
   t.deepEqual(response.headers['content-length'], '317235')
 })
 
-test('request:https', async function (t) {
-  const params = {url: 'https://localhost:3101/files/pug.jpg', method: 'HEAD', strictSSL: false}
+test('request:https', async function(t) {
+  const params = {
+    url: 'https://localhost:3101/files/pug.jpg',
+    method: 'HEAD',
+    strictSSL: false
+  }
   const [{response$}] = demux(http.request(params), 'response$')
   const response = await response$.toPromise()
   t.deepEqual(response.headers['content-length'], '317235')
 })
 
-test('requestHead', async function (t) {
-  const response = await http.requestHead({url: 'http://localhost:3100/files/pug.jpg'}).toPromise()
+test('requestHead', async function(t) {
+  const response = await http
+    .requestHead({url: 'http://localhost:3100/files/pug.jpg'})
+    .toPromise()
   /**
    *  To know if the socket is destroyed or not
    *  https://nodejs.org/api/net.html#net_socket_remoteaddress
@@ -55,7 +61,6 @@ test('requestHead', async function (t) {
   t.is(headers['content-type'], 'image/jpeg')
   t.is(headers['content-length'], '317235')
   t.is(headers['connection'], 'close')
-
 })
 
 /*eslint-enable */

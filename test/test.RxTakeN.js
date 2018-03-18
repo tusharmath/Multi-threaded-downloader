@@ -21,8 +21,5 @@ test(t => {
     onCompleted(100)
   )
   const {messages} = sh.startScheduler(() => RxTakeN(n$, $))
-  t.deepEqual(messages, [
-    onNext(240, ['B', 'C', 'D']),
-    onCompleted(240)
-  ])
+  t.deepEqual(messages, [onNext(240, ['B', 'C', 'D']), onCompleted(240)])
 })

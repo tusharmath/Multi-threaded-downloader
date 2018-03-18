@@ -49,11 +49,13 @@ export const CreateMTDFile = R.curry(({FILE, HTTP}, options) => {
   /**
    * Create a new file with meta info appended at the end
    */
-  const written$ = FILE.write(CreateWriteBufferAtParams({
-    FILE,
-    fd$: fd$,
-    buffer$: JSToBuffer$(meta$),
-    position$: size$
-  }))
+  const written$ = FILE.write(
+    CreateWriteBufferAtParams({
+      FILE,
+      fd$: fd$,
+      buffer$: JSToBuffer$(meta$),
+      position$: size$
+    })
+  )
   return mux({written$, meta$, remoteFileSize$: size$, fdW$: fd$})
 })
