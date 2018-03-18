@@ -16,22 +16,24 @@ import {
 } from '../src'
 import {demux} from 'muxer'
 
-export const removeFile = (x) => Rx.Observable.fromCallback(fs.unlink)(x).toPromise()
+export const removeFile = x =>
+  Rx.Observable.fromCallback(fs.unlink)(x).toPromise()
 
-export const createFileDigest = (path) => {
+export const createFileDigest = path => {
   const hash = crypto.createHash('sha1')
-  return new Promise((resolve) => fs
-    .createReadStream(path)
-    .on('data', (x) => hash.update(x))
-    .on('end', () => resolve(hash.digest('hex').toUpperCase()))
+  return new Promise(resolve =>
+    fs
+      .createReadStream(path)
+      .on('data', x => hash.update(x))
+      .on('end', () => resolve(hash.digest('hex').toUpperCase()))
   )
 }
 
-export const fsStat = (x) => Rx.Observable.fromCallback(fs.stat)(x).toPromise()
+export const fsStat = x => Rx.Observable.fromCallback(fs.stat)(x).toPromise()
 
-export const createTestObserver = (stream) => {
+export const createTestObserver = stream => {
   const out = []
-  stream.subscribe((x) => out.push(x))
+  stream.subscribe(x => out.push(x))
   return out
 }
 
@@ -40,7 +42,7 @@ export const createTestObserver = (stream) => {
  * @param options
  * @returns {Observable}
  */
-export const createDownload = (options) => {
+export const createDownload = options => {
   /**
    * Create MTD File
    */
@@ -50,15 +52,19 @@ export const createDownload = (options) => {
   /**
    * Download From MTD File
    */
-  const downloadFromMTDFile$ = createMTDFile$.last()
-    .map(MTDPath(options.path)).flatMap(DownloadFromMTDFile).share()
+  const downloadFromMTDFile$ = createMTDFile$
+    .last()
+    .map(MTDPath(options.path))
+    .flatMap(DownloadFromMTDFile)
+    .share()
 
   const [{fdR$, meta$}] = demux(downloadFromMTDFile$, 'meta$', 'fdR$')
 
   /**
    * Finalize Downloaded FILE
    */
-  const finalizeDownload$ = downloadFromMTDFile$.last()
+  const finalizeDownload$ = downloadFromMTDFile$
+    .last()
     .withLatestFrom(fdR$, meta$, (_, fd, meta) => ({
       fd$: O.just(fd),
       meta$: O.just(meta)

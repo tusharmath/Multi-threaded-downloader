@@ -6,7 +6,7 @@
 import test from 'ava'
 import {SplitRange} from '../src/Utils'
 
-test((t) => {
+test(t => {
   t.deepEqual(SplitRange(100, 2), [[0, 49], [50, 100]])
   t.deepEqual(SplitRange(100, 3), [[0, 32], [33, 65], [66, 100]])
 })

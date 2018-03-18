@@ -9,11 +9,13 @@ import {TestScheduler, ReactiveTest} from 'rx'
 import {CreateWriteBufferParams} from '../src/Utils'
 const {onNext, onCompleted} = ReactiveTest
 
-test((t) => {
+test(t => {
   const sh = new TestScheduler()
   const fd = 19
   const buffer = ['BUFFER', 1024, 1]
-  const {messages} = sh.startScheduler(() => CreateWriteBufferParams([fd, buffer]))
+  const {messages} = sh.startScheduler(() =>
+    CreateWriteBufferParams([fd, buffer])
+  )
   t.deepEqual(messages, [
     onNext(200, [19, 'BUFFER', 0, 6, 1024]),
     onCompleted(200)

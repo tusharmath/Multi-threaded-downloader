@@ -34,8 +34,5 @@ test('gt', t => {
     onCompleted(220)
   )
   const {messages} = sh.startScheduler(() => IsCompleted$(meta$))
-  t.deepEqual(messages, [
-    onNext(210, true),
-    onCompleted(220)
-  ])
+  t.deepEqual(messages, [onNext(210, true), onCompleted(220)])
 })

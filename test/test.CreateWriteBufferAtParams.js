@@ -11,7 +11,7 @@ import {spy} from 'sinon'
 
 const {onNext, onCompleted} = ReactiveTest
 
-test((t) => {
+test(t => {
   const fsWrite = spy()
   const FILE = {write: x => x.map(fsWrite)}
   const sh = new TestScheduler()
@@ -27,7 +27,9 @@ test((t) => {
     onNext(222, 2048),
     onCompleted(250)
   )
-  const {messages} = sh.startScheduler(() => CreateWriteBufferAtParams({FILE, fd$, buffer$, position$}))
+  const {messages} = sh.startScheduler(() =>
+    CreateWriteBufferAtParams({FILE, fd$, buffer$, position$})
+  )
   t.deepEqual(messages, [
     onNext(210, [20, 'MOCK-BUFFER-10', 0, 14, 1024]),
     onNext(220, [20, 'MOCK-BUFFER-20', 0, 14, 1024]),

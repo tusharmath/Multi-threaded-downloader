@@ -14,7 +14,8 @@ import {server} from '../../perf/server'
 
 const pathFactory = () => {
   var i = 0
-  return () => Path.normalize(Path.join(__dirname, '../../.temp/download-file' + i++))
+  return () =>
+    Path.normalize(Path.join(__dirname, '../../.temp/download-file' + i++))
 }
 
 const createPath = pathFactory()
@@ -25,19 +26,19 @@ const path3 = createPath()
 const paths = [path1, path2, path3]
 
 var closeHttp
-test.before(async function () {
+test.before(async function() {
   closeHttp = await server(3200)
 })
 
-test.after(async function () {
+test.after(async function() {
   await closeHttp()
 })
 
-test.after(async function () {
+test.after(async function() {
   await paths.map(removeFile)
 })
 
-test('http', async function (t) {
+test('http', async function(t) {
   await createDownload({
     url: 'http://localhost:3200/files/pug.jpg',
     path: path1
@@ -46,7 +47,7 @@ test('http', async function (t) {
   t.deepEqual(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1')
 })
 
-test('https', async function (t) {
+test('https', async function(t) {
   await createDownload({
     url: 'https://localhost:3201/files/pug.jpg',
     path: path2,
@@ -56,7 +57,7 @@ test('https', async function (t) {
   t.deepEqual(digest, '25FD4542D7FFFB3AEC9EF0D25A533DDE4803B9C1')
 })
 
-test('http(2)', async function (t) {
+test('http(2)', async function(t) {
   await createDownload({
     url: 'http://localhost:3200/files/in.txt',
     path: path3

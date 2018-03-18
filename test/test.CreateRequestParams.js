@@ -7,7 +7,7 @@
 import test from 'ava'
 import {CreateRequestParams} from '../src/Utils'
 
-test((t) => {
+test(t => {
   const meta = {
     url: '/abc',
     offsets: [10, 20, 30],
@@ -16,8 +16,8 @@ test((t) => {
   }
   const index = 1
   const range = [10, 100]
-  t.deepEqual(
-    CreateRequestParams({meta, index, range}),
-    {url: '/abc', headers: {a: '1', range: 'bytes=20-25'}}
-  )
+  t.deepEqual(CreateRequestParams({meta, index, range}), {
+    url: '/abc',
+    headers: {a: '1', range: 'bytes=20-25'}
+  })
 })

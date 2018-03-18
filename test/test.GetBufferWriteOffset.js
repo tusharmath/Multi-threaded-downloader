@@ -19,7 +19,9 @@ test(t => {
     onCompleted(260)
   )
 
-  const {messages} = sh.startScheduler(() => GetBufferWriteOffset({buffer$, initialOffset: 1000}))
+  const {messages} = sh.startScheduler(() =>
+    GetBufferWriteOffset({buffer$, initialOffset: 1000})
+  )
   t.deepEqual(messages, [
     onNext(220, ['BUFFER', 1000]),
     onNext(230, ['BUFFER1', 1006]),

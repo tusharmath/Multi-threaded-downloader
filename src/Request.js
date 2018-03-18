@@ -8,14 +8,17 @@ import {Observable as O} from 'rx'
 import {mux} from 'muxer'
 import R from 'ramda'
 
-export const ev = R.curry(($, event) => $.filter(R.whereEq({event})).pluck('message'))
+export const ev = R.curry(($, event) =>
+  $.filter(R.whereEq({event})).pluck('message')
+)
 
 export const RequestParams = R.curry((request, params) => {
-  return O.create((observer) => request(params)
-    .on('data', (message) => observer.onNext({event: 'data', message}))
-    .on('response', (message) => observer.onNext({event: 'response', message}))
-    .on('complete', () => observer.onCompleted())
-    .on('error', (error) => observer.onError(error))
+  return O.create(observer =>
+    request(params)
+      .on('data', message => observer.onNext({event: 'data', message}))
+      .on('response', message => observer.onNext({event: 'response', message}))
+      .on('complete', () => observer.onCompleted())
+      .on('error', error => observer.onError(error))
   )
 })
 

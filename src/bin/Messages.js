@@ -17,6 +17,6 @@ export const Help = `
     mtd --url http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_1mb.mp4
     mtd --file big_buck_bunny_720p_1mb.mp4.mtd
    `
-export const Status = (size) => (`
+export const Status = size => `
 SIZE: ${Humanize.filesize(size)}
-`)
+`

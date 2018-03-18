@@ -16,10 +16,13 @@ export const HTTP = T.HTTP(request)
 export const FILE = T.FILE(fs)
 export const BAR = T.BAR(progress)
 
-export const CreateMTDFile = R.compose(_CreateMTDFile({
-  FILE,
-  HTTP
-}), U.MergeDefaultOptions)
+export const CreateMTDFile = R.compose(
+  _CreateMTDFile({
+    FILE,
+    HTTP
+  }),
+  U.MergeDefaultOptions
+)
 export const DownloadFromMTDFile = _DownloadFromMTDFile({FILE, HTTP})
 export const FinalizeDownload = _FinalizeDownload({FILE})
 export const MTDPath = U.MTDPath

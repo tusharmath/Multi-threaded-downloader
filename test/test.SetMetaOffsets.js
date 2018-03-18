@@ -21,8 +21,8 @@ test(t => {
     onNext(205, {offsets: [0, 10, 20], restParams: '#'}),
     onCompleted(205)
   )
-  const {messages} = sh.startScheduler(
-    () => SetMetaOffsets({bufferWritten$, meta$})
+  const {messages} = sh.startScheduler(() =>
+    SetMetaOffsets({bufferWritten$, meta$})
   )
   t.deepEqual(messages, [
     onNext(310, {offsets: [4, 10, 20], restParams: '#'}),
