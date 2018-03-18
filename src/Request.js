@@ -13,13 +13,15 @@ export const ev = R.curry(($, event) =>
 )
 
 export const RequestParams = R.curry((request, params) => {
-  return O.create(observer =>
-    request(params)
+  return O.create(observer => {
+    const req = request(params)
       .on('data', message => observer.onNext({event: 'data', message}))
       .on('response', message => observer.onNext({event: 'response', message}))
       .on('complete', () => observer.onCompleted())
       .on('error', error => observer.onError(error))
-  )
+
+    return () => req.abort()
+  })
 })
 
 export const Request = R.curry((request, params) => {
