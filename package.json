@@ -55,7 +55,7 @@
     "sinon": "^2.3.2",
     "snazzy": "^5.0.0",
     "standard": "^8.1.0",
-    "validate-commit-msg": "^2.8.2"
+    "validate-commit-msg": "^2.9.0"
   },
   "config": {
     "commitizen": {
